@@ -1,0 +1,161 @@
+#!/bin/bash
+
+# Working on this...
+# What is needed essentially is the following rules to be added and remove accordingly when the edge devices are (re)started, stopped
+
+##START## OLD STUFF
+#iptables -I FORWARD -i bond0.101 -o ${__DRAC_BRIDGE__} -p tcp -d 192.168.0.2 --dport 22 -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+#iptables -I FORWARD -i bond0.101 -o ${__DRAC_BRIDGE__} -p tcp -d 10.5.0.4 --dport 22 -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+#iptables -I FORWARD -i bond0.101 -o ${__DRAC_BRIDGE__} -p tcp -d 192.168.0.2 --dport 80 -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+#iptables -I FORWARD -i bond0.101 -o ${__DRAC_BRIDGE__} -p tcp -d 10.5.0.4 --dport 80 -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+#iptables -I FORWARD -i bond0.101 -o ${__DRAC_BRIDGE__} -p tcp -d 192.168.0.2 --dport 443 -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+#iptables -I FORWARD -i bond0.101 -o ${__DRAC_BRIDGE__} -p tcp -d 10.5.0.4 --dport 443 -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+#iptables -I FORWARD -i bond0.401 -o ${__SNET_BRIDGE__} -p tcp -d 10.5.0.4 --dport 80 -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+#iptables -t nat -I PREROUTING -i bond0.101 -p tcp -d ${__HOST_IP__} --dport 1402 -j DNAT --to-destination 192.168.0.2:22
+#iptables -t nat -I PREROUTING -i bond0.101 -p tcp -d ${__HOST_IP__} --dport 1403 -j DNAT --to-destination 192.168.0.2:80
+#iptables -t nat -I PREROUTING -i bond0.101 -p tcp -d ${__HOST_IP__} --dport 1404 -j DNAT --to-destination 192.168.0.2:443
+#iptables -t nat -I PREROUTING -i bond0.101 -p tcp -d ${__HOST_IP__} --dport 1412 -j DNAT --to-destination 10.5.0.4:22
+#iptables -t nat -I PREROUTING -i bond0.101 -p tcp -d ${__HOST_IP__} --dport 1413 -j DNAT --to-destination 10.5.0.4:80
+#iptables -t nat -I PREROUTING -i bond0.101 -p tcp -d ${__HOST_IP__} --dport 1414 -j DNAT --to-destination 10.5.0.4:443
+#iptables -t nat -I PREROUTING -i bond0.401 -p tcp -d 10.184.8.159 --dport 1413 -j DNAT --to-destination 10.5.0.4:80
+#iptables -t nat -A POSTROUTING -s 10.5.0.0/24 -d 224.0.0.0/24 -o bond0.401 -j RETURN
+#iptables -t nat -A POSTROUTING -s 10.5.0.0/24 -d 255.255.255.255/32 -o bond0.401 -j RETURN
+#iptables -t nat -A POSTROUTING -s 10.5.0.0/24 ! -d 10.5.0.0/24 -o bond0.401 -p tcp -j MASQUERADE --to-ports 1024-65535
+#iptables -t nat -A POSTROUTING -s 10.5.0.0/24 ! -d 10.5.0.0/24 -o bond0.401 -p udp -j MASQUERADE --to-ports 1024-65535
+#iptables -t nat -A POSTROUTING -s 10.5.0.0/24 ! -d 10.5.0.0/24 -o bond0.401 -j MASQUERADE
+
+
+### THIS IS WHAT WAS USED PREVIOUSLY...ENSURE THIS DOES NOT NEED TO STILL BE INCORPORATED ###
+#!/bin/bash
+ 
+#host_ip=`curl -s ip4.icanhazip.com`
+ 
+# VyOS instance name [default: firewall]
+#fw_name='firewall'
+#fw_ip='10.5.0.2'
+#fw_br='virbr0'
+#fw_tmport='22'
+ 
+#h2fw_ip=$host_ip
+#h2fw_tfport='1500'
+#h2fw_int='bond0.101'
+ 
+# NetScaler VPX instance name [default: loadbalancer]
+#lb_name='loadbalancer'
+#lb_ip='10.5.0.4'
+#lb_br='virbr0'
+#lb_tmport='22'
+#lb_wmport='80'
+ 
+#h2lb_ip=$host_ip
+#h2lb_tfport='1504'
+#h2lb_wfport='1505'
+#h2lb_int='bond0.101'
+ 
+ 
+# PORT FORWARD FOR FIREWALL 1500 [HOST] <> 22 [GUEST]
+#if [ $1 = $fw_name ] && [ $2 = "started" ]; then
+#    /sbin/iptables -I FORWARD -i $h2fw_int -o $fw_br -p tcp --dport $fw_tmport -d $fw_ip -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+#    /sbin/iptables -t nat -I PREROUTING -i $h2fw_int -p tcp -d $h2fw_ip --dport $h2fw_tfport -j DNAT --to-destination $fw_ip:$fw_tmport
+#elif [ $1 = $fw_name ] && [ $2 = "release" ]; then
+#    /sbin/iptables -D FORWARD -i $h2fw_int -o $fw_br -p tcp --dport $fw_tmport -d $fw_ip -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+#    /sbin/iptables -t nat -D PREROUTING -i $h2fw_int -p tcp -d $h2fw_ip --dport $h2fw_tfport -j DNAT --to-destination $fw_ip:$fw_tmport
+#elif [ $1 = $fw_name ] && [ $2 = "reconnect" ]; then
+#    /sbin/iptables -D FORWARD -i $h2fw_int -o $fw_br -p tcp --dport $fw_tmport -d $fw_ip -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+#    /sbin/iptables -t nat -D PREROUTING -i $h2fw_int -p tcp -d $h2fw_ip --dport $h2fw_tfport -j DNAT --to-destination $fw_ip:$fw_tmport
+#    /sbin/iptables -I FORWARD -i $h2fw_int -o $fw_br -p tcp --dport $fw_tmport -d $fw_ip -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+#    /sbin/iptables -t nat -I PREROUTING -i $h2fw_int -p tcp -d $h2fw_ip --dport $h2fw_tfport -j DNAT --to-destination $fw_ip:$fw_tmport
+#fi
+ 
+# PORT FORWARD FOR LOADBALANCER 1504 [HOST] <> 22 [GUEST] and 1505 [HOST] <> 80 [GUEST]
+#if [ $1 = $lb_name ] && [ $2 = "started" ]; then
+#    /sbin/iptables -I FORWARD -i $h2lb_int -o $lb_br -p tcp -d $lb_ip --dport $lb_wmport -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+#    /sbin/iptables -I FORWARD -i $h2lb_int -o $lb_br -p tcp -d $lb_ip --dport $lb_tmport -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+#    /sbin/iptables -t nat -I PREROUTING -i $h2lb_int -p tcp -d $h2lb_ip --dport $h2lb_tfport -j DNAT --to-destination $lb_ip:$lb_tmport
+#    /sbin/iptables -t nat -I PREROUTING -i $h2lb_int -p tcp -d $h2lb_ip --dport $h2lb_wfport -j DNAT --to-destination $lb_ip:$lb_wmport
+#elif [ $1 = $lb_name ] && [ $2 = "release" ]; then
+#    /sbin/iptables -D FORWARD -i $h2lb_int -o $lb_br -p tcp -d $lb_ip --dport $lb_wmport -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+#    /sbin/iptables -D FORWARD -i $h2lb_int -o $lb_br -p tcp -d $lb_ip --dport $lb_tmport -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+#    /sbin/iptables -t nat -D PREROUTING -i $h2lb_int -p tcp -d $h2lb_ip --dport $h2lb_tfport -j DNAT --to-destination $lb_ip:$lb_tmport
+#    /sbin/iptables -t nat -D PREROUTING -i $h2lb_int -p tcp -d $h2lb_ip --dport $h2lb_wfport -j DNAT --to-destination $lb_ip:$lb_wmport
+#elif [ $1 = $lb_name ] && [ $2 = "reconnect" ]; then
+#    /sbin/iptables -D FORWARD -i $h2lb_int -o $lb_br -p tcp -d $lb_ip --dport $lb_wmport -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+#    /sbin/iptables -D FORWARD -i $h2lb_int -o $lb_br -p tcp -d $lb_ip --dport $lb_tmport -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+#    /sbin/iptables -t nat -D PREROUTING -i $h2lb_int -p tcp -d $h2lb_ip --dport $h2lb_tfport -j DNAT --to-destination $lb_ip:$lb_tmport
+#    /sbin/iptables -t nat -D PREROUTING -i $h2lb_int -p tcp -d $h2lb_ip --dport $h2lb_wfport -j DNAT --to-destination $lb_ip:$lb_wmport
+#    /sbin/iptables -I FORWARD -i $h2lb_int -o $lb_br -p tcp -d $lb_ip --dport $lb_wmport -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+#    /sbin/iptables -I FORWARD -i $h2lb_int -o $lb_br -p tcp -d $lb_ip --dport $lb_tmport -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+#    /sbin/iptables -t nat -I PREROUTING -i $h2lb_int -p tcp -d $h2lb_ip --dport $h2lb_tfport -j DNAT --to-destination $lb_ip:$lb_tmport
+#    /sbin/iptables -t nat -I PREROUTING -i $h2lb_int -p tcp -d $h2lb_ip --dport $h2lb_wfport -j DNAT --to-destination $lb_ip:$lb_wmport
+#fi
+
+##END## OLD STUFF
+
+
+__DEVICE__=$1
+__STATUS__=$2
+
+declare -a __PRIVATE_PORTS__
+declare -a __PUBLIC_PORTS__
+declare -a __ADD_STATUS__
+declare -a __DELETE_STATUS__
+declare -a __EDGE_DEVICES__
+
+__HOST_IP__=`ip addr show dev bond0.101|awk '/inet/ { split($2, ip, "/"); print ip[1]; exit }'`
+__HOST_PUBLIC_NIC__='bond0.101'
+__HOST_PRIVATE_NIC__='bond0.404'
+
+__DRAC_BRIDGE__=`python -c 'import libvirt; conn=libvirt.open("qemu:///system"); drac=conn.networkLookupByName("drac00"); print drac.bridgeName()'`
+__SNET_BRIDGE__=`python -c 'import libvirt; conn=libvirt.open("qemu:///system"); snet=conn.networkLookupByName("snet00"); print snet.bridgeName()'`
+
+__FW_NAME__='firewall'
+__LB_NAME__='loadbalancer'
+__EDGE_DEVICES__=(firewall loadbalancer)
+
+__FW_IP__='192.168.0.2'
+__LB_IP__='10.5.0.4'
+
+__PRIVATE_PORTS__=(80 443 22)
+__PUBLIC_PORTS__=(1402 1403 1404 1412 1413 1414)
+__ADD_STATUS__=(started)
+__DELETE_STATUS__=(release reconnect)
+
+add_rules(){
+  # Rules to add if status is 'started' or 'reconnect'
+  for i in "${__PRIVATE_PORTS__[@]}"; do
+    #/sbin/iptables -I FORWARD -i bond0.101 -o ${__DRAC_BRIDGE__} -p tcp -d 192.168.0.2 --dport 22 -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+    #/sbin/iptables -I FORWARD -i bond0.101 -o ${__DRAC_BRIDGE__} -p tcp -d 10.5.0.4 --dport 22 -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+    #/sbin/iptables -I FORWARD -i bond0.101 -o ${__DRAC_BRIDGE__} -p tcp -d 192.168.0.2 --dport 80 -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+    #/sbin/iptables -I FORWARD -i bond0.101 -o ${__DRAC_BRIDGE__} -p tcp -d 10.5.0.4 --dport 80 -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+    #/sbin/iptables -I FORWARD -i bond0.101 -o ${__DRAC_BRIDGE__} -p tcp -d 192.168.0.2 --dport 443 -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+    #/sbin/iptables -I FORWARD -i bond0.101 -o ${__DRAC_BRIDGE__} -p tcp -d 10.5.0.4 --dport 443 -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+    #/sbin/iptables -I FORWARD -i bond0.401 -o ${__SNET_BRIDGE__} -p tcp -d 10.5.0.4 --dport 80 -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+    #/sbin/iptables -I FORWARD -i $h2fw_int -o $fw_br -p tcp --dport $fw_tmport -d $fw_ip -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+    #/sbin/iptables -t nat -I PREROUTING -i $h2fw_int -p tcp -d $h2fw_ip --dport $h2fw_tfport -j DNAT --to-destination $fw_ip:$fw_tmport
+  done
+  
+  for i in "${__PUBLIC_PORTS__[@]}"; do
+    case $i in
+      1402)
+            ;;
+      1403)
+            ;;
+      1404)
+            ;;
+      1412)
+            ;;
+      1413)
+            ;;
+      1414)
+            ;;
+         *)
+            ;;
+    esac
+  done
+}
+
+delete_rules(){
+  # Rules to delete if status is 'release' or 'reconnect'
+  #/sbin/iptables -D FORWARD -i $h2fw_int -o $fw_br -p tcp --dport $fw_tmport -d $fw_ip -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+  #/sbin/iptables -t nat -D PREROUTING -i $h2fw_int -p tcp -d $h2fw_ip --dport $h2fw_tfport -j DNAT --to-destination $fw_ip:$fw_tmport
+}
