@@ -25,6 +25,11 @@ echo 'libguestfs-tools  libguestfs/update-appliance     boolean true' | debconf-
 apt-get install -y qemu tcpdump libvirt-bin libvirt-dev libguestfs-tools git git-core curl zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt1-dev libcurl4-openssl-dev python-software-properties libffi-dev python-dev python curl vim telnet zip unzip nfs-common python-libvirt tmux iptables-persistent
 apt-get autoremove -y
 
+cd /usr/local/bin
+wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64
+mv jq-linux64 jq
+chmod +x jq
+
 # Remove all iptables rules
 /etc/init.d/iptables-persistent flush
 
