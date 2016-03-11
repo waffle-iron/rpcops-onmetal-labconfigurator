@@ -89,7 +89,7 @@ mkdir /labshare
 mount 10.209.128.54:/mnt/builder /labshare
 
 # Install Open vSwitch
-cd /labshare/builder/ovs
+cd /labshare/ovs
 dpkg -i openvswitch-common_2.4.90-1_amd64.deb openvswitch-switch_2.4.90-1_amd64.deb python-openvswitch_2.4.90-1_all.deb
 apt-get -f install
 
@@ -116,14 +116,14 @@ virsh net-destroy default
 virsh net-undefine default
 
 # Copy over ubuntu server and vyos isos
-cd /labshare/builder/isos
+cd /labshare/isos
 cp ubuntu-14.04.4-server-amd64.iso /var/lib/libvirt/images/pool00/
 cp vyos-1.1.7-amd64.iso /var/lib/libvirt/images/pool00/
 for i in pool00 pool01; do virsh pool-refresh $i; done;
 
 # Create libvirt networks
 echo -e "Building virtual network infrastructure\n"
-cd /labshare/builder/templates/networks
+cd /labshare/templates/networks
 for i in rpcops-*-net.xml; do virsh net-define $i; done;
 for i in `python -c 'import libvirt; conn=libvirt.open("qemu:///system"); print " ".join(conn.listDefinedNetworks())'`; do virsh net-autostart $i; virsh net-start $i; done;
 
@@ -147,19 +147,19 @@ iptables -t nat -I PREROUTING -i bond0.101 -p tcp -d ${__HOST_IP__} --dport 1414
 iptables -t nat -I PREROUTING -i bond0.401 -p tcp -d 10.184.8.159 --dport 1413 -j DNAT --to-destination 10.5.0.4:80
 iptables -t nat -A POSTROUTING -s 10.5.0.0/24 -d 224.0.0.0/24 -o bond0.401 -j RETURN
 iptables -t nat -A POSTROUTING -s 10.5.0.0/24 -d 255.255.255.255/32 -o bond0.401 -j RETURN
-iptables -t nat -A POSTROUTING -s 10.5.0.0/24 ! -d 10.5.0.0/24 -o bond0.401 -p tcp -j MASQUERADE --to-ports 0-65535
-iptables -t nat -A POSTROUTING -s 10.5.0.0/24 ! -d 10.5.0.0/24 -o bond0.401 -p udp -j MASQUERADE --to-ports 0-65535
+iptables -t nat -A POSTROUTING -s 10.5.0.0/24 ! -d 10.5.0.0/24 -o bond0.401 -p tcp -j MASQUERADE --to-ports 1024-65535
+iptables -t nat -A POSTROUTING -s 10.5.0.0/24 ! -d 10.5.0.0/24 -o bond0.401 -p udp -j MASQUERADE --to-ports 1024-65535
 iptables -t nat -A POSTROUTING -s 10.5.0.0/24 ! -d 10.5.0.0/24 -o bond0.401 -j MASQUERADE
 
 
 # Create firewall and loadbalancer libvirt VMs
-cd /labshare/builder/templates/edgedevices
+cd /labshare/templates/edgedevices
 echo -e "Copying edge device disk images\n"
 cp firewall.tar.gz /var/lib/libvirt/images/pool00
 cp loadbalancer.tar.gz /var/lib/libvirt/images/pool00
 echo -e "Extracting edge device disk images\n"
 tar xzf /var/lib/libvirt/images/pool00/firewall.tar.gz -C /var/lib/libvirt/images/pool00
-tar xzf /var/lib/libvirt/images/pool00/loadbalancer.tar.gz -C /var/lib/libvirt/images/pool00A
+tar xzf /var/lib/libvirt/images/pool00/loadbalancer.tar.gz -C /var/lib/libvirt/images/pool00
 echo -e "Defining and starting edge devices\n"
 virsh define firewall.xml
 virsh define loadbalancer.xml
