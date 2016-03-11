@@ -139,10 +139,10 @@ iface eth4 inet static
     broadcast 10.6.0.255
     #dns-nameservers 10.6.0.1
     #dns-search infra.local
-    post-up ip route add 10.176.0.0/12 via 10.10.0.1 || true
-    pre-down ip route delete 10.176.0.0/12 via 10.10.0.1 || true
-    post-up ip route add 10.208.0.0/12 via 10.10.0.1 || true
-    pre-down ip route delete 10.208.0.0/12 via 10.10.0.1 || true
+    post-up ip route add 10.176.0.0/12 via 10.6.0.1 || true
+    pre-down ip route delete 10.176.0.0/12 via 10.6.0.1 || true
+    post-up ip route add 10.208.0.0/12 via 10.6.0.1 || true
+    pre-down ip route delete 10.208.0.0/12 via 10.6.0.1 || true
 
 # Physical interface 6
 auto eth5
