@@ -2,7 +2,7 @@
 Configuration script that builds out a X node lab environment for onboarding and testing purposes for Rackspace Private Cloud.
 
 ## REQUIREMENTS ##
-IAD Region
+IAD Region Public Cloud Server
 
 OnMetal I/O v1:  Ubuntu 14.04 LTS (Trusty Tahr)
 CPU: Dual 2.8 Ghz, 10 core Intel® Xeon® E5-2680 v2
