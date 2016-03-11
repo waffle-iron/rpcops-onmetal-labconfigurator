@@ -1,0 +1,14 @@
+<network>
+  <name>snet00</name>
+  <forward dev='bond0.401' mode='nat'>
+    <nat>
+      <port start='1024' end='65535'/>
+    </nat>
+    <interface dev='bond0.401'/>
+  </forward>
+  <bridge name='virbr1' stp='off' delay='0'/>
+  <domain name='snet00'/>
+  <ip address='10.6.0.1' netmask='255.255.255.0'>
+  </ip>
+</network>
+

@@ -1,0 +1,7 @@
+<network>
+  <name>hasw</name>
+  <forward mode='bridge'/>
+  <bridge name='hasw'/>
+  <virtualport type='openvswitch'/>
+</network>
+

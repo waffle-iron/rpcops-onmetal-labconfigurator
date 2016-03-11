@@ -1,0 +1,10 @@
+<network>
+  <name>fwlbsw</name>
+  <forward mode='bridge'/>
+  <bridge name='fwlbsw'/>
+  <vlan trunk='yes'>
+    <tag id='100'/>
+  </vlan>
+  <virtualport type='openvswitch'/>
+</network>
+

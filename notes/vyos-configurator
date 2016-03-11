@@ -1,0 +1,402 @@
+set interfaces ethernet eth0 address 192.168.0.2/24
+set interfaces ethernet eth0 address 192.168.0.3/24
+set interfaces ethernet eth0 address 192.168.0.4/24
+set interfaces ethernet eth0 address 192.168.0.5/24
+set interfaces ethernet eth0 address 192.168.0.6/24
+set interfaces ethernet eth0 address 192.168.0.7/24
+set interfaces ethernet eth0 address 192.168.0.249/24
+set interfaces ethernet eth0 address 192.168.0.250/24
+set interfaces ethernet eth0 address 192.168.0.251/24
+set interfaces ethernet eth0 address 192.168.0.252/24
+set interfaces ethernet eth0 address 192.168.0.253/24
+set interfaces ethernet eth0 address 192.168.0.254/24
+set interfaces ethernet eth0 address 192.168.239.101/24
+set interfaces ethernet eth0 address 192.168.239.102/24
+set interfaces ethernet eth0 address 192.168.239.103/24
+set interfaces ethernet eth0 address 192.168.239.104/24
+set interfaces ethernet eth0 address 192.168.239.105/24
+set interfaces ethernet eth0 address 192.168.239.106/24
+set interfaces ethernet eth0 address 192.168.239.107/24
+set interfaces ethernet eth0 address 192.168.239.108/24
+set interfaces ethernet eth0 address 192.168.239.109/24
+set interfaces ethernet eth0 address 192.168.239.110/24
+set interfaces ethernet eth0 address 192.168.239.111/24
+set interfaces ethernet eth0 address 192.168.239.112/24
+set interfaces ethernet eth0 address 192.168.239.113/24
+set interfaces ethernet eth0 address 192.168.239.114/24
+set interfaces ethernet eth0 address 192.168.239.115/24
+set interfaces ethernet eth0 address 192.168.239.116/24
+set interfaces ethernet eth0 address 192.168.239.117/24
+set interfaces ethernet eth0 address 192.168.239.118/24
+set interfaces ethernet eth0 address 192.168.239.119/24
+set interfaces ethernet eth0 address 192.168.239.120/24
+set interfaces ethernet eth0 address 192.168.239.121/24
+set interfaces ethernet eth0 address 192.168.239.122/24
+set interfaces ethernet eth0 address 192.168.239.123/24
+set interfaces ethernet eth0 address 192.168.239.124/24
+set interfaces ethernet eth0 address 192.168.240.1/22
+set interfaces ethernet eth0 address 192.168.240.2/22
+set interfaces ethernet eth0 address 192.168.240.3/22
+set interfaces ethernet eth0 address 192.168.240.4/22
+set interfaces ethernet eth0 address 192.168.240.5/22
+set interfaces ethernet eth0 address 192.168.240.6/22
+set interfaces ethernet eth0 address 192.168.240.7/22
+set interfaces ethernet eth0 address 192.168.240.8/22
+set interfaces ethernet eth0 address 192.168.240.9/22
+set interfaces ethernet eth0 address 192.168.240.10/22
+set interfaces ethernet eth0 address 192.168.240.11/22
+set interfaces ethernet eth0 address 192.168.240.12/22
+set interfaces ethernet eth0 address 192.168.240.13/22
+set interfaces ethernet eth0 address 192.168.240.14/22
+set interfaces ethernet eth0 address 192.168.240.15/22
+set interfaces ethernet eth0 address 192.168.240.16/22
+set interfaces ethernet eth0 address 192.168.240.17/22
+set interfaces ethernet eth0 address 192.168.240.18/22
+set interfaces ethernet eth0 address 192.168.240.19/22
+set interfaces ethernet eth0 address 192.168.240.20/22
+set interfaces ethernet eth0 address 192.168.240.21/22
+set interfaces ethernet eth0 address 192.168.240.22/22
+set interfaces ethernet eth0 address 192.168.240.23/22
+set interfaces ethernet eth0 address 192.168.240.24/22
+set interfaces ethernet eth0 address 192.168.240.25/22
+set interfaces ethernet eth0 address 192.168.240.26/22
+set interfaces ethernet eth0 address 192.168.240.27/22
+set interfaces ethernet eth0 address 192.168.240.28/22
+set interfaces ethernet eth0 address 192.168.240.29/22
+set interfaces ethernet eth0 address 192.168.240.30/22
+set interfaces ethernet eth0 address 192.168.240.31/22
+set interfaces ethernet eth0 address 192.168.240.32/22
+set interfaces ethernet eth0 address 192.168.240.33/22
+set interfaces ethernet eth0 address 192.168.240.34/22
+set interfaces ethernet eth0 address 192.168.240.35/22
+set interfaces ethernet eth0 address 192.168.240.36/22
+set interfaces ethernet eth0 address 192.168.240.37/22
+set interfaces ethernet eth0 address 192.168.240.38/22
+set interfaces ethernet eth0 address 192.168.240.39/22
+set interfaces ethernet eth0 address 192.168.240.40/22
+set interfaces ethernet eth0 address 192.168.240.41/22
+set interfaces ethernet eth0 address 192.168.240.42/22
+set interfaces ethernet eth0 address 192.168.240.43/22
+set interfaces ethernet eth0 address 192.168.240.44/22
+set interfaces ethernet eth0 address 192.168.240.45/22
+set interfaces ethernet eth0 address 192.168.240.46/22
+set interfaces ethernet eth0 address 192.168.240.47/22
+set interfaces ethernet eth0 address 192.168.240.48/22
+set interfaces ethernet eth0 address 192.168.240.49/22
+set interfaces ethernet eth0 address 192.168.240.50/22
+set interfaces ethernet eth0 address 192.168.240.51/22
+set interfaces ethernet eth0 address 192.168.240.52/22
+set interfaces ethernet eth0 address 192.168.240.53/22
+set interfaces ethernet eth0 address 192.168.240.54/22
+set interfaces ethernet eth0 address 192.168.240.55/22
+set interfaces ethernet eth0 address 192.168.240.56/22
+set interfaces ethernet eth0 address 192.168.240.57/22
+set interfaces ethernet eth0 address 192.168.240.58/22
+set interfaces ethernet eth0 address 192.168.240.59/22
+set interfaces ethernet eth0 address 192.168.240.60/22
+set interfaces ethernet eth0 address 192.168.240.61/22
+set interfaces ethernet eth0 address 192.168.240.62/22
+set interfaces ethernet eth0 address 192.168.240.63/22
+set interfaces ethernet eth0 address 192.168.240.64/22
+set interfaces ethernet eth0 address 192.168.240.65/22
+set interfaces ethernet eth0 address 192.168.240.66/22
+set interfaces ethernet eth0 address 192.168.240.67/22
+set interfaces ethernet eth0 address 192.168.240.68/22
+set interfaces ethernet eth0 address 192.168.240.69/22
+set interfaces ethernet eth0 address 192.168.240.70/22
+set interfaces ethernet eth0 address 192.168.240.71/22
+set interfaces ethernet eth0 address 192.168.240.72/22
+set interfaces ethernet eth0 address 192.168.240.73/22
+set interfaces ethernet eth0 address 192.168.240.74/22
+set interfaces ethernet eth0 address 192.168.240.75/22
+set interfaces ethernet eth0 address 192.168.240.76/22
+set interfaces ethernet eth0 address 192.168.240.77/22
+set interfaces ethernet eth0 address 192.168.240.78/22
+set interfaces ethernet eth0 address 192.168.240.79/22
+set interfaces ethernet eth0 address 192.168.240.80/22
+set interfaces ethernet eth0 address 192.168.240.81/22
+set interfaces ethernet eth0 address 192.168.240.82/22
+set interfaces ethernet eth0 address 192.168.240.83/22
+set interfaces ethernet eth0 address 192.168.240.84/22
+set interfaces ethernet eth0 address 192.168.240.85/22
+set interfaces ethernet eth0 address 192.168.240.86/22
+set interfaces ethernet eth0 address 192.168.240.87/22
+set interfaces ethernet eth0 address 192.168.240.88/22
+set interfaces ethernet eth0 address 192.168.240.89/22
+set interfaces ethernet eth0 address 192.168.240.90/22
+set interfaces ethernet eth0 address 192.168.240.91/22
+set interfaces ethernet eth0 address 192.168.240.92/22
+set interfaces ethernet eth0 address 192.168.240.93/22
+set interfaces ethernet eth0 address 192.168.240.94/22
+set interfaces ethernet eth0 address 192.168.240.95/22
+set interfaces ethernet eth0 address 192.168.240.96/22
+set interfaces ethernet eth0 address 192.168.240.97/22
+set interfaces ethernet eth0 address 192.168.240.98/22
+set interfaces ethernet eth0 address 192.168.240.99/22
+
+commit
+
+set interfaces ethernet eth1 vif 100 address 172.24.96.1/22
+
+commit
+
+set nat destination rule 101
+set nat destination rule 101 destination address 192.168.239.101
+set nat destination rule 101 inbound-interface eth0
+set nat destination rule 101 translation address 10.239.0.101
+
+set nat destination rule 102
+set nat destination rule 102 destination address 192.168.239.102
+set nat destination rule 102 inbound-interface eth0
+set nat destination rule 102 translation address 10.239.0.102
+
+set nat destination rule 103
+set nat destination rule 103 destination address 192.168.239.103
+set nat destination rule 103 inbound-interface eth0
+set nat destination rule 103 translation address 10.239.0.103
+
+set nat destination rule 104
+set nat destination rule 104 destination address 192.168.239.104
+set nat destination rule 104 inbound-interface eth0
+set nat destination rule 104 translation address 10.239.0.104
+
+set nat destination rule 105
+set nat destination rule 105 destination address 192.168.239.105
+set nat destination rule 105 inbound-interface eth0
+set nat destination rule 105 translation address 10.239.0.105
+
+commit
+
+set nat destination rule 301
+set nat destination rule 301 destination address 192.168.240.1
+set nat destination rule 301 inbound-interface eth0
+set nat destination rule 301 translation address 10.240.0.21
+
+set nat destination rule 302
+set nat destination rule 302 destination address 192.168.240.2
+set nat destination rule 302 inbound-interface eth0
+set nat destination rule 302 translation address 10.240.0.22
+
+set nat destination rule 303
+set nat destination rule 303 destination address 192.168.240.3
+set nat destination rule 303 inbound-interface eth0
+set nat destination rule 303 translation address 10.240.0.23
+
+set nat destination rule 304
+set nat destination rule 304 destination address 192.168.240.4
+set nat destination rule 304 inbound-interface eth0
+set nat destination rule 304 translation address 10.240.0.24
+
+set nat destination rule 305
+set nat destination rule 305 destination address 192.168.240.5
+set nat destination rule 305 inbound-interface eth0
+set nat destination rule 305 translation address 10.240.0.25
+
+set nat destination rule 306
+set nat destination rule 306 destination address 192.168.240.6
+set nat destination rule 306 inbound-interface eth0
+set nat destination rule 306 translation address 10.240.0.26
+
+set nat destination rule 307
+set nat destination rule 307 destination address 192.168.240.7
+set nat destination rule 307 inbound-interface eth0
+set nat destination rule 307 translation address 10.240.0.27
+
+set nat destination rule 308
+set nat destination rule 308 destination address 192.168.240.8
+set nat destination rule 308 inbound-interface eth0
+set nat destination rule 308 translation address 10.240.0.28
+
+set nat destination rule 309
+set nat destination rule 309 destination address 192.168.240.9
+set nat destination rule 309 inbound-interface eth0
+set nat destination rule 309 translation address 10.240.0.29
+
+set nat destination rule 310
+set nat destination rule 310 destination address 192.168.240.10
+set nat destination rule 310 inbound-interface eth0
+set nat destination rule 310 translation address 10.240.0.30
+
+set nat destination rule 311
+set nat destination rule 311 destination address 192.168.240.11
+set nat destination rule 311 inbound-interface eth0
+set nat destination rule 311 translation address 10.240.0.31
+
+set nat destination rule 312
+set nat destination rule 312 destination address 192.168.240.12
+set nat destination rule 312 inbound-interface eth0
+set nat destination rule 312 translation address 10.240.0.32
+
+set nat destination rule 313
+set nat destination rule 313 destination address 192.168.240.13
+set nat destination rule 313 inbound-interface eth0
+set nat destination rule 313 translation address 10.240.0.33
+
+set nat destination rule 314
+set nat destination rule 314 destination address 192.168.240.14
+set nat destination rule 314 inbound-interface eth0
+set nat destination rule 314 translation address 10.240.0.34
+
+set nat destination rule 315
+set nat destination rule 315 destination address 192.168.240.15
+set nat destination rule 315 inbound-interface eth0
+set nat destination rule 315 translation address 10.240.0.35
+
+set nat destination rule 316
+set nat destination rule 316 destination address 192.168.240.16
+set nat destination rule 316 inbound-interface eth0
+set nat destination rule 316 translation address 10.240.0.36
+
+commit
+
+set nat destination rule 500
+set nat destination rule 500 destination address 192.168.0.249
+set nat destination rule 500 inbound-interface eth0
+set nat destination rule 500 translation address 172.29.236.100
+
+commit
+
+set nat source rule 201
+set nat source rule 201 outbound-interface eth0
+set nat source rule 201 source address 10.239.0.101
+set nat source rule 201 translation address 192.168.239.101
+
+set nat source rule 202
+set nat source rule 202 outbound-interface eth0
+set nat source rule 202 source address 10.239.0.102
+set nat source rule 202 translation address 192.168.239.102
+
+set nat source rule 203
+set nat source rule 203 outbound-interface eth0
+set nat source rule 203 source address 10.239.0.103
+set nat source rule 203 translation address 192.168.239.103
+
+set nat source rule 204
+set nat source rule 204 outbound-interface eth0
+set nat source rule 204 source address 10.239.0.104
+set nat source rule 204 translation address 192.168.239.104
+
+set nat source rule 205
+set nat source rule 205 outbound-interface eth0
+set nat source rule 205 source address 10.239.0.105
+set nat source rule 205 translation address 192.168.239.105
+
+commit
+
+set nat source rule 550
+set nat source rule 550 outbound-interface eth0
+set nat source rule 550 source address 172.24.96.249
+set nat source rule 550 translation address 192.168.0.249
+
+commit
+
+set nat source rule 401
+set nat source rule 401 outbound-interface eth0
+set nat source rule 401 source address 10.240.0.21
+set nat source rule 401 translation address 192.168.240.1
+
+set nat source rule 402
+set nat source rule 402 outbound-interface eth0
+set nat source rule 402 source address 10.240.0.22
+set nat source rule 402 translation address 192.168.240.2
+
+set nat source rule 403
+set nat source rule 403 outbound-interface eth0
+set nat source rule 403 source address 10.240.0.23
+set nat source rule 403 translation address 192.168.240.3
+
+set nat source rule 404
+set nat source rule 404 outbound-interface eth0
+set nat source rule 404 source address 10.240.0.24
+set nat source rule 404 translation address 192.168.240.4
+
+set nat source rule 405
+set nat source rule 405 outbound-interface eth0
+set nat source rule 405 source address 10.240.0.25
+set nat source rule 405 translation address 192.168.240.5
+
+set nat source rule 406
+set nat source rule 406 outbound-interface eth0
+set nat source rule 406 source address 10.240.0.26
+set nat source rule 406 translation address 192.168.240.6
+
+set nat source rule 407
+set nat source rule 407 outbound-interface eth0
+set nat source rule 407 source address 10.240.0.27
+set nat source rule 407 translation address 192.168.240.7
+
+set nat source rule 408
+set nat source rule 408 outbound-interface eth0
+set nat source rule 408 source address 10.240.0.28
+set nat source rule 408 translation address 192.168.240.8
+
+set nat source rule 409
+set nat source rule 409 outbound-interface eth0
+set nat source rule 409 source address 10.240.0.29
+set nat source rule 409 translation address 192.168.240.9
+
+set nat source rule 410
+set nat source rule 410 outbound-interface eth0
+set nat source rule 410 source address 10.240.0.30
+set nat source rule 410 translation address 192.168.240.10
+
+set nat source rule 411
+set nat source rule 411 outbound-interface eth0
+set nat source rule 411 source address 10.240.0.31
+set nat source rule 411 translation address 192.168.240.11
+
+set nat source rule 412
+set nat source rule 412 outbound-interface eth0
+set nat source rule 412 source address 10.240.0.32
+set nat source rule 412 translation address 192.168.240.12
+
+set nat source rule 413
+set nat source rule 413 outbound-interface eth0
+set nat source rule 413 source address 10.240.0.33
+set nat source rule 413 translation address 192.168.240.13
+
+set nat source rule 414
+set nat source rule 414 outbound-interface eth0
+set nat source rule 414 source address 10.240.0.34
+set nat source rule 414 translation address 192.168.240.14
+
+set nat source rule 415
+set nat source rule 415 outbound-interface eth0
+set nat source rule 415 source address 10.240.0.35
+set nat source rule 415 translation address 192.168.240.15
+
+set nat source rule 416
+set nat source rule 416 outbound-interface eth0
+set nat source rule 416 source address 10.240.0.36
+set nat source rule 416 translation address 192.168.240.16
+
+commit
+
+set protocols static route 0.0.0.0/0 next-hop 192.168.0.1
+set protocols static route 10.239.0.0/22 next-hop 172.24.96.249
+set protocols static route 10.240.0.0/22 next-hop 172.24.96.249
+set protocols static route 172.29.236.0/22 next-hop 172.24.96.249
+set protocols static route 172.29.240.0/22 next-hop 172.24.96.249
+set protocols static route 172.29.244.0/22 next-hop 172.24.96.249
+
+commit
+
+set service ssh allow-root
+set service ssh disable-host-validation
+set service ssh listen-address 192.168.0.2
+set service ssh port 22
+
+commit
+
+set system domain-name firewal.local
+set system host-name firewall
+set service dns forwarding cache-size 1000
+set service dns forwarding listen-on eth0
+set service dns forwarding listen-on eth1.100
+set service dns forwarding name-server 69.20.0.164
+set service dns forwarding name-server 69.20.0.196
+
+commit
+save config
+exit
+exit

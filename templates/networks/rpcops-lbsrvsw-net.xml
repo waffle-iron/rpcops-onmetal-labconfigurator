@@ -1,0 +1,43 @@
+<network>
+  <name>lbsrvsw</name>
+  <forward mode='bridge'/>
+  <bridge name='lbsrvsw'/>
+  <virtualport type='openvswitch'/>
+  <portgroup name='bond0'>
+    <vlan trunk='yes'>
+      <tag id='201' nativeMode='untagged'/>
+      <tag id='202'/>
+      <tag id='203'/>
+    </vlan>
+  </portgroup>
+  <portgroup name='bond1'>
+    <vlan trunk='yes'>
+      <tag id='204'/>
+      <tag id='205'/>
+      <tag id='206'/>
+      <tag id='207'/>
+      <tag id='208'/>
+      <tag id='209'/>
+      <tag id='210'/>
+    </vlan>
+  </portgroup>
+  <portgroup name='lbsrv0'>
+    <vlan trunk='yes'>
+      <tag id='201'/>
+      <tag id='202'/>
+      <tag id='203'/>
+    </vlan>
+  </portgroup>
+  <portgroup name='lbsrv1'>
+    <vlan trunk='yes'>
+      <tag id='204'/>
+      <tag id='205'/>
+      <tag id='206'/>
+      <tag id='207'/>
+      <tag id='208'/>
+      <tag id='209'/>
+      <tag id='210'/>
+    </vlan>
+  </portgroup>
+</network>
+

@@ -1,0 +1,271 @@
+#!/bin/bash
+
+echo -e "This script is about to bootstrap your system for RPCOPS Lab Configuration\n"
+sleep 5
+echo -e "If you want to abort this process...you have 15s\n"
+sleep 5
+clear
+for i in {10..1}; do echo -e "Starting in ${i}"; sleep 1; clear; done;
+
+# Enable nested KVM
+# echo 'options kvm_intel nested=1' >> /etc/modprobe.d/qemu-system-x86.conf
+
+# Upgrade repository data and install required packages
+apt-get update && apt-get upgrade -y
+
+# Ensure debconf utilities are installed
+apt-get install -y debconf-utils
+
+# Set debconf answers
+echo 'iptables-persistent       iptables-persistent/autosave_v6 boolean false' | debconf-set-selections
+echo 'iptables-persistent       iptables-persistent/autosave_v4 boolean false' | debconf-set-selections
+echo 'libguestfs-tools  libguestfs/update-appliance     boolean true' | debconf-set-selections
+
+# Install identified necessary host packages (this can be adjusted as needed)
+apt-get install -y qemu tcpdump libvirt-bin libvirt-dev libguestfs-tools git git-core curl zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt1-dev libcurl4-openssl-dev python-software-properties libffi-dev python-dev python curl vim telnet zip unzip nfs-common python-libvirt tmux iptables-persistent
+apt-get autoremove -y
+
+# Remove all iptables rules
+/etc/init.d/iptables-persistent flush
+
+# Opinionated tmux configuration setup
+# Change default prefix to C-a
+cat > /root/.tmux.conf <<EOF
+# Set the prefix to ^a.
+unbind C-b
+set -g prefix ^a
+bind a send-prefix
+
+##########################
+# Session Initialization #
+##########################
+
+#################
+# Mouse Support #
+#################
+#setw -g mode-mouse on
+#set -g mouse-select-pane on
+#set -g mouse-resize-pane on
+#set -g mouse-select-window on
+
+##############
+# Status Bar #
+###############
+
+set-option -g status-utf8 on
+set-option -g status-justify right
+set-option -g status-bg black # colour213 # pink
+set-option -g status-fg cyan
+# set-option -g status-interval 5
+set-option -g status-left-length 30
+set-option -g status-left '#[fg=magenta]» #[fg=blue,bold]#T#[default]'
+set-option -g status-right '#[fg=red,bold][[ #(git branch) branch   ]] #[fg=cyan]»» #[fg=blue,bold]###S #[fg=magenta]%R %m-%d#(acpi | cut -d ',' -f 2)#[default]'
+set-option -g visual-activity on
+
+# Add titles to status bar
+set-option -g set-titles on
+set-option -g set-titles-string '#H:#S.#I.#P #W #T'
+EOF
+
+# Install ruby; plans to use this later
+gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
+\curl -L https://get.rvm.io | bash -s stable
+echo "gem: --no-ri --no-rdoc" > ~/.gemrc
+source /etc/profile.d/rvm.sh
+rvm install ruby-2.2.1
+rvm use --default ruby-2.2.1
+gem install serverspec
+
+# Install pip and a few helper packages
+python <(curl -sk https://bootstrap.pypa.io/get-pip.py)
+pip install pyopenssl ndg-httpsclient pyasn1 bpython ansible==1.9.4
+
+# Mount the RPC Labs NFS share
+# TODO granted, the host needs to be in IAD for this
+# setting up the repo will alleviate region specific issue
+# however will also introduce some delay and bandwidth usage
+# being that files are not in dc available via servicenet
+mkdir /labshare
+mount 10.209.128.54:/mnt/builder /labshare
+
+# Install Open vSwitch
+cd /labshare/builder/ovs
+dpkg -i openvswitch-common_2.4.90-1_amd64.deb openvswitch-switch_2.4.90-1_amd64.deb python-openvswitch_2.4.90-1_all.deb
+apt-get -f install
+
+# Setup additional drives as storage pools
+DRIVES='/dev/sdb /dev/sdc'
+for i in $DRIVES; do echo -e "n\np\n\n\n\nw\n"|fdisk $i; mkfs.ext4 -O ^has_journal ${i}1; done;
+cd /var/lib/libvirt/images
+mkdir pool00
+mkdir pool01
+mount /dev/sdb1 pool00
+virsh pool-define-as --name pool00 --type dir --target /var/lib/libvirt/images/pool00
+mount /dev/sdc1 pool01
+virsh pool-define-as --name pool01 --type dir --target /var/lib/libvirt/images/pool01
+for i in pool00 pool01; do virsh pool-autostart $i; virsh pool-start $i; done;
+tail -n2 /etc/mtab >> /etc/fstab
+
+# Add necessary Open vSwitch virtual switches
+ovs-vsctl add-br fwlbsw
+ovs-vsctl add-br lbsrvsw
+ovs-vsctl add-br hasw
+
+# Remove default libvirt network
+virsh net-destroy default
+virsh net-undefine default
+
+# Copy over ubuntu server and vyos isos
+cd /labshare/builder/isos
+cp ubuntu-14.04.4-server-amd64.iso /var/lib/libvirt/images/pool00/
+cp vyos-1.1.7-amd64.iso /var/lib/libvirt/images/pool00/
+for i in pool00 pool01; do virsh pool-refresh $i; done;
+
+# Create libvirt networks
+echo -e "Building virtual network infrastructure\n"
+cd /labshare/builder/templates/networks
+for i in rpcops-*-net.xml; do virsh net-define $i; done;
+for i in `python -c 'import libvirt; conn=libvirt.open("qemu:///system"); print " ".join(conn.listDefinedNetworks())'`; do virsh net-autostart $i; virsh net-start $i; done;
+
+# Modify iptables for VPX and VyOS API and GUI
+__HOST_IP__=`ip addr show dev bond0.101|awk '/inet/ { split($2, ip, "/"); print ip[1]; exit }'`
+__DRAC_BRIDGE__=`python -c 'import libvirt; conn=libvirt.open("qemu:///system"); drac=conn.networkLookupByName("drac00"); print drac.bridgeName()'`
+__SNET_BRIDGE__=`python -c 'import libvirt; conn=libvirt.open("qemu:///system"); snet=conn.networkLookupByName("snet00"); print snet.bridgeName()'`
+iptables -I FORWARD -i bond0.101 -o ${__DRAC_BRIDGE__} -p tcp -d 192.168.0.2 --dport 22 -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+iptables -I FORWARD -i bond0.101 -o ${__DRAC_BRIDGE__} -p tcp -d 10.5.0.4 --dport 22 -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+iptables -I FORWARD -i bond0.101 -o ${__DRAC_BRIDGE__} -p tcp -d 192.168.0.2 --dport 80 -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+iptables -I FORWARD -i bond0.101 -o ${__DRAC_BRIDGE__} -p tcp -d 10.5.0.4 --dport 80 -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+iptables -I FORWARD -i bond0.101 -o ${__DRAC_BRIDGE__} -p tcp -d 192.168.0.2 --dport 443 -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+iptables -I FORWARD -i bond0.101 -o ${__DRAC_BRIDGE__} -p tcp -d 10.5.0.4 --dport 443 -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+iptables -I FORWARD -i bond0.401 -o ${__SNET_BRIDGE__} -p tcp -d 10.5.0.4 --dport 80 -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+iptables -t nat -I PREROUTING -i bond0.101 -p tcp -d ${__HOST_IP__} --dport 1402 -j DNAT --to-destination 192.168.0.2:22
+iptables -t nat -I PREROUTING -i bond0.101 -p tcp -d ${__HOST_IP__} --dport 1403 -j DNAT --to-destination 192.168.0.2:80
+iptables -t nat -I PREROUTING -i bond0.101 -p tcp -d ${__HOST_IP__} --dport 1404 -j DNAT --to-destination 192.168.0.2:443
+iptables -t nat -I PREROUTING -i bond0.101 -p tcp -d ${__HOST_IP__} --dport 1412 -j DNAT --to-destination 10.5.0.4:22
+iptables -t nat -I PREROUTING -i bond0.101 -p tcp -d ${__HOST_IP__} --dport 1413 -j DNAT --to-destination 10.5.0.4:80
+iptables -t nat -I PREROUTING -i bond0.101 -p tcp -d ${__HOST_IP__} --dport 1414 -j DNAT --to-destination 10.5.0.4:443
+iptables -t nat -I PREROUTING -i bond0.401 -p tcp -d 10.184.8.159 --dport 1413 -j DNAT --to-destination 10.5.0.4:80
+iptables -t nat -A POSTROUTING -s 10.5.0.0/24 -d 224.0.0.0/24 -o bond0.401 -j RETURN
+iptables -t nat -A POSTROUTING -s 10.5.0.0/24 -d 255.255.255.255/32 -o bond0.401 -j RETURN
+iptables -t nat -A POSTROUTING -s 10.5.0.0/24 ! -d 10.5.0.0/24 -o bond0.401 -p tcp -j MASQUERADE --to-ports 0-65535
+iptables -t nat -A POSTROUTING -s 10.5.0.0/24 ! -d 10.5.0.0/24 -o bond0.401 -p udp -j MASQUERADE --to-ports 0-65535
+iptables -t nat -A POSTROUTING -s 10.5.0.0/24 ! -d 10.5.0.0/24 -o bond0.401 -j MASQUERADE
+
+
+# Create firewall and loadbalancer libvirt VMs
+cd /labshare/builder/templates/edgedevices
+echo -e "Copying edge device disk images\n"
+cp firewall.tar.gz /var/lib/libvirt/images/pool00
+cp loadbalancer.tar.gz /var/lib/libvirt/images/pool00
+echo -e "Extracting edge device disk images\n"
+tar xzf /var/lib/libvirt/images/pool00/firewall.tar.gz -C /var/lib/libvirt/images/pool00
+tar xzf /var/lib/libvirt/images/pool00/loadbalancer.tar.gz -C /var/lib/libvirt/images/pool00A
+echo -e "Defining and starting edge devices\n"
+virsh define firewall.xml
+virsh define loadbalancer.xml
+virsh start firewall
+sleep 10
+virsh start loadbalancer
+
+echo -e "Loadbalancer (NetScaler VPX 1000) GUI available via http://${__HOST_IP__}:1413\n"
+
+# Create hard disk for node
+# TODO: script this so it is generated dynamically
+# currently will only generate default
+echo -e "Creating QCOW2 images for node hard disk /dev/vda\n"
+cd /var/lib/libvirt/images/pool00
+qemu-img create -f qcow2 infra01.qcow2 204800M
+qemu-img create -f qcow2 infra02.qcow2 204800M
+qemu-img create -f qcow2 infra03.qcow2 204800M
+cd /var/lib/libvirt/images/pool01
+qemu-img create -f qcow2 compute01.qcow2 204800M
+qemu-img create -f qcow2 compute02.qcow2 204800M
+for i in pool00 pool01; do virsh pool-refresh $i; done;
+
+echo -e "Starting cobbler install, setup, and configuration\n"
+#START_COBBLER_INSTALL
+#
+# Based on http://springerpe.github.io/tech/2014/09/09/Installing-Cobbler-2.6.5-on-Ubuntu-14.04-LTS.html
+# Based on https://raw.githubusercontent.com/luisbolson/cobbler/master/cobbler_install-ubuntu_14.04.sh
+
+# Enable/Add additional repositories
+# Need to see about getting this into the repo potentially
+wget -qO - http://download.opensuse.org/repositories/home:/libertas-ict:/cobbler26/xUbuntu_14.04/Release.key | apt-key add -
+add-apt-repository "deb http://download.opensuse.org/repositories/home:/libertas-ict:/cobbler26/xUbuntu_14.04/ ./"
+
+# Update APT and install needed packages
+apt-get update
+apt-get install -y cobbler debmirror isc-dhcp-server ipcalc tftpd
+
+
+# Get network information for the given IP
+# Force drac IP
+IP_ADDR=10.5.0.1
+NETMASK=$(ifconfig | grep $IP_ADDR | cut -d ':' -f 4)
+NETDEVICE=$(ifconfig | grep -B1 $IP_ADDR | head -1 | awk '{print $1}')
+NETWORK=$(ipcalc ${IP_ADDR}/${NETMASK} | grep Network | cut -d '/' -f 1 | awk '{print $2}')
+NETMASK_HALF=$(expr $(ipcalc ${IP_ADDR}/${NETMASK} | grep Network | cut -d '/' -f 2 | awk '{print $1}') + 1)
+DHCP_MIN_HOST=$(ipcalc ${IP_ADDR}/${NETMASK_HALF} | grep Broadcast | awk '{print $2}')
+DHCP_MAX_HOST=$(ipcalc ${IP_ADDR}/${NETMASK} | grep HostMax | awk '{print $2}')
+
+# Move Cobbler Apache config to the right place
+cp /etc/apache2/conf.d/cobbler.conf /etc/apache2/conf-available/
+cp /etc/apache2/conf.d/cobbler_web.conf /etc/apache2/conf-available/
+
+# Enable the above config
+a2enconf cobbler cobbler_web
+
+# Enable Proxy modules
+a2enmod proxy
+a2enmod proxy_http
+
+# Generate a new django secret key
+SECRET_KEY=$(python -c 'import re;from random import choice; import sys; sys.stdout.write(re.escape("".join([choice("abcdefghijklmnopqrstuvwxyz0123456789^&*(-_=+)") for i in range(100)])))')
+sed -i "s/^SECRET_KEY = .*/SECRET_KEY = '${SECRET_KEY}'/" /usr/share/cobbler/web/settings.py
+
+# Change IP and manage_dhcp in cobbler settings
+sed -i "s/127\.0\.0\.1/${IP_ADDR}/" /etc/cobbler/settings
+sed -i "s/manage_dhcp: .*/manage_dhcp: 1/" /etc/cobbler/settings
+
+# Change DHCP server template to match the given network configuration
+sed -i "s/subnet .* netmask .* {/subnet $NETWORK netmask $NETMASK {/" /etc/cobbler/dhcp.template
+sed -i "/option routers             192.168.1.5;/d" /etc/cobbler/dhcp.template
+sed -i "/option domain-name-servers 192.168.1.1;/d" /etc/cobbler/dhcp.template
+sed -i "s/range dynamic-bootp .*/range dynamic-bootp        ${DHCP_MIN_HOST} ${DHCP_MAX_HOST};/" /etc/cobbler/dhcp.template
+
+# Change dhcp-server default listening interface
+sed -i "s/INTERFACES=.*/INTERFACES=\"${NETDEVICE}\"/" /etc/default/isc-dhcp-server
+
+# Fix TFTP server arguments in cobbler template to enable it to work on Ubuntu
+sed -i "s/server_args .*/server_args             = -s \$args/" /etc/cobbler/tftpd.template
+
+# Fix Apache conf to match 2.4 configuration
+sed -i "/Order allow,deny/d" /etc/apache2/conf-enabled/cobbler*.conf
+sed -i "s/Allow from all/Require all granted/" /etc/apache2/conf-enabled/cobbler*.conf
+
+# Permission Workarounds
+mkdir /tftpboot
+chown www-data /var/lib/cobbler/webui_sessions
+
+# Restart services
+service cobblerd restart
+service apache2 restart
+
+# Get Loaders
+cobbler get-loaders
+
+# Update Cobbler Signatures
+cobbler signature update
+
+# Restart services again and configure autostart
+service cobblerd restart
+service apache2 restart
+service xinetd restart
+update-rc.d cobblerd defaults
+
+# Sync cobbler configuration
+cobbler sync
+
+#END_COBBLER_INSTALL
+echo -e "Cobbler install, setup, and configuration complete.\n"
+echo -e "Your host machine has been bootstrapped for the lab successfully.\n"
