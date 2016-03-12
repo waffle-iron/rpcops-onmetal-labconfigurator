@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Just in case the README.md warning was not adhered to; check here
+# Just in case the README.md warning was not adhered to check here
 if ! [ `awk '/processor/ { count++ } END { print count }' /proc/cpuinfo` -eq 40 ]; then
   if [ -f /acpi-fixed ]; then
     echo -e "You have another problem other than acpi.\n"
@@ -12,14 +12,14 @@ if ! [ `awk '/processor/ { count++ } END { print count }' /proc/cpuinfo` -eq 40 
   fi
   if ! [ -f /acpi-fixed ]; then
     echo -e "No bueno! acpi=off or another issue.\n"
-    echo -e "Fixing acpi=off. If this does not work, investigate further."
+    echo -e "Fixing acpi=off. If this does not work, investigate further.\n"
     sed -i.bak 's/acpi=off/acpi=noirq/' /etc/default/grub
     grub-mkconfig -o /boot/grub/grub.cfg
     update-grub
     touch /acpi-fixed
   fi
 else
-  echo "Good to go! acpi=noirq or bug irrelevant"
+  echo -e "Good to go! acpi=noirq or bug irrelevant.\n"
   sleep 3
 fi
 
@@ -29,7 +29,15 @@ sleep 5
 echo -e "If you want to abort this process...you have 15s\n"
 sleep 5
 clear
-for i in {10..1}; do echo -e "Starting in ${i}"; sleep 1; clear; done;
+
+for i in {10..1}
+do
+  echo -e "Starting in ${i}"
+  sleep 1
+  clear
+done
+
+cd /root
 
 # Enable nested KVM
 # echo 'options kvm_intel nested=1' >> /etc/modprobe.d/qemu-system-x86.conf
@@ -53,10 +61,11 @@ python curl vim telnet zip unzip nfs-common python-libvirt tmux iptables-persist
 ebtables pm-utils
 apt-get autoremove -y
 
-cd /usr/local/bin
+pushd /usr/local/bin
 wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64
 mv jq-linux64 jq
 chmod +x jq
+popd
 
 # Remove all iptables rules
 /etc/init.d/iptables-persistent flush
@@ -125,21 +134,34 @@ mkdir /labshare
 mount 10.209.128.54:/mnt/builder /labshare
 
 # Install Open vSwitch
-cd /labshare/ovs
+pushd /labshare/ovs
 dpkg -i openvswitch-common_2.4.90-1_amd64.deb openvswitch-switch_2.4.90-1_amd64.deb python-openvswitch_2.4.90-1_all.deb
 apt-get -f install
+popd
 
 # Setup additional drives as storage pools
-DRIVES='/dev/sdb /dev/sdc'
-for i in $DRIVES; do echo -e "n\np\n\n\n\nw\n"|fdisk $i; mkfs.ext4 -O ^has_journal ${i}1; done;
-cd /var/lib/libvirt/images
+__DRIVES__='/dev/sdb /dev/sdc'
+for i in $__DRIVES__
+do
+  echo -e "n\np\n\n\n\nw\n"|fdisk $i
+  mkfs.ext4 -O ^has_journal ${i}1
+done
+
+pushd /var/lib/libvirt/images
 mkdir pool00
 mkdir pool01
 mount /dev/sdb1 pool00
 virsh pool-define-as --name pool00 --type dir --target /var/lib/libvirt/images/pool00
 mount /dev/sdc1 pool01
 virsh pool-define-as --name pool01 --type dir --target /var/lib/libvirt/images/pool01
-for i in pool00 pool01; do virsh pool-autostart $i; virsh pool-start $i; done;
+popd
+
+for i in pool00 pool01
+do
+  virsh pool-autostart $i
+  virsh pool-start $i
+done
+
 tail -n2 /etc/mtab >> /etc/fstab
 
 # Add necessary Open vSwitch virtual switches
@@ -152,18 +174,28 @@ virsh net-destroy default
 virsh net-undefine default
 
 # Copy over ubuntu server and vyos isos
-cd /labshare/isos
+pushd /labshare/isos
 mkdir -p /var/cache/isos
 cp ubuntu-14.04.4-server-amd64.iso /var/cache/isos/
 cp vyos-1.1.7-amd64.iso /var/cache/isos/
+popd
 
 # Create libvirt networks
 echo -e "Building virtual network infrastructure\n"
 # drac00 will not start without /tftpboot
 mkdir /tftpboot
-cd /labshare/templates/networks
-for i in rpcops-*-net.xml; do virsh net-define $i; done;
-for i in `python -c 'import libvirt; conn=libvirt.open("qemu:///system"); print " ".join(conn.listDefinedNetworks())'`; do virsh net-autostart $i; virsh net-start $i; done;
+pushd /labshare/templates/networks
+for i in rpcops-*-net.xml
+do
+  virsh net-define $i
+done
+
+for i in `python -c 'import libvirt; conn=libvirt.open("qemu:///system"); print " ".join(conn.listDefinedNetworks())'`
+do
+  virsh net-autostart $i
+  virsh net-start $i
+done
+popd
 
 # Add qemu hook script for edge devices
 pushd /etc/libvirt/hooks
@@ -174,7 +206,7 @@ service libvirt-bin restart
 popd
 
 # Create firewall and loadbalancer libvirt VMs
-cd /labshare/templates/edgedevices
+pushd /labshare/templates/edgedevices
 clear
 echo -e "Copying edge device disk images\n"
 cp firewall.tar.gz /var/lib/libvirt/images/pool00
@@ -185,6 +217,7 @@ tar xzf /var/lib/libvirt/images/pool00/loadbalancer.tar.gz -C /var/lib/libvirt/i
 echo -e "Defining and starting edge devices\n"
 virsh define firewall.xml
 virsh define loadbalancer.xml
+popd
 virsh start firewall
 sleep 10
 virsh start loadbalancer
@@ -207,7 +240,7 @@ qemu-img create -f qcow2 compute01.qcow2 204800M
 qemu-img create -f qcow2 compute02.qcow2 204800M
 for i in pool00 pool01; do virsh pool-refresh $i; done;
 
-echo -e "Starting cobbler install, setup, and configuration\n"
+echo -e "Starting cobbler install\n"
 #START_COBBLER_INSTALL
 #
 # Based on http://springerpe.github.io/tech/2014/09/09/Installing-Cobbler-2.6.5-on-Ubuntu-14.04-LTS.html
