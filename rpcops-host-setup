@@ -17,6 +17,7 @@ if ! [ `awk '/processor/ { count++ } END { print count }' /proc/cpuinfo` -eq 40 
     grub-mkconfig -o /boot/grub/grub.cfg
     update-grub
     touch /acpi-fixed
+    shutdown -r now "REBOOTING YOUR SYSTEM. RE-RUN SCRIPT WHEN LOGGED BACK IN.\n"
   fi
 else
   echo -e "Good to go! acpi=noirq or bug irrelevant.\n"
