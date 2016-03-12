@@ -17,13 +17,12 @@ if ! [ `awk '/processor/ { count++ } END { print count }' /proc/cpuinfo` -eq 40 
     grub-mkconfig -o /boot/grub/grub.cfg
     update-grub
     touch /acpi-fixed
-    shutdown -r now "REBOOTING YOUR SYSTEM. RE-RUN SCRIPT WHEN LOGGED BACK IN.\n"
+    shutdown -r now "REBOOTING YOUR SYSTEM. RE-RUN SCRIPT WHEN LOGGED BACK IN."
   fi
 else
   echo -e "Good to go! acpi=noirq or bug irrelevant.\n"
   sleep 3
 fi
-
 
 echo -e "This script is about to bootstrap your system for RPCOPS Lab Configuration\n"
 sleep 5
