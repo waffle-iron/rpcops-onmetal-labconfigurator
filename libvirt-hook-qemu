@@ -12,7 +12,7 @@ declare -a __EDGE_DEVICES__
 __NFS_SHARE_IP__='10.184.8.159'
 __HOST_IP__=`ip addr show dev bond0.101|awk '/inet/ { split($2, ip, "/"); print ip[1]; exit }'`
 __HOST_PUBLIC_NIC__='bond0.101'
-__HOST_PRIVATE_NIC__='bond0.404'
+__HOST_PRIVATE_NIC__='bond0.401'
 
 __DRAC_BRIDGE__=`python -c 'import libvirt; conn=libvirt.open("qemu:///system"); drac=conn.networkLookupByName("drac00"); print drac.bridgeName()'`
 __SNET_BRIDGE__=`python -c 'import libvirt; conn=libvirt.open("qemu:///system"); snet=conn.networkLookupByName("snet00"); print snet.bridgeName()'`
@@ -21,18 +21,18 @@ __PUBLIC_BRIDGE__=`python -c 'import libvirt; conn=libvirt.open("qemu:///system"
 
 __FW_NAME__='firewall'
 __LB_NAME__='loadbalancer'
-__EDGE_DEVICES__=(firewall loadbalancer)
+__EDGE_DEVICES__=( firewall loadbalancer )
 
 __FW_PUBLIC_IP__='192.168.0.2'
 __FW_PRIVATE_IP__='10.5.0.2'
 __LB_PUBLIC_IP__='192.168.0.249'
 __LB_PRIVATE_IP__='10.5.0.4'
 
-__PRIVATE_PORTS__=(22 80 443)
-__PUBLIC_PORTS__=(1402 1403 1404 1412 1413 1414)
+__PRIVATE_PORTS__=( 22 80 443 )
+__PUBLIC_PORTS__=( 1402 1403 1404 1412 1413 1414 )
 __STATES__='NEW,RELATED,ESTABLISHED'
-__ADD_STATUS__=(started)
-__DELETE_STATUS__=(release reconnect)
+__ADD_STATUS__=( started )
+__DELETE_STATUS__=( release reconnect )
 
 add_rules(){
   case $1 in
@@ -82,19 +82,15 @@ delete_rules(){
   esac
 }
 
-main(){
-  if [ $__STATUS__ == __ADD_STATUS__ ]; then
-    add_rules $__DEVICE__
-  fi
+if [ $__STATUS__ == $__ADD_STATUS__ ]; then
+  add_rules $__DEVICE__
+fi
 
-  if [ $__STATUS__ == ${__DELETE_STATUS__[0]} ]; then
-    delete_rules $__DEVICE__
-  fi
+if [ $__STATUS__ == ${__DELETE_STATUS__[0]} ]; then
+  delete_rules $__DEVICE__
+fi
 
-  if [ $__STATUS__ == ${__DELETE_STATUS__[1]} ]; then
-    delete_rules $__DEVICE__
-    add_rules $__DEVICE__
-  fi
-}
-
-main
+if [ $__STATUS__ == ${__DELETE_STATUS__[1]} ]; then
+  delete_rules $__DEVICE__
+  add_rules $__DEVICE__
+fi

@@ -1,3 +1,20 @@
+# IMPORTANT
+Before you run this, ensure that your host machine has acpi=noirq in the kernel parameters for boot  
+This is necessary as there is a bug whereby the total number of CPUs will not be available if not done  
+
+#### Quick Fix (root or sudo required)
+    if ! [ `awk '/processor/ { count++ } END { print count }' /proc/cpuinfo` -eq 40 ]; then
+		  echo -e "No bueno! acpi=off or another issue.\n"
+			echo -e "Fixing acpi=off. If this does not work, investigate further."
+      sed -i.bak 's/acpi=off/acpi=noirq/' /etc/default/grub
+      grub-mkconfig -o /boot/grub/grub.cfg
+      update-grub
+			touch /acpi-fixed
+		else
+		  echo "Good to go! acpi=noirq or bug irrelevant"
+		fi
+
+
 ## rpcops-onmetal-labconfigurator
 Configuration script that builds out a X node lab environment for onboarding and testing purposes for Rackspace Private Cloud.
 

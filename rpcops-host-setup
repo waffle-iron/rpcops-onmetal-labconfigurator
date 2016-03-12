@@ -1,5 +1,29 @@
 #!/bin/bash
 
+# Just in case the README.md warning was not adhered to; check here
+if ! [ `awk '/processor/ { count++ } END { print count }' /proc/cpuinfo` -eq 40 ]; then
+  if [ -f /acpi-fixed ]; then
+    echo -e "You have another problem other than acpi.\n"
+    echo -e "Investigate or you can continue at your own risk.\n"
+    read -p "Continue [y/n]: " __UNDER40__
+    if [ $__UNDER40__ == "n" ]; then
+      exit 200
+    fi
+  fi
+  if ! [ -f /acpi-fixed ]; then
+    echo -e "No bueno! acpi=off or another issue.\n"
+    echo -e "Fixing acpi=off. If this does not work, investigate further."
+    sed -i.bak 's/acpi=off/acpi=noirq/' /etc/default/grub
+    grub-mkconfig -o /boot/grub/grub.cfg
+    update-grub
+    touch /acpi-fixed
+  fi
+else
+  echo "Good to go! acpi=noirq or bug irrelevant"
+  sleep 3
+fi
+
+
 echo -e "This script is about to bootstrap your system for RPCOPS Lab Configuration\n"
 sleep 5
 echo -e "If you want to abort this process...you have 15s\n"
@@ -22,7 +46,11 @@ echo 'iptables-persistent       iptables-persistent/autosave_v4 boolean false' |
 echo 'libguestfs-tools  libguestfs/update-appliance     boolean true' | debconf-set-selections
 
 # Install identified necessary host packages (this can be adjusted as needed)
-apt-get install -y qemu tcpdump libvirt-bin libvirt-dev libguestfs-tools git git-core curl zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt1-dev libcurl4-openssl-dev python-software-properties libffi-dev python-dev python curl vim telnet zip unzip nfs-common python-libvirt tmux iptables-persistent
+apt-get install -y qemu tcpdump libvirt-bin libvirt-dev libguestfs-tools git git-core curl \
+zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 \
+libxml2-dev libxslt1-dev libcurl4-openssl-dev python-software-properties libffi-dev python-dev \
+python curl vim telnet zip unzip nfs-common python-libvirt tmux iptables-persistent \
+ebtables pm-utils
 apt-get autoremove -y
 
 cd /usr/local/bin
@@ -125,12 +153,14 @@ virsh net-undefine default
 
 # Copy over ubuntu server and vyos isos
 cd /labshare/isos
-cp ubuntu-14.04.4-server-amd64.iso /var/lib/libvirt/images/pool00/
-cp vyos-1.1.7-amd64.iso /var/lib/libvirt/images/pool00/
-for i in pool00 pool01; do virsh pool-refresh $i; done;
+mkdir -p /var/cache/isos
+cp ubuntu-14.04.4-server-amd64.iso /var/cache/isos/
+cp vyos-1.1.7-amd64.iso /var/cache/isos/
 
 # Create libvirt networks
 echo -e "Building virtual network infrastructure\n"
+# drac00 will not start without /tftpboot
+mkdir /tftpboot
 cd /labshare/templates/networks
 for i in rpcops-*-net.xml; do virsh net-define $i; done;
 for i in `python -c 'import libvirt; conn=libvirt.open("qemu:///system"); print " ".join(conn.listDefinedNetworks())'`; do virsh net-autostart $i; virsh net-start $i; done;
@@ -138,7 +168,7 @@ for i in `python -c 'import libvirt; conn=libvirt.open("qemu:///system"); print 
 # Add qemu hook script for edge devices
 pushd /etc/libvirt/hooks
 wget https://raw.githubusercontent.com/codebauss/rpcops-onmetal-labconfigurator/master/libvirt-hook-qemu -O qemu
-chmod +x qemu
+chmod o+rx qemu
 # Restart libvirt to realize hook script
 service libvirt-bin restart
 popd
