@@ -135,30 +135,13 @@ cd /labshare/templates/networks
 for i in rpcops-*-net.xml; do virsh net-define $i; done;
 for i in `python -c 'import libvirt; conn=libvirt.open("qemu:///system"); print " ".join(conn.listDefinedNetworks())'`; do virsh net-autostart $i; virsh net-start $i; done;
 
-# Modify iptables for VPX and VyOS API and GUI
-__HOST_IP__=`ip addr show dev bond0.101|awk '/inet/ { split($2, ip, "/"); print ip[1]; exit }'`
-__DRAC_BRIDGE__=`python -c 'import libvirt; conn=libvirt.open("qemu:///system"); drac=conn.networkLookupByName("drac00"); print drac.bridgeName()'`
-__SNET_BRIDGE__=`python -c 'import libvirt; conn=libvirt.open("qemu:///system"); snet=conn.networkLookupByName("snet00"); print snet.bridgeName()'`
-iptables -I FORWARD -i bond0.101 -o ${__DRAC_BRIDGE__} -p tcp -d 192.168.0.2 --dport 22 -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
-iptables -I FORWARD -i bond0.101 -o ${__DRAC_BRIDGE__} -p tcp -d 10.5.0.4 --dport 22 -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
-iptables -I FORWARD -i bond0.101 -o ${__DRAC_BRIDGE__} -p tcp -d 192.168.0.2 --dport 80 -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
-iptables -I FORWARD -i bond0.101 -o ${__DRAC_BRIDGE__} -p tcp -d 10.5.0.4 --dport 80 -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
-iptables -I FORWARD -i bond0.101 -o ${__DRAC_BRIDGE__} -p tcp -d 192.168.0.2 --dport 443 -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
-iptables -I FORWARD -i bond0.101 -o ${__DRAC_BRIDGE__} -p tcp -d 10.5.0.4 --dport 443 -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
-iptables -I FORWARD -i bond0.401 -o ${__SNET_BRIDGE__} -p tcp -d 10.5.0.4 --dport 80 -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
-iptables -t nat -I PREROUTING -i bond0.101 -p tcp -d ${__HOST_IP__} --dport 1402 -j DNAT --to-destination 192.168.0.2:22
-iptables -t nat -I PREROUTING -i bond0.101 -p tcp -d ${__HOST_IP__} --dport 1403 -j DNAT --to-destination 192.168.0.2:80
-iptables -t nat -I PREROUTING -i bond0.101 -p tcp -d ${__HOST_IP__} --dport 1404 -j DNAT --to-destination 192.168.0.2:443
-iptables -t nat -I PREROUTING -i bond0.101 -p tcp -d ${__HOST_IP__} --dport 1412 -j DNAT --to-destination 10.5.0.4:22
-iptables -t nat -I PREROUTING -i bond0.101 -p tcp -d ${__HOST_IP__} --dport 1413 -j DNAT --to-destination 10.5.0.4:80
-iptables -t nat -I PREROUTING -i bond0.101 -p tcp -d ${__HOST_IP__} --dport 1414 -j DNAT --to-destination 10.5.0.4:443
-iptables -t nat -I PREROUTING -i bond0.401 -p tcp -d 10.184.8.159 --dport 1413 -j DNAT --to-destination 10.5.0.4:80
-iptables -t nat -A POSTROUTING -s 10.5.0.0/24 -d 224.0.0.0/24 -o bond0.401 -j RETURN
-iptables -t nat -A POSTROUTING -s 10.5.0.0/24 -d 255.255.255.255/32 -o bond0.401 -j RETURN
-iptables -t nat -A POSTROUTING -s 10.5.0.0/24 ! -d 10.5.0.0/24 -o bond0.401 -p tcp -j MASQUERADE --to-ports 1024-65535
-iptables -t nat -A POSTROUTING -s 10.5.0.0/24 ! -d 10.5.0.0/24 -o bond0.401 -p udp -j MASQUERADE --to-ports 1024-65535
-iptables -t nat -A POSTROUTING -s 10.5.0.0/24 ! -d 10.5.0.0/24 -o bond0.401 -j MASQUERADE
-
+# Add qemu hook script for edge devices
+pushd /etc/libvirt/hooks
+wget https://raw.githubusercontent.com/codebauss/rpcops-onmetal-labconfigurator/master/libvirt-hook-qemu -O qemu
+chmod +x qemu
+# Restart libvirt to realize hook script
+service libvirt-bin restart
+popd
 
 # Create firewall and loadbalancer libvirt VMs
 cd /labshare/templates/edgedevices
