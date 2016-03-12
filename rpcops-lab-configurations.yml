@@ -1,0 +1,22 @@
+lab_type: default
+  nodes:
+    infra01:
+      ip: 10.239.0.101
+    infra02:
+      ip: 10.239.0.102
+    infra03:
+      ip: 10.239.0.103
+    compute01:
+      ip: 10.239.0.104
+    compute02:
+      ip: 10.239.0.105
+
+lab_type: default_with_swift
+
+lab_type: default_with_ceph
+
+lab_type: default_with_plumgrid
+
+lab_type: swift_only
+
+lab_type: ceph_only

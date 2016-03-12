@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# Configure cobbler (unattended setup handler)
+
+# This is being set because sda is on hosts, vda is kvm, xvda is xen.
+DEVICE_NAME="vda"
+# This gets the root users SSH-public-key
+SSHKEY=$(cat /root/.ssh/id_rsa.pub)
+# This is set to instruct the preseed what the default network is expected to be
+DEFAULT_NETWORK="eth4"
+
+#  when templated replace \$ with $ and \\ with \
+# Not sure what ^ means, check with Kevin
+cp templates/ubuntu-server-14.04-unattended-cobbler.seed /var/lib/cobbler/kickstarts/ubuntu-server-14.04-unattended-cobbler.seed
+sed -i "s/__DEVICE_NAME__/${DEVICE_NAME}/g" /var/lib/cobbler/kickstarts/ubuntu-server-14.04-unattended-cobbler.seed
+sed -i "s|__SSHKEY__|${SSHKEY}|g" /var/lib/cobbler/kickstarts/ubuntu-server-14.04-unattended-cobbler.seed
+sed -i "s/__DEFAULT_NETWORK__/${DEFAULT_NETWORK}/g" /var/lib/cobbler/kickstarts/ubuntu-server-14.04-unattended-cobbler.seed
+
+# Restart services again and configure autostart
+service cobblerd restart
+service apache2 restart
+service xinetd stop
+service xinetd start
+update-rc.d cobblerd defaults
+
+# Mount Ubuntu server iso
+mkdir -p /var/cache/iso
+pushd /var/cache/iso
+cp /labshare/isos/ubuntu-14.04.4-server-amd64.iso .
+popd
+
+# import cobbler image
+if ! cobbler distro list | grep -qw "ubuntu-14.04.4-server-x86_64"; then
+  mkdir -p /mnt/iso
+  mount -o loop /var/cache/iso/ubuntu-14.04.4-server-amd64.iso /mnt/iso
+  cobbler import --name=ubuntu-14.04.4-server-amd64 --path=/mnt/iso
+  umount /mnt/iso
+fi
