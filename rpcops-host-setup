@@ -302,7 +302,6 @@ sed -i "/Order allow,deny/d" /etc/apache2/conf-enabled/cobbler*.conf
 sed -i "s/Allow from all/Require all granted/" /etc/apache2/conf-enabled/cobbler*.conf
 
 # Permission Workarounds
-mkdir /tftpboot
 chown www-data /var/lib/cobbler/webui_sessions
 
 # Restart services
