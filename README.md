@@ -25,7 +25,7 @@ Storage | 172.29.244..0/22
 Swift | 172.29.248.0/22
 Drac | 10.5.0.0/24
 ServiceNet | 10.6.0.0/24
-Public | 192.168.0.0/24 | 192.168.239.0/24 | 192.168.240.0/22
+Public | 192.168.0.0/24 192.168.239.0/24 192.168.240.0/22
 
 ## Libvirt Virtualization Considerations ##
 #### Networks  
