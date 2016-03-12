@@ -1,0 +1,6 @@
+[submodule "cloudnull/--recursive"]
+	path = cloudnull/--recursive
+	url = git@github.com:cloudnull/osa-multi-node-aio.git
+[submodule "cloudnull/osa-multi-node-aio"]
+	path = cloudnull/osa-multi-node-aio
+	url = git@github.com:cloudnull/osa-multi-node-aio.git
