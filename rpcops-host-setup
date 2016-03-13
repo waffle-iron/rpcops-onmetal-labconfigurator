@@ -210,7 +210,7 @@ popd
 
 # Add qemu hook script for edge devices
 pushd /etc/libvirt/hooks
-wget https://raw.githubusercontent.com/codebauss/rpcops-onmetal-labconfigurator/master/libvirt-hook-qemu -O qemu
+wget https://raw.githubusercontent.com/codebauss/rpcops-onmetal-labconfigurator/master/resources/files/libvirt-hook-qemu -O qemu
 chmod o+rx qemu
 # Restart libvirt to realize hook script
 service libvirt-bin restart

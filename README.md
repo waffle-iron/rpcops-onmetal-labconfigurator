@@ -89,7 +89,7 @@ EOF
 # Add new license to load balancer
 ssh nsroot@10.5.0.4 <<EOF
 shell cd /nsconfig/license && \
-curl -sk https://raw.githubusercontent.com/codebauss/rpcops-onmetal-labconfigurator/master/lb.lic -o lb.lic
+curl -sk https://raw.githubusercontent.com/codebauss/rpcops-onmetal-labconfigurator/master/resources/files/lb.lic -o lb.lic
 EOF
 
 # Get session token
