@@ -1,3 +1,5 @@
+#!/bin/bash
+
 cat > /etc/apt/preferences <<EOF
 Package: linux-generic linux-headers-generic linux-image-generic linux-restricted-modules-generic
 Pin: version 3.19.0-51

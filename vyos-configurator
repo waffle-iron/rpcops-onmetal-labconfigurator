@@ -165,6 +165,16 @@ set nat destination rule 105 destination address 192.168.239.105
 set nat destination rule 105 inbound-interface eth0
 set nat destination rule 105 translation address 10.239.0.105
 
+set nat destination rule 106
+set nat destination rule 106 destination address 192.168.239.106
+set nat destination rule 106 inbound-interface eth0
+set nat destination rule 106 translation address 10.239.0.106
+
+set nat destination rule 107
+set nat destination rule 107 destination address 192.168.239.107
+set nat destination rule 107 inbound-interface eth0
+set nat destination rule 107 translation address 10.239.0.107
+
 commit
 
 set nat destination rule 301
@@ -280,6 +290,16 @@ set nat source rule 205
 set nat source rule 205 outbound-interface eth0
 set nat source rule 205 source address 10.239.0.105
 set nat source rule 205 translation address 192.168.239.105
+
+set nat source rule 206
+set nat source rule 206 outbound-interface eth0
+set nat source rule 206 source address 10.239.0.106
+set nat source rule 206 translation address 192.168.239.106
+
+set nat source rule 207
+set nat source rule 207 outbound-interface eth0
+set nat source rule 207 source address 10.239.0.107
+set nat source rule 207 translation address 192.168.239.107
 
 commit
 
