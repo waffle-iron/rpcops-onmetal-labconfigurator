@@ -1,6 +1,0 @@
-#!/bin/bash
-
-# Would like to make this a
-# Python script that leverages pyyaml to
-# parse the rpcops-lab-configurations.yml file
-# and build based on lab_type request
