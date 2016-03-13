@@ -79,10 +79,27 @@ This uses a trial license from Citrix - NetScaler VPX 1000 - which is good for 9
 	                Load Balancing: YES
 	                ...
 
-If not, run the following command to get the latest license file, remove the current license, and install the new license **be sure you have set public key authentication up as noted above**:
+If not, run the following commands to get the latest license file, remove the current license, and install the new license **be sure you have set public key authentication up as noted above**:
 ```shell
+# Remove current license
+ssh nsroot@10.5.0.4 <<EOF
+shell rm -f /nsconfig/license/lb.lic
+EOF
+
+# Add new license to load balancer
+ssh nsroot@10.5.0.4 <<EOF
+shell cd /nsconfig/license && \
+curl -sk https://raw.githubusercontent.com/codebauss/rpcops-onmetal-labconfigurator/master/lb.lic -o lb.lic
+EOF
+
+# Get session token
 __NSTOKEN__=`curl -s -X POST -H 'Content-Type: application/json' \
 http://10.5.0.4/nitro/v1/config/login \
 -d '{"login": {"username":"nsroot","password":"nsroot","timeout":3600}}'|jq -r .sessionid`
+
+# Warm reboot the load balancer
+curl -s -X POST -H 'Content-Type: application/json' \
+-H "Cookie: NITRO_AUTH_TOKEN=$__NSTOKEN__" \
+http://10.5.0.4/nitro/v1/config/reboot -d '{"reboot":{"warm":true}}'
 
 ```
