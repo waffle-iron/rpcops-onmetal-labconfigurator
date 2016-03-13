@@ -16,7 +16,6 @@ else
 fi
 ```
 
-
 ## rpcops-onmetal-labconfigurator
 Configuration script that builds out a X node lab environment for onboarding and testing purposes for Rackspace Private Cloud.
 
@@ -73,6 +72,7 @@ EOF
 
 **Note:**  
 This uses a trial license from Citrix - NetScaler VPX 1000 - which is good for 90 days. Once your lab is online, check the loadbalancer via SSH with the command 'show license'. You will want to be sure you see the following:
+( ssh nsroot@10.5.0.4 'show license' )
 
 	License status:
 	                ...
@@ -103,3 +103,8 @@ curl -s -X POST -H 'Content-Type: application/json' \
 http://10.5.0.4/nitro/v1/config/reboot -d '{"reboot":{"warm":true}}'
 
 ```
+
+#### Contributors
+Melvin Hillsman _codebauss_  
+Kevin Carter _cloudnull_  
+James Thorne _jameswthorne_

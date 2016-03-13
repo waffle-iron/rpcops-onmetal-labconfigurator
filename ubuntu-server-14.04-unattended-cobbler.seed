@@ -28,8 +28,33 @@ d-i debian-installer/add-kernel-opts string $kernel_options_post
 #
 #############
 
-d-i netcfg/choose_interface select auto
-d-i netcfg/get_hostname string $hostname
+#if "__DEFAULT_NETWORK__" in $interfaces
+    #set idata = $interfaces["__DEFAULT_NETWORK__"]
+    #set static = $idata['static']
+    #set ip_address = $idata.get("ip_address", "127.0.0.1")
+    #set netmask = $idata.get("netmask", "255.0.0.0")
+    #set gateway = $getVar('gateway','127.0.0.1')
+#end if
+
+d-i netcfg/choose_interface select __DEFAULT_NETWORK__
+
+#if $static
+# Static network configuration.
+d-i netcfg/disable_autoconfig boolean true
+d-i netcfg/dhcp_failed note
+d-i netcfg/dhcp_options select Configure network manually
+d-i netcfg/get_ipaddress string $idata.get("ip_address", "127.0.0.1")
+d-i netcfg/get_netmask string $idata.get("netmask", "255.0.0.0")
+d-i netcfg/get_gateway string $gateway
+d-i netcfg/get_nameservers string $name_servers[0]
+d-i netcfg/confirm_static boolean true
+#end if
+
+d-i netcfg/get_hostname string $system_name
+d-i netcfg/get_domain string $hostname
+
+# Disable that annoying WEP key dialog.
+d-i netcfg/wireless_wep string
 
 #############
 #
@@ -37,7 +62,7 @@ d-i netcfg/get_hostname string $hostname
 #
 #############
 
-# Command Line 1: This is necessary otherwise you will be prompted to umount /dev/sda. See Ubuntu bug #1347726.
+# Command Line 1: This is necessary otherwise you will be prompted to umount /dev/__DEVICE_NAME__. See Ubuntu bug #1347726.
 d-i preseed/early_command string \
       umount /media || true
 
@@ -120,35 +145,11 @@ d-i partman-lvm/confirm boolean true
 d-i partman-lvm/confirm_nooverwrite boolean true
 
 d-i partman-auto/method string lvm
-d-i partman-auto/disk string /dev/sda
+d-i partman-auto/disk string /dev/__DEVICE_NAME__
 
 # For LVM partitioning, you can select how much of the volume group to use
 # for logical volumes.
 d-i partman-auto-lvm/guided_size string max
-
-#
-# The custom partitioning below will create the following
-# partitions, LVM Volume Group, and LVM Logical Volumes.
-#
-# root@ubuntu:~# parted /dev/sda print
-# Model: VMware, VMware Virtual S (scsi)
-# Disk /dev/sda: 21.5GB
-# Sector size (logical/physical): 512B/512B
-# Partition Table: msdos
-#
-# Number  Start   End     Size    Type     File system  Flags
-#  1      1049kB  512MB   511MB   primary  ext2         boot
-#  2      512MB   21.5GB  21.0GB  primary               lvm
-#
-# root@ubuntu:~# vgs
-#   VG   #PV #LV #SN Attr   VSize  VFree
-#   lxc    1   2   0 wz--n- 19.52g    0
-#
-# root@ubuntu:~# lvs
-#   LV     VG   Attr      LSize   Pool Origin Data%  Move Log Copy%  Convert
-#   root00 lxc  -wi-ao---  18.57g
-#   swap00 lxc  -wi-ao--- 976.00m
-#
 
 d-i partman-auto/choose_recipe select custompartitioning
 d-i partman-auto/expert_recipe string \
@@ -164,21 +165,45 @@ d-i partman-auto/expert_recipe string \
               1024 1 100% ext4                                \
                       $primary{ }                             \
                       method{ lvm }                           \
-                      device{ /dev/sda2 }                     \
+                      device{ /dev/__DEVICE_NAME__2 }          \
                       vg_name{ lxc }                          \
               .                                               \
-              1024 1 1024 linux-swap                          \
+              8192 1 8192 linux-swap                          \
                       $lvmok{ } in_vg{ lxc }                  \
                       lv_name{ swap00 }                       \
                       method{ swap } format{ }                \
               .                                               \
-              5120 1 1000000000 ext4                          \
+              51200 1 51200 ext4                              \
                       $lvmok{ } in_vg{ lxc }                  \
                       lv_name{ root00 }                       \
                       method{ format } format{ }              \
                       use_filesystem{ } filesystem{ ext4 }    \
                       label{ root }                           \
                       mountpoint{ / }                         \
+              .                                               \
+              76800 1 76800 ext4                              \
+                      $lvmok{ } in_vg{ lxc }                  \
+                      lv_name{ openstack00 }                  \
+                      method{ format } format{ }              \
+                      use_filesystem{ } filesystem{ ext4 }    \
+                      label{ openstack00 }                    \
+                      mountpoint{ /openstack }                \
+              .                                               \
+              20480 1 20480 ext4                              \
+                      $lvmok{ } in_vg{ lxc }                  \
+                      lv_name{ deleteme00 }                   \
+                      method{ format } format{ }              \
+                      use_filesystem{ } filesystem{ ext4 }    \
+                      label{ deleteme00 }                     \
+                      mountpoint{ /deleteme }                 \
+              .                                               \
+              1024 1 1000000000 ext4                          \
+                      $lvmok{ } in_vg{ lxc }                  \
+                      lv_name{ nova00 }                       \
+                      method{ format } format{ }              \
+                      use_filesystem{ } filesystem{ ext4 }    \
+                      label{ nova }                           \
+                      mountpoint{ /var/lib/nova }             \
               .                                               \
 
 # This makes partman automatically partition without confirmation, provided
@@ -200,7 +225,7 @@ tasksel tasksel/first multiselect openssh-server
 # Whether to upgrade packages after debootstrap.
 # Allowed values: none, safe-upgrade, full-upgrade
 d-i pkgsel/upgrade select none
-
+d-i pkgsel/include string openssh-server bridge-utils vim python2.7
 # Policy for applying updates. May be "none" (no automatic updates),
 # "unattended-upgrades" (install security updates automatically), or
 # "landscape" (manage system with Landscape).
@@ -254,9 +279,13 @@ d-i grub-installer/only_debian boolean true
 # Command Line 2: Cobbler overwrites sources.list with its own repos. Put the default Ubuntu sources.list back.
 # Command Line 3: Cobbler API call to turn off netboot.
 d-i preseed/late_command string \
-        sed -i '/PermitRootLogin / s/ .*/ yes/' /target/etc/ssh/sshd_config; \
-        wget http://$http_server/trusty-sources.list -O /target/etc/apt/sources.list; \
-        wget http://$http_server/cblr/svc/op/nopxe/system/$system_name -O /dev/null
+  wget http://$http_server/trusty-sources.list -O /target/etc/apt/sources.list; \
+  wget http://$http_server/cblr/svc/op/nopxe/system/$system_name -O /dev/null; \
+  sed -i '/PermitRootLogin / s/ .*/ yes/' /target/etc/ssh/sshd_config; \
+  mkdir /target/root/.ssh; \
+  chmod 0700 /target/root/.ssh; \
+  echo "__SSHKEY__" >> /target/root/.ssh/authorized_keys \
+  killall.sh; netcfg
 
 #############
 #

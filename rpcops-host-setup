@@ -232,26 +232,12 @@ popd
 virsh start firewall
 sleep 10
 virsh start loadbalancer
-sleep 10
 
 echo -e "Loadbalancer (NetScaler VPX 1000) GUI available via http://${__HOST_IP__}:1413\n"
-sleep 5
-
-# Create hard disk for node
-# TODO: script this so it is generated dynamically
-# currently will only generate default
-echo -e "Creating QCOW2 images for node hard disk /dev/vda\n"
-sleep 3
-cd /var/lib/libvirt/images/pool00
-qemu-img create -f qcow2 infra01.qcow2 204800M
-qemu-img create -f qcow2 infra02.qcow2 204800M
-qemu-img create -f qcow2 infra03.qcow2 204800M
-cd /var/lib/libvirt/images/pool01
-qemu-img create -f qcow2 compute01.qcow2 204800M
-qemu-img create -f qcow2 compute02.qcow2 204800M
-for i in pool00 pool01; do virsh pool-refresh $i; done;
+sleep 10
 
 echo -e "Starting cobbler install\n"
+sleep 5
 #START_COBBLER_INSTALL
 #
 # Based on http://springerpe.github.io/tech/2014/09/09/Installing-Cobbler-2.6.5-on-Ubuntu-14.04-LTS.html
