@@ -58,6 +58,19 @@ fwlbsw
 lbsrvsw  
 hasw
 
+## Post Installation Considerations ##
+#### Configure public key authentication to load balancer (password: nsroot)
+```shell
+__SSHKEY__=$(cat /root/.ssh/id_rsa.pub)
+ssh nsroot@10.5.0.4 <<EOF
+shell touch /nsconfig/ssh/authorized_keys && \
+chmod 600 /nsconfig/ssh/authorized_keys && \
+echo $__SSHKEY__ > /nsconfig/ssh/authorized_keys
+EOF
+```
+
+
+
 **Note:**  
 This uses a trial license from Citrix - NetScaler VPX 1000 - which is good for 90 days. Once your lab is online, check the loadbalancer via SSH with the command 'show license'. You will want to be sure you see the following:
 
@@ -66,7 +79,10 @@ This uses a trial license from Citrix - NetScaler VPX 1000 - which is good for 9
 	                Load Balancing: YES
 	                ...
 
-If not, run the following command to get the latest license file, remove the current license, and install the new license:
-_need to add command_
+If not, run the following command to get the latest license file, remove the current license, and install the new license **be sure you have set public key authentication up as noted above**:
+```shell
+__NSTOKEN__=`curl -s -X POST -H 'Content-Type: application/json' \
+http://10.5.0.4/nitro/v1/config/login \
+-d '{"login": {"username":"nsroot","password":"nsroot","timeout":3600}}'|jq -r .sessionid`
 
-__NSTOKEN__=`curl -s -X POST -H 'Content-Type: application/json' http://10.5.0.4/nitro/v1/config/login -d '{"login": {"username":"nsroot","password":"nsroot","timeout":3600}}'|jq -r .sessionid`
+```
