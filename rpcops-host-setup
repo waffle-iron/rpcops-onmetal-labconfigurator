@@ -32,15 +32,26 @@ clear
 
 for i in {10..1}
 do
-  echo -e "Starting in ${i}"
+  echo -e "Starting in $i"
   sleep 1
   clear
 done
 
+# Move to the root directory as starting point
 cd /root
 
 # Enable nested KVM
 # echo 'options kvm_intel nested=1' >> /etc/modprobe.d/qemu-system-x86.conf
+
+# If you were running ssh-agent with forwarding this will clear out the keys
+#  in your cache which can cause confusion.
+killall ssh-agent; eval `ssh-agent`
+
+if [ ! -f "/root/.ssh/id_rsa" ];then
+  echo -e "\n" | ssh-keygen -t rsa -N ''
+fi
+
+cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
 
 # Upgrade repository data and install required packages
 apt-get update && apt-get upgrade -y
@@ -123,7 +134,7 @@ gem install serverspec
 
 # Install pip and a few helper packages
 python <(curl -sk https://bootstrap.pypa.io/get-pip.py)
-pip install pyopenssl ndg-httpsclient pyasn1 bpython ansible==1.9.4
+pip install pyopenssl ndg-httpsclient pyasn1 bpython httpie ansible==1.9.4
 
 # Mount the RPC Labs NFS share
 # TODO granted, the host needs to be in IAD for this

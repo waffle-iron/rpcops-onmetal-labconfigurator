@@ -68,3 +68,5 @@ This uses a trial license from Citrix - NetScaler VPX 1000 - which is good for 9
 
 If not, run the following command to get the latest license file, remove the current license, and install the new license:
 _need to add command_
+
+__NSTOKEN__=`curl -s -X POST -H 'Content-Type: application/json' http://10.5.0.4/nitro/v1/config/login -d '{"login": {"username":"nsroot","password":"nsroot","timeout":3600}}'|jq -r .sessionid`
