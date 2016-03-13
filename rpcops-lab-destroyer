@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Woah there, not called destroyer for nothing...
+# Will do the following:
+# all nodes (VMs)
+# - delete virtual disk
+# - undefine node
+# cobbler
+# - delete profiles
+# - delete systems

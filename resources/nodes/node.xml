@@ -1,0 +1,75 @@
+<domain type='kvm'>
+  <name>infra01</name>
+  <uuid>dcdfa3a2-207c-422a-bb7e-56bbd4baf4a2</uuid>
+  <memory unit='KiB'>8388608</memory>
+  <currentMemory unit='KiB'>8388608</currentMemory>
+  <vcpu placement='static'>4</vcpu>
+  <os>
+    <type arch='x86_64' machine='pc-i440fx-trusty'>hvm</type>
+    <boot dev='hd'/>
+  </os>
+  <features>
+    <acpi/>
+    <apic/>
+    <pae/>
+  </features>
+  <clock offset='utc'>
+    <timer name='rtc' tickpolicy='catchup'/>
+    <timer name='pit' tickpolicy='delay'/>
+    <timer name='hpet' present='no'/>
+  </clock>
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>restart</on_reboot>
+  <on_crash>restart</on_crash>
+  <devices>
+    <emulator>/usr/bin/qemu-system-x86_64</emulator>
+    <disk type='file' device='disk'>
+      <driver name='qemu' type='raw'/>
+      <source file='/var/lib/libvirt/images/pool00/infra01.raw'/>
+      <target dev='vda' bus='virtio'/>
+      <alias name='virtio-disk0'/>
+    </disk>
+    <disk type='file' device='disk'>
+      <driver name='qemu' type='raw'/>
+      <source file='/var/lib/libvirt/images/pool01/infra01-lxc.raw'/>
+      <target dev='vdb' bus='virtio'/>
+      <alias name='virtio-disk1'/>
+    </disk>
+    <controller type='ide' index='0'>
+    </controller>
+    <interface type='network'>
+      <source network='lbsrvsw' portgroup='bond0'/>
+      <model type='virtio'/>
+    </interface>
+    <interface type='network'>
+      <source network='lbsrvsw' portgroup='bond1'/>
+      <model type='virtio'/>
+    </interface>
+    <interface type='network'>
+      <source network='lbsrvsw' portgroup='bond0'/>
+      <model type='virtio'/>
+    </interface>
+    <interface type='network'>
+      <source network='lbsrvsw' portgroup='bond1'/>
+      <model type='virtio'/>
+    </interface>
+    <interface type='network'>
+      <source network='snet00'/>
+      <model type='virtio'/>
+    </interface>
+    <interface type='network'>
+      <source network='drac00'/>
+      <model type='virtio'/>
+    </interface>
+    <serial type='pty'>
+      <target port='0'/>
+    </serial>
+    <console type='pty'>
+      <target type='serial' port='0'/>
+    </console>
+    <graphics type='vnc' port='-1' autoport='yes'/>
+    <memballoon model='virtio'>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x0a' function='0x0'/>
+    </memballoon>
+  </devices>
+</domain>

@@ -4,6 +4,12 @@
 # if not set, will use default
 # ex. bash rpcops-unattended-setup cephonly
 
+if [ "$#" -eq 1 ]; then
+  LAB_CONFIG=$1
+else
+  LAB_CONFIG='default'
+fi
+
 # Configure cobbler (unattended setup handler)
 
 # This is being set because sda is on hosts, vda is kvm, xvda is xen.
@@ -73,7 +79,7 @@ done
 function get_host_type () {
 python <<EOF
 import json
-with open('templates/labconfigs/default.json') as f:
+with open('resources/labconfigs/${LAB_CONFIG}.json') as f:
     x = json.loads(f.read())
 for k, v in x.get("$1").items():
     print('%s:%s' % (k, v))
@@ -83,7 +89,7 @@ EOF
 function get_all_hosts () {
 python <<EOF
 import json
-with open('templates/labconfigs/default.json') as f:
+with open('resources/labconfigs/${LAB_CONFIG}.json') as f:
     x = json.loads(f.read())
 for i in x.values():
     for k, v in i.items():
