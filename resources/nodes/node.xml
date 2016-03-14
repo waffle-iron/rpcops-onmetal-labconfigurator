@@ -1,9 +1,8 @@
 <domain type='kvm'>
-  <name>infra01</name>
-  <uuid>dcdfa3a2-207c-422a-bb7e-56bbd4baf4a2</uuid>
+  <name>__NODE__.local</name>
   <memory unit='KiB'>8388608</memory>
   <currentMemory unit='KiB'>8388608</currentMemory>
-  <vcpu placement='static'>4</vcpu>
+  <vcpu placement='static'>8</vcpu>
   <os>
     <type arch='x86_64' machine='pc-i440fx-trusty'>hvm</type>
     <boot dev='hd'/>
@@ -13,6 +12,9 @@
     <apic/>
     <pae/>
   </features>
+  <cpu mode='custom' match='exact'>
+    <model fallback='allow'>SandyBridge</model>
+  </cpu>
   <clock offset='utc'>
     <timer name='rtc' tickpolicy='catchup'/>
     <timer name='pit' tickpolicy='delay'/>
@@ -21,20 +23,38 @@
   <on_poweroff>destroy</on_poweroff>
   <on_reboot>restart</on_reboot>
   <on_crash>restart</on_crash>
+  <pm>
+    <suspend-to-mem enabled='no'/>
+    <suspend-to-disk enabled='no'/>
+  </pm>
   <devices>
     <emulator>/usr/bin/qemu-system-x86_64</emulator>
     <disk type='file' device='disk'>
-      <driver name='qemu' type='raw'/>
-      <source file='/var/lib/libvirt/images/pool00/infra01.raw'/>
+      <driver name='qemu' type='qcow2'/>
+      <source file='/var/lib/libvirt/images/__NODE__.local.qcow2'/>
       <target dev='vda' bus='virtio'/>
+      <boot order='1'/>
       <alias name='virtio-disk0'/>
     </disk>
-    <disk type='file' device='disk'>
-      <driver name='qemu' type='raw'/>
-      <source file='/var/lib/libvirt/images/pool01/infra01-lxc.raw'/>
-      <target dev='vdb' bus='virtio'/>
-      <alias name='virtio-disk1'/>
-    </disk>
+    <controller type='usb' index='0' model='ich9-ehci1'>
+      <alias name='usb0'/>
+    </controller>
+    <controller type='usb' index='0' model='ich9-uhci1'>
+      <alias name='usb0'/>
+      <master startport='0'/>
+    </controller>
+    <controller type='usb' index='0' model='ich9-uhci2'>
+      <alias name='usb0'/>
+      <master startport='2'/>
+    </controller>
+    <controller type='usb' index='0' model='ich9-uhci3'>
+      <alias name='usb0'/>
+      <master startport='4'/>
+    </controller>
+    <controller type='virtio-serial' index='0'>
+      <alias name='virtio-serial0'/>
+    </controller>
+    <controller type='pci' index='0' model='pci-root'/>
     <controller type='ide' index='0'>
     </controller>
     <interface type='network'>
@@ -69,7 +89,6 @@
     </console>
     <graphics type='vnc' port='-1' autoport='yes'/>
     <memballoon model='virtio'>
-      <address type='pci' domain='0x0000' bus='0x00' slot='0x0a' function='0x0'/>
     </memballoon>
   </devices>
 </domain>

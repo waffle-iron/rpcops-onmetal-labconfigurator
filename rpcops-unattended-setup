@@ -1,27 +1,41 @@
 #!/bin/bash
 
+# Configure cobbler (unattended setup handler)
+
 # $1 will be the lab configuration requested
 # if not set, will use default
 # ex. bash rpcops-unattended-setup cephonly
 
-if [ "$#" -eq 1 ]; then
-  LAB_CONFIG=$1
-else
-  LAB_CONFIG='default'
-fi
+# Get all defined lab configurations
+# LABS=( `ls -1 resources/labconfigs/` )
+#
+# # Check if a configuration was passed in [default] if not
+# if [ "$#" -eq 1 ]; then
+#   for LAB in ${LABS[@]}
+#   do
+#     # Set LAB_CONFIG
+#     if [ $LAB == $1 ]; then
+#       LAB_CONFIG=$1
+#     else
+#       LAB_CONFIG='default'
+#     fi
+#   done
+# else
+#   LAB_CONFIG='default'
+# fi
 
-# Configure cobbler (unattended setup handler)
+LAB_CONFIG='default'
 
 # This is being set because sda is on hosts, vda is kvm, xvda is xen.
 DRIVE_NAME="vda"
 # This gets the root users SSH-public-key
 SSHKEY=$(cat /root/.ssh/id_rsa.pub)
 # This is set to instruct the preseed what the default network is expected to be
-DEFAULT_NETWORK="eth4"
+DEFAULT_NETWORK="eth5"
 
 #  when templated replace \$ with $ and \\ with \
 # Not sure what ^ means, check with Kevin
-cp templates/ubuntu-server-14.04-unattended-cobbler.seed /var/lib/cobbler/kickstarts/ubuntu-server-14.04-unattended-cobbler.seed
+cp resources/files/ubuntu-server-14.04-unattended-cobbler.seed /var/lib/cobbler/kickstarts/ubuntu-server-14.04-unattended-cobbler.seed
 sed -i "s/__DRIVE_NAME__/${DRIVE_NAME}/g" /var/lib/cobbler/kickstarts/ubuntu-server-14.04-unattended-cobbler.seed
 sed -i "s|__SSHKEY__|${SSHKEY}|g" /var/lib/cobbler/kickstarts/ubuntu-server-14.04-unattended-cobbler.seed
 sed -i "s/__DEFAULT_NETWORK__/${DEFAULT_NETWORK}/g" /var/lib/cobbler/kickstarts/ubuntu-server-14.04-unattended-cobbler.seed
@@ -67,11 +81,11 @@ cobbler signature update
 function wait_ssh() {
 echo "Waiting for all nodes to become available. This can take around 10 min"
 for node in $(get_all_hosts); do
-    echo "Waiting for node: ${node%%":"*} on 10.0.0.${node#*":"}"
-    ssh -q -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=10 10.0.0.${node#*":"} exit > /dev/null
+    echo "Waiting for node: ${node%%":"*} on 10.5.0.${node#*":"}"
+    ssh -q -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=10 10.5.0.${node#*":"} exit > /dev/null
     while test $? -gt 0; do
       sleep 15
-      ssh -q -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=10 10.0.0.${node#*":"} exit > /dev/null
+      ssh -q -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=10 10.5.0.${node#*":"} exit > /dev/null
     done
 done
 }
@@ -109,9 +123,9 @@ for node in $(get_all_hosts); do
       --kopts="interface=${DEFAULT_NETWORK}" \
       --interface=${DEFAULT_NETWORK} \
       --mac="${maddr}" \
-      --ip-address="10.6.0.${node#*":"}" \
+      --ip-address="10.5.0.${node#*":"}" \
       --subnet=255.255.255.0 \
-      --gateway=10.6.0.1 \
+      --gateway=10.5.0.1 \
       --name-servers=69.20.0.164 69.20.0.196 \
       --static=1
   fi
@@ -127,15 +141,99 @@ service xinetd start
 # Create the VM root disk then define and start the VMs.
 #  !!!THIS TASK WILL DESTROY ALL OF THE ROOT DISKS IF THEY ALREADY EXIST!!!
 for node in $(get_all_hosts); do
-  qemu-img create -f qcow2 /var/lib/libvirt/images/${node%%":"*}.openstackci.local.img 252G
-  cp templates/vmnode.openstackci.local.xml /etc/libvirt/qemu/${node%%":"*}.openstackci.local.xml
-  sed -i "s/__NODE__/${node%%":"*}/g" /etc/libvirt/qemu/${node%%":"*}.openstackci.local.xml
-  sed -i "s/__COUNT__/${node:(-2)}/g" /etc/libvirt/qemu/${node%%":"*}.openstackci.local.xml
-  virsh define /etc/libvirt/qemu/${node%%":"*}.openstackci.local.xml || true
-  virsh create /etc/libvirt/qemu/${node%%":"*}.openstackci.local.xml
-  cp templates/vmnode.openstackci.local-bridges.cfg /opt/osa-${node%%":"*}.openstackci.local-bridges.cfg
-  sed -i "s/__COUNT__/${node#*":"}/g" /opt/osa-${node%%":"*}.openstackci.local-bridges.cfg
+  qemu-img create -f qcow2 /var/lib/libvirt/images/${node%%":"*}.local.img 200G
+  cp resources/nodes/node.xml /etc/libvirt/qemu/${node%%":"*}.local.xml
+  sed -i "s/__NODE__/${node%%":"*}/g" /etc/libvirt/qemu/${node%%":"*}.local.xml
+  virsh define /etc/libvirt/qemu/${node%%":"*}.local.xml || true
+  virsh create /etc/libvirt/qemu/${node%%":"*}.local.xml
 done
 
 # Wait here for all nodes to be booted and ready with SSH
 wait_ssh
+
+# Do the basic host setup for all nodes
+for node in $(get_all_hosts); do
+scp -o StrictHostKeyChecking=no resources/nodes/etc-network-interfaces 10.5.0.${node#*":"}:/etc/network/interfaces.d/${node%%":"*}.local-interfaces.cfg
+ssh -q -o StrictHostKeyChecking=no 10.5.0.${node#*":"} <<EOF
+if ! grep "^source.*cfg$" /etc/network/interfaces; then
+echo 'source /etc/network/interfaces.d/*.cfg' | tee -a /etc/network/interfaces
+fi
+umount /deleteme || true
+lvchange -an /dev/lxc/deleteme00
+echo y | lvremove /dev/lxc/deleteme00 || true
+sed -i 's/^\/dev\/mapper\/lxc-deleteme00.*//g' /etc/fstab
+cat > /etc/apt/preferences <<EOL
+Package: linux-generic linux-headers-generic linux-image-generic linux-restricted-modules-generic
+Pin: version 3.19.0-51
+Pin-Priority: 1001
+EOL
+apt-get remove -y linux-image-4.2.0-27-generic linux-headers-4.2.0-27-generic linux-image-extra-4.2.0-27-generic
+apt-get install -y linux-image-3.19.0-51-generic linux-image-extra-3.19.0-51-generic linux-headers-3.19.0-51-generic
+apt-get remove -y linux-image-4.2.0-30-generic linux-headers-4.2.0-30-generic linux-image-extra-4.2.0-30-generic
+apt-get autoremove -y
+update-grub
+shutdown -r now
+EOF
+done
+
+# Wait here for all nodes to be booted and ready with SSH
+wait_ssh
+
+# infra node setup
+for node in $(get_host_type infra); do
+ssh -q -o StrictHostKeyChecking=no 10.5.0.${node#*":"} <<EOF
+umount /var/lib/nova
+echo y | lvremove  /dev/lxc/nova00 || true
+sed -i 's/^\/dev\/mapper\/lxc-nova00.*//g' /etc/fstab
+lvresize -r -l+100%FREE /dev/lxc/root00
+EOF
+done
+
+# logger node setup
+for node in $(get_host_type logger); do
+ssh -q -o StrictHostKeyChecking=no 10.5.0.${node#*":"} <<EOF
+umount /var/lib/nova
+echo y | lvremove  /dev/lxc/nova00 || true
+sed -i 's/^\/dev\/mapper\/lxc-nova00.*//g' /etc/fstab
+lvresize -r -l+100%FREE /dev/lxc/openstack00
+EOF
+done
+
+# storage node setup
+for node in $(get_host_type storage); do
+ssh -q -o StrictHostKeyChecking=no 10.5.0.${node#*":"} <<EOF
+umount /var/lib/nova
+echo y | lvremove /dev/lxc/nova00 || true
+sed -i 's/^\/dev\/mapper\/lxc-nova00.*//g' /etc/fstab
+lvcreate --name cinder -l 100%FREE lxc
+vgcreate cinder-volumes /dev/lxc/cinder
+EOF
+done
+
+# swift node setup
+# for node in $(get_host_type swift); do
+# ssh -q -o StrictHostKeyChecking=no 10.5.0.${node#*":"} <<EOF
+# umount /var/lib/nova
+# echo y | lvremove  /dev/lxc/nova00 || true
+# sed -i 's/^\/dev\/mapper\/lxc-nova00.*//g' /etc/fstab
+# # apt-get update && apt-get -y install xfsprogs
+# for disk in disk1 disk2 disk3; do
+# lvcreate --name \${disk} -L 30G lxc
+# mkfs.xfs /dev/lxc/\${disk}
+# mkdir -p /src/\${disk}
+# mount /dev/lxc/\${disk} /srv/\${disk}
+# echo "/dev/mapper/lxc-\${disk} /srv/\${disk} xfs defaults 0 0" | tee -a /etc/fstab
+# done
+# EOF
+# done
+
+# ceph node setup
+# for node in $(get_host_type storage); do
+# ssh -q -o StrictHostKeyChecking=no 10.5.0.${node#*":"} <<EOF
+# umount /var/lib/nova
+# echo y | lvremove /dev/lxc/nova00 || true
+# sed -i 's/^\/dev\/mapper\/lxc-nova00.*//g' /etc/fstab
+# lvcreate --name cinder -l 100%FREE lxc
+# vgcreate cinder-volumes /dev/lxc/cinder
+# EOF
+# done

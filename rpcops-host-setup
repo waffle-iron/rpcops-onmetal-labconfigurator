@@ -60,9 +60,9 @@ apt-get update && apt-get upgrade -y
 apt-get install -y debconf-utils
 
 # Set debconf answers
-echo 'iptables-persistent       iptables-persistent/autosave_v6 boolean false' | debconf-set-selections
-echo 'iptables-persistent       iptables-persistent/autosave_v4 boolean false' | debconf-set-selections
-echo 'libguestfs-tools  libguestfs/update-appliance     boolean true' | debconf-set-selections
+echo 'iptables-persistent iptables-persistent/autosave_v6 boolean false' | debconf-set-selections
+echo 'iptables-persistent iptables-persistent/autosave_v4 boolean false' | debconf-set-selections
+echo 'libguestfs-tools libguestfs/update-appliance boolean true' | debconf-set-selections
 
 # Install identified necessary host packages (this can be adjusted as needed)
 apt-get install -y qemu tcpdump libvirt-bin libvirt-dev libguestfs-tools git git-core curl \
@@ -145,7 +145,7 @@ mkdir /labshare
 mount 10.209.128.54:/mnt/builder /labshare
 
 # Install Open vSwitch
-pushd /labshare/ovs
+pushd ovs
 dpkg -i openvswitch-common_2.4.90-1_amd64.deb openvswitch-switch_2.4.90-1_amd64.deb python-openvswitch_2.4.90-1_all.deb
 apt-get -f install
 popd
@@ -155,25 +155,20 @@ __DRIVES__='/dev/sdb /dev/sdc'
 for i in $__DRIVES__
 do
   echo -e "n\np\n\n\n\nw\n"|fdisk $i
-  mkfs.ext4 -O ^has_journal ${i}1
+  pvcreate ${i}1
 done
 
-pushd /var/lib/libvirt/images
-mkdir pool00
-mkdir pool01
-mount /dev/sdb1 pool00
-virsh pool-define-as --name pool00 --type dir --target /var/lib/libvirt/images/pool00
-mount /dev/sdc1 pool01
-virsh pool-define-as --name pool01 --type dir --target /var/lib/libvirt/images/pool01
-popd
+# Create storage pool volume group
+vgcreate storage /dev/sdb1 /dev/sdc1
 
-for i in pool00 pool01
-do
-  virsh pool-autostart $i
-  virsh pool-start $i
-done
+# Create storage pool logical volume
+lvcreate -l 100%FREE -n images storage
 
+# Create storage pool filesystem and mount
+mkfs.ext4 -O ^has_journal /dev/storage/images
+mount /dev/storage/images /var/lib/libvirt/images
 tail -n2 /etc/mtab >> /etc/fstab
+
 
 # Add necessary Open vSwitch virtual switches
 ovs-vsctl add-br fwlbsw
@@ -195,7 +190,7 @@ popd
 echo -e "Building virtual network infrastructure\n"
 # drac00 will not start without /tftpboot
 mkdir /tftpboot
-pushd /labshare/templates/networks
+pushd resources/networks
 for i in rpcops-*-net.xml
 do
   virsh net-define $i
@@ -209,22 +204,22 @@ done
 popd
 
 # Add qemu hook script for edge devices
-pushd /etc/libvirt/hooks
-wget https://raw.githubusercontent.com/codebauss/rpcops-onmetal-labconfigurator/master/resources/files/libvirt-hook-qemu -O qemu
+pushd resources/files
+cp libvirt-hook-qemu /etc/libvirt/hooks/qemu
 chmod o+rx qemu
 # Restart libvirt to realize hook script
 service libvirt-bin restart
 popd
 
 # Create firewall and loadbalancer libvirt VMs
-pushd /labshare/templates/edgedevices
+pushd resources/edgedevices
 clear
 echo -e "Copying edge device disk images\n"
-cp firewall.tar.gz /var/lib/libvirt/images/pool00
-cp loadbalancer.tar.gz /var/lib/libvirt/images/pool00
+cp /labshare/templates/edgedevices/firewall.tar.gz /var/lib/libvirt/images
+cp /labshare/templates/edgedevices/loadbalancer.tar.gz /var/lib/libvirt/images
 echo -e "Extracting edge device disk images\n"
-tar xzf /var/lib/libvirt/images/pool00/firewall.tar.gz -C /var/lib/libvirt/images/pool00
-tar xzf /var/lib/libvirt/images/pool00/loadbalancer.tar.gz -C /var/lib/libvirt/images/pool00
+tar xzf /var/lib/libvirt/images/firewall.tar.gz -C /var/lib/libvirt/images
+tar xzf /var/lib/libvirt/images/loadbalancer.tar.gz -C /var/lib/libvirt/images
 echo -e "Defining and starting edge devices\n"
 virsh define firewall.xml
 virsh define loadbalancer.xml
