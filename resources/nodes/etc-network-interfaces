@@ -48,7 +48,7 @@ iface bond0 inet static
     bond-miimon 100
     bond-downdelay 200
     bond-updelay 200
-    address 10.239.0.101
+    address 10.239.0.__OCTECT__
     netmask 255.255.252.0
     gateway 10.239.0.1
     dns-nameservers 69.20.0.164 69.20.0.196
@@ -69,7 +69,7 @@ iface bond0.202 inet manual
     vlan-raw-device bond0
 
 # OpenStack Networking VXLAN (tunnel/overlay) VLAN interface
-iface bond1.204 inet manual
+iface bond1.205 inet manual
     vlan-raw-device bond1
 
 # Storage network VLAN interface (optional)
@@ -84,7 +84,7 @@ iface br-mgmt inet static
     bridge_fd 0
     # Bridge port references tagged interface
     bridge_ports bond0.202
-    address 172.29.236.101
+    address 172.29.236.__OCTECT__
     netmask 255.255.252.0
     dns-nameservers 69.20.0.164 69.20.0.196
 
@@ -95,8 +95,8 @@ iface br-vxlan inet static
     bridge_waitport 0
     bridge_fd 0
     # Bridge port references tagged interface
-    bridge_ports bond1.204
-    address 172.29.240.101
+    bridge_ports bond1.205
+    address 172.29.240.__OCTECT__
     netmask 255.255.252.0
 
 # OpenStack Networking VLAN bridge
@@ -116,7 +116,7 @@ iface br-storage inet static
     bridge_fd 0
     # Bridge port reference tagged interface
     bridge_ports bond0.203
-    address 172.29.244.101
+    address 172.29.244.__OCTECT__
     netmask 255.255.252.0
 
 # Service bridge (Rackspace datacenters only)
@@ -126,14 +126,14 @@ iface br-snet inet static
     bridge_waitport 0
     bridge_fd 0
     # No bridge port on this bridge
-    address 172.29.248.101
+    address 172.29.248.__OCTECT__
     netmask 255.255.252.0
     pre-up brctl addbr br-snet
 
 # Physical interface 5
 auto eth4
 iface eth4 inet static
-    address 10.6.0.101
+    address 10.6.0.__OCTECT__
     netmask 255.255.255.0
     network 10.6.0.0
     broadcast 10.6.0.255
@@ -143,16 +143,3 @@ iface eth4 inet static
     pre-down ip route delete 10.176.0.0/12 via 10.6.0.1 || true
     post-up ip route add 10.208.0.0/12 via 10.6.0.1 || true
     pre-down ip route delete 10.208.0.0/12 via 10.6.0.1 || true
-
-# Physical interface 6
-auto eth5
-iface eth5 inet static
-    address 10.5.0.101
-    netmask 255.255.255.0
-    network 10.5.0.0
-    broadcast 10.5.0.255
-    # dns-* options are implemented by the resolvconf package, if installed
-    #dns-nameservers 10.5.0.1
-    #dns-search infra.local
-    post-up ip route add 10.5.0.0/24 via 10.5.0.1 || true
-    pre-down ip route delete 10.5.0.0/24 via 10.5.0.1 || true

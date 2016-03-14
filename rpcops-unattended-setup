@@ -153,7 +153,10 @@ wait_ssh
 
 # Do the basic host setup for all nodes
 for node in $(get_all_hosts); do
-scp -o StrictHostKeyChecking=no resources/nodes/etc-network-interfaces 10.5.0.${node#*":"}:/etc/network/interfaces.d/${node%%":"*}.local-interfaces.cfg
+cp resources/nodes/etc-network-interfaces resources/nodes/${node%%":"*}.local-interfaces.cfg
+sed -i "s/__OCTECT__/${node#*":"}/g" resources/nodes/${node%%":"*}.local-interfaces.cfg
+scp -o StrictHostKeyChecking=no resources/nodes/${node%%":"*}.local-interfaces.cfg 10.5.0.${node#*":"}:/etc/network/interfaces.d/${node%%":"*}.local-interfaces.cfg
+rm -f resources/nodes/${node%%":"*}.local-interfaces.cfg
 ssh -q -o StrictHostKeyChecking=no 10.5.0.${node#*":"} <<EOF
 if ! grep "^source.*cfg$" /etc/network/interfaces; then
 echo 'source /etc/network/interfaces.d/*.cfg' | tee -a /etc/network/interfaces
@@ -180,35 +183,35 @@ done
 wait_ssh
 
 # infra node setup
-for node in $(get_host_type infra); do
-ssh -q -o StrictHostKeyChecking=no 10.5.0.${node#*":"} <<EOF
-umount /var/lib/nova
-echo y | lvremove  /dev/lxc/nova00 || true
-sed -i 's/^\/dev\/mapper\/lxc-nova00.*//g' /etc/fstab
-lvresize -r -l+100%FREE /dev/lxc/root00
-EOF
-done
+# for node in $(get_host_type infra); do
+# ssh -q -o StrictHostKeyChecking=no 10.5.0.${node#*":"} <<EOF
+# umount /var/lib/nova
+# echo y | lvremove  /dev/lxc/nova00 || true
+# sed -i 's/^\/dev\/mapper\/lxc-nova00.*//g' /etc/fstab
+# lvresize -r -l+100%FREE /dev/lxc/root00
+# EOF
+# done
 
 # logger node setup
-for node in $(get_host_type logger); do
-ssh -q -o StrictHostKeyChecking=no 10.5.0.${node#*":"} <<EOF
-umount /var/lib/nova
-echo y | lvremove  /dev/lxc/nova00 || true
-sed -i 's/^\/dev\/mapper\/lxc-nova00.*//g' /etc/fstab
-lvresize -r -l+100%FREE /dev/lxc/openstack00
-EOF
-done
+# for node in $(get_host_type logger); do
+# ssh -q -o StrictHostKeyChecking=no 10.5.0.${node#*":"} <<EOF
+# umount /var/lib/nova
+# echo y | lvremove  /dev/lxc/nova00 || true
+# sed -i 's/^\/dev\/mapper\/lxc-nova00.*//g' /etc/fstab
+# lvresize -r -l+100%FREE /dev/lxc/openstack00
+# EOF
+# done
 
 # storage node setup
-for node in $(get_host_type storage); do
-ssh -q -o StrictHostKeyChecking=no 10.5.0.${node#*":"} <<EOF
-umount /var/lib/nova
-echo y | lvremove /dev/lxc/nova00 || true
-sed -i 's/^\/dev\/mapper\/lxc-nova00.*//g' /etc/fstab
-lvcreate --name cinder -l 100%FREE lxc
-vgcreate cinder-volumes /dev/lxc/cinder
-EOF
-done
+# for node in $(get_host_type storage); do
+# ssh -q -o StrictHostKeyChecking=no 10.5.0.${node#*":"} <<EOF
+# umount /var/lib/nova
+# echo y | lvremove /dev/lxc/nova00 || true
+# sed -i 's/^\/dev\/mapper\/lxc-nova00.*//g' /etc/fstab
+# lvcreate --name cinder -l 100%FREE lxc
+# vgcreate cinder-volumes /dev/lxc/cinder
+# EOF
+# done
 
 # swift node setup
 # for node in $(get_host_type swift); do
@@ -237,3 +240,15 @@ done
 # vgcreate cinder-volumes /dev/lxc/cinder
 # EOF
 # done
+
+echo -e "Lab ${LAB_CONFIG} configuration succeeded.\n"
+echo -e "This configuration provides the following:\n"
+for node in $(get_host_type infra); do
+  echo -e "${node}\n"
+done
+for node in $(get_host_type compute); do
+  echo -e "${node}\n"
+done
+for node in $(get_host_type storage); do
+  echo -e "${node}\n"
+done

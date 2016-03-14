@@ -121,7 +121,7 @@ d-i clock-setup/ntp-server string ntp.ubuntu.com
 
 # You may set this to any valid setting for $TZ; see the contents of
 # /usr/share/zoneinfo/ for valid values.
-d-i time/zone string US/Central
+d-i time/zone string UTC
 
 # Controls whether or not the hardware clock is set to UTC.
 d-i clock-setup/utc boolean true
@@ -154,7 +154,7 @@ d-i partman-auto-lvm/guided_size string max
 d-i partman-auto/choose_recipe select custompartitioning
 d-i partman-auto/expert_recipe string \
       custompartitioning :: \
-              512 1 512 ext2                                  \
+              2048 1 2048 ext2                                \
                       $primary{ }                             \
                       $bootable{ }                            \
                       method{ format } format{ }              \
@@ -165,7 +165,7 @@ d-i partman-auto/expert_recipe string \
               1024 1 100% ext4                                \
                       $primary{ }                             \
                       method{ lvm }                           \
-                      device{ /dev/__DEVICE_NAME__2 }          \
+                      device{ /dev/__DEVICE_NAME__2 }         \
                       vg_name{ lxc }                          \
               .                                               \
               8192 1 8192 linux-swap                          \
@@ -173,7 +173,7 @@ d-i partman-auto/expert_recipe string \
                       lv_name{ swap00 }                       \
                       method{ swap } format{ }                \
               .                                               \
-              51200 1 51200 ext4                              \
+              40960 1 40960 ext4                              \
                       $lvmok{ } in_vg{ lxc }                  \
                       lv_name{ root00 }                       \
                       method{ format } format{ }              \
@@ -181,29 +181,13 @@ d-i partman-auto/expert_recipe string \
                       label{ root }                           \
                       mountpoint{ / }                         \
               .                                               \
-              76800 1 76800 ext4                              \
-                      $lvmok{ } in_vg{ lxc }                  \
-                      lv_name{ openstack00 }                  \
-                      method{ format } format{ }              \
-                      use_filesystem{ } filesystem{ ext4 }    \
-                      label{ openstack00 }                    \
-                      mountpoint{ /openstack }                \
-              .                                               \
-              20480 1 20480 ext4                              \
+              163291 1 1000000000 ext4                        \
                       $lvmok{ } in_vg{ lxc }                  \
                       lv_name{ deleteme00 }                   \
                       method{ format } format{ }              \
                       use_filesystem{ } filesystem{ ext4 }    \
                       label{ deleteme00 }                     \
                       mountpoint{ /deleteme }                 \
-              .                                               \
-              1024 1 1000000000 ext4                          \
-                      $lvmok{ } in_vg{ lxc }                  \
-                      lv_name{ nova00 }                       \
-                      method{ format } format{ }              \
-                      use_filesystem{ } filesystem{ ext4 }    \
-                      label{ nova }                           \
-                      mountpoint{ /var/lib/nova }             \
               .                                               \
 
 # This makes partman automatically partition without confirmation, provided
@@ -225,7 +209,7 @@ tasksel tasksel/first multiselect openssh-server
 # Whether to upgrade packages after debootstrap.
 # Allowed values: none, safe-upgrade, full-upgrade
 d-i pkgsel/upgrade select none
-d-i pkgsel/include string openssh-server bridge-utils vim python2.7
+d-i pkgsel/include string openssh-server
 # Policy for applying updates. May be "none" (no automatic updates),
 # "unattended-upgrades" (install security updates automatically), or
 # "landscape" (manage system with Landscape).
@@ -256,8 +240,8 @@ d-i passwd/make-user boolean false
 d-i user-setup/allow-password-weak boolean true
 
 # Root password, either in clear text
-d-i passwd/root-password password cobbler
-d-i passwd/root-password-again password cobbler
+d-i passwd/root-password password openstack
+d-i passwd/root-password-again password openstack
 
 #############
 #
