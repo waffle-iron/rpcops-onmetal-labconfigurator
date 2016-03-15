@@ -19,6 +19,32 @@ fi
 ## rpcops-onmetal-labconfigurator
 Configuration script that builds out a X node lab environment for onboarding and testing purposes for Rackspace Private Cloud.
 
+## Pre Installation Considerations
+Make sure your OnMetal host is using all available CPU _see IMPORTANT above_  
+
+Here is what I suggest once you have OnMetal host built
+
+```shell
+# Install at a minimum git
+apt-get update
+apt-get install -y vim tmux screen git
+
+# Manually check for acpi bug and fix if necessary
+if ! [ `awk '/processor/ { count++ } END { print count }' /proc/cpuinfo` -eq 40 ]; then
+  echo -e "No bueno! acpi=off or another issue.\n"
+  echo -e "Fixing acpi=off. If this does not work, investigate further."
+  sed -i.bak 's/acpi=off/acpi=noirq/' /etc/default/grub
+  grub-mkconfig -o /boot/grub/grub.cfg
+  update-grub
+  touch /acpi-fixed
+else
+  echo "Good to go! acpi=noirq or bug irrelevant"
+fi
+
+# Reboot for server to realize changes
+shutdown -r now
+```
+
 ## REQUIREMENTS ##
 #### IAD Region Public Cloud Server  
 
