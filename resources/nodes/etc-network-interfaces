@@ -48,7 +48,7 @@ iface bond0 inet static
     bond-miimon 100
     bond-downdelay 200
     bond-updelay 200
-    address 10.239.0.__OCTECT__
+    address 10.239.0.__OCTET__
     netmask 255.255.252.0
     gateway 10.239.0.1
     dns-nameservers 69.20.0.164 69.20.0.196
@@ -84,7 +84,7 @@ iface br-mgmt inet static
     bridge_fd 0
     # Bridge port references tagged interface
     bridge_ports bond0.202
-    address 172.29.236.__OCTECT__
+    address 172.29.236.__OCTET__
     netmask 255.255.252.0
     dns-nameservers 69.20.0.164 69.20.0.196
 
@@ -96,7 +96,7 @@ iface br-vxlan inet static
     bridge_fd 0
     # Bridge port references tagged interface
     bridge_ports bond1.205
-    address 172.29.240.__OCTECT__
+    address 172.29.240.__OCTET__
     netmask 255.255.252.0
 
 # OpenStack Networking VLAN bridge
@@ -116,7 +116,7 @@ iface br-storage inet static
     bridge_fd 0
     # Bridge port reference tagged interface
     bridge_ports bond0.203
-    address 172.29.244.__OCTECT__
+    address 172.29.244.__OCTET__
     netmask 255.255.252.0
 
 # Service bridge (Rackspace datacenters only)
@@ -126,14 +126,14 @@ iface br-snet inet static
     bridge_waitport 0
     bridge_fd 0
     # No bridge port on this bridge
-    address 172.29.248.__OCTECT__
+    address 172.29.248.__OCTET__
     netmask 255.255.252.0
     pre-up brctl addbr br-snet
 
 # Physical interface 5
 auto eth4
 iface eth4 inet static
-    address 10.6.0.__OCTECT__
+    address 10.6.0.__OCTET__
     netmask 255.255.255.0
     network 10.6.0.0
     broadcast 10.6.0.255

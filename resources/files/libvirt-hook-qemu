@@ -42,7 +42,7 @@ add_rules(){
                  ;;
     loadbalancer)
                  /sbin/iptables -w -I FORWARD -i ${__HOST_PUBLIC_NIC__} -o ${__PUBLIC_BRIDGE__} -p tcp -d ${__LB_PUBLIC_IP__} --dport ${__PRIVATE_PORTS__[1]} -m state --state ${__STATES__} -j ACCEPT
-                 /sbin/iptables -w -I FORWARD -i ${__HOST_PUBLIC_NIC__} -o ${__PUBLIC_BRIDGE__} -p tcp -d ${__LB_PRIVATE_IP__} --dport ${__PRIVATE_PORTS__[1]} -m state --state ${__STATES__} -j ACCEPT
+                 /sbin/iptables -w -I FORWARD -i ${__HOST_PUBLIC_NIC__} -o ${__DRAC_BRIDGE__} -p tcp -d ${__LB_PRIVATE_IP__} --dport ${__PRIVATE_PORTS__[1]} -m state --state ${__STATES__} -j ACCEPT
                  /sbin/iptables -w -I FORWARD -i ${__HOST_PUBLIC_NIC__} -o ${__PUBLIC_BRIDGE__} -p tcp -d ${__LB_PUBLIC_IP__} --dport ${__PRIVATE_PORTS__[2]} -m state --state ${__STATES__} -j ACCEPT
                  /sbin/iptables -w -I FORWARD -i ${__HOST_PUBLIC_NIC__} -o ${__DRAC_BRIDGE__} -p tcp -d ${__LB_PRIVATE_IP__} --dport ${__PRIVATE_PORTS__[0]} -m state --state ${__STATES__} -j ACCEPT
                  /sbin/iptables -w -I FORWARD -i ${__HOST_PRIVATE_NIC__} -o ${__SNET_BRIDGE__} -p tcp -d ${__LB_PRIVATE_IP__} --dport ${__PRIVATE_PORTS__[1]} -m state --state ${__STATES__} -j ACCEPT
@@ -67,7 +67,7 @@ delete_rules(){
                  ;;
     loadbalancer)
                  /sbin/iptables -w -D FORWARD -i ${__HOST_PUBLIC_NIC__} -o ${__PUBLIC_BRIDGE__} -p tcp -d ${__LB_PUBLIC_IP__} --dport ${__PRIVATE_PORTS__[1]} -m state --state ${__STATES__} -j ACCEPT
-                 /sbin/iptables -w -D FORWARD -i ${__HOST_PUBLIC_NIC__} -o ${__PUBLIC_BRIDGE__} -p tcp -d ${__LB_PRIVATE_IP__} --dport ${__PRIVATE_PORTS__[1]} -m state --state ${__STATES__} -j ACCEPT
+                 /sbin/iptables -w -D FORWARD -i ${__HOST_PUBLIC_NIC__} -o ${__DRAC_BRIDGE__} -p tcp -d ${__LB_PRIVATE_IP__} --dport ${__PRIVATE_PORTS__[1]} -m state --state ${__STATES__} -j ACCEPT
                  /sbin/iptables -w -D FORWARD -i ${__HOST_PUBLIC_NIC__} -o ${__PUBLIC_BRIDGE__} -p tcp -d ${__LB_PUBLIC_IP__} --dport ${__PRIVATE_PORTS__[2]} -m state --state ${__STATES__} -j ACCEPT
                  /sbin/iptables -w -D FORWARD -i ${__HOST_PUBLIC_NIC__} -o ${__DRAC_BRIDGE__} -p tcp -d ${__LB_PRIVATE_IP__} --dport ${__PRIVATE_PORTS__[0]} -m state --state ${__STATES__} -j ACCEPT
                  /sbin/iptables -w -D FORWARD -i ${__HOST_PRIVATE_NIC__} -o ${__SNET_BRIDGE__} -p tcp -d ${__LB_PRIVATE_IP__} --dport ${__PRIVATE_PORTS__[1]} -m state --state ${__STATES__} -j ACCEPT

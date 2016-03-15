@@ -38,7 +38,7 @@ do
 done
 
 # Move to the root directory as starting point
-cd /root
+cd /root/rpcops-onmetal-labconfigurator
 
 # Enable nested KVM
 # echo 'options kvm_intel nested=1' >> /etc/modprobe.d/qemu-system-x86.conf
@@ -206,7 +206,7 @@ popd
 # Add qemu hook script for edge devices
 pushd resources/files
 cp libvirt-hook-qemu /etc/libvirt/hooks/qemu
-chmod o+rx qemu
+chmod o+rx /etc/libvirt/hooks/qemu
 # Restart libvirt to realize hook script
 service libvirt-bin restart
 popd

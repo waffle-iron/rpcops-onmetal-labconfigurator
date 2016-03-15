@@ -31,8 +31,8 @@ d-i debian-installer/add-kernel-opts string $kernel_options_post
 #if "__DEFAULT_NETWORK__" in $interfaces
     #set idata = $interfaces["__DEFAULT_NETWORK__"]
     #set static = $idata['static']
-    #set ip_address = $idata.get("ip_address", "127.0.0.1")
-    #set netmask = $idata.get("netmask", "255.0.0.0")
+    #set ip_address = $idata.getVar("ip_address", "127.0.0.1")
+    #set netmask = $idata.getVar("netmask", "255.0.0.0")
     #set gateway = $getVar('gateway','127.0.0.1')
 #end if
 
@@ -43,8 +43,8 @@ d-i netcfg/choose_interface select __DEFAULT_NETWORK__
 d-i netcfg/disable_autoconfig boolean true
 d-i netcfg/dhcp_failed note
 d-i netcfg/dhcp_options select Configure network manually
-d-i netcfg/get_ipaddress string $idata.get("ip_address", "127.0.0.1")
-d-i netcfg/get_netmask string $idata.get("netmask", "255.0.0.0")
+d-i netcfg/get_ipaddress string $idata.getVar("ip_address", "127.0.0.1")
+d-i netcfg/get_netmask string $idata.getVar("netmask", "255.0.0.0")
 d-i netcfg/get_gateway string $gateway
 d-i netcfg/get_nameservers string $name_servers[0]
 d-i netcfg/confirm_static boolean true

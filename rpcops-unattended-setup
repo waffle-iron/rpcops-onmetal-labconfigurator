@@ -24,6 +24,10 @@
 #   LAB_CONFIG='default'
 # fi
 
+# Move to the root directory as starting point
+cd /root/rpcops-onmetal-labconfigurator
+
+# Set LAB_CONFIG [default for now]
 LAB_CONFIG='default'
 
 # This is being set because sda is on hosts, vda is kvm, xvda is xen.
@@ -45,7 +49,7 @@ service cobblerd restart
 service apache2 restart
 service xinetd stop
 service xinetd start
-update-rc.d cobblerd defaults
+#update-rc.d cobblerd defaults
 
 # Mount Ubuntu server iso
 mkdir -p /var/cache/iso
@@ -111,10 +115,10 @@ for i in x.values():
 EOF
 }
 
-# Create the cobbler systems
+# Create the cobbler systems and set mac address for pxe nic
 for node in $(get_all_hosts); do
   hexchars="0123456789ABCDEF"
-  maddr=52:54:00:$( for i in {1..6} ; do echo -n ${hexchars:$(( $RANDOM % 16 )):1} ; done | sed -e 's/\(..\)/:\1/g' )
+  maddr=52:54:00$( for i in {1..6} ; do echo -n ${hexchars:$(( $RANDOM % 16 )):1} ; done | sed -e 's/\(..\)/:\1/g' )
   if ! cobbler system list | grep -qw "${node%%":"*}"; then
     cobbler system add \
       --name=${node%%":"*} \
@@ -126,8 +130,9 @@ for node in $(get_all_hosts); do
       --ip-address="10.5.0.${node#*":"}" \
       --subnet=255.255.255.0 \
       --gateway=10.5.0.1 \
-      --name-servers=69.20.0.164 69.20.0.196 \
-      --static=1
+      --name-servers='69.20.0.164 69.20.0.196' \
+      --static=1 \
+      --virt-type=kvm
   fi
 done
 
@@ -141,7 +146,7 @@ service xinetd start
 # Create the VM root disk then define and start the VMs.
 #  !!!THIS TASK WILL DESTROY ALL OF THE ROOT DISKS IF THEY ALREADY EXIST!!!
 for node in $(get_all_hosts); do
-  qemu-img create -f qcow2 /var/lib/libvirt/images/${node%%":"*}.local.img 200G
+  qemu-img create -f qcow2 /var/lib/libvirt/images/${node%%":"*}.local.qcow2 200G
   cp resources/nodes/node.xml /etc/libvirt/qemu/${node%%":"*}.local.xml
   sed -i "s/__NODE__/${node%%":"*}/g" /etc/libvirt/qemu/${node%%":"*}.local.xml
   virsh define /etc/libvirt/qemu/${node%%":"*}.local.xml || true
@@ -154,7 +159,7 @@ wait_ssh
 # Do the basic host setup for all nodes
 for node in $(get_all_hosts); do
 cp resources/nodes/etc-network-interfaces resources/nodes/${node%%":"*}.local-interfaces.cfg
-sed -i "s/__OCTECT__/${node#*":"}/g" resources/nodes/${node%%":"*}.local-interfaces.cfg
+sed -i "s/__OCTET__/${node#*":"}/g" resources/nodes/${node%%":"*}.local-interfaces.cfg
 scp -o StrictHostKeyChecking=no resources/nodes/${node%%":"*}.local-interfaces.cfg 10.5.0.${node#*":"}:/etc/network/interfaces.d/${node%%":"*}.local-interfaces.cfg
 rm -f resources/nodes/${node%%":"*}.local-interfaces.cfg
 ssh -q -o StrictHostKeyChecking=no 10.5.0.${node#*":"} <<EOF

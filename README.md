@@ -20,16 +20,16 @@ fi
 Configuration script that builds out a X node lab environment for onboarding and testing purposes for Rackspace Private Cloud.
 
 ## Pre Installation Considerations
-Make sure your OnMetal host is using all available CPU _see IMPORTANT above_  
+##### Make sure your OnMetal host is using all available CPU _see IMPORTANT above_  
 
-Here is what I suggest once you have OnMetal host built
+##### Here is what I suggest once you have OnMetal host built
 
 ```shell
 # Install at a minimum git
 apt-get update
 apt-get install -y vim tmux screen git
 
-# Manually check for acpi bug and fix if necessary
+# Manually check for acpi bug and fix if you did not already heed the IMPORTANT section above
 if ! [ `awk '/processor/ { count++ } END { print count }' /proc/cpuinfo` -eq 40 ]; then
   echo -e "No bueno! acpi=off or another issue.\n"
   echo -e "Fixing acpi=off. If this does not work, investigate further."

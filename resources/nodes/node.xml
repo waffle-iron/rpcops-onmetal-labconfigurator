@@ -5,7 +5,6 @@
   <vcpu placement='static'>8</vcpu>
   <os>
     <type arch='x86_64' machine='pc-i440fx-trusty'>hvm</type>
-    <boot dev='hd'/>
   </os>
   <features>
     <acpi/>
@@ -60,26 +59,32 @@
     <interface type='network'>
       <source network='lbsrvsw' portgroup='bond0'/>
       <model type='virtio'/>
+      <boot order='3'/>
     </interface>
     <interface type='network'>
       <source network='lbsrvsw' portgroup='bond1'/>
       <model type='virtio'/>
+      <boot order='4'/>
     </interface>
     <interface type='network'>
       <source network='lbsrvsw' portgroup='bond0'/>
       <model type='virtio'/>
+      <boot order='5'/>
     </interface>
     <interface type='network'>
       <source network='lbsrvsw' portgroup='bond1'/>
       <model type='virtio'/>
+      <boot order='6'/>
     </interface>
     <interface type='network'>
       <source network='snet00'/>
       <model type='virtio'/>
+      <boot order='7'/>
     </interface>
     <interface type='network'>
       <source network='drac00'/>
       <model type='virtio'/>
+      <boot order='2'/>
     </interface>
     <serial type='pty'>
       <target port='0'/>
