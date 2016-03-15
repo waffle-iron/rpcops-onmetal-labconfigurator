@@ -82,6 +82,7 @@
       <boot order='7'/>
     </interface>
     <interface type='network'>
+      <mac address="52:54:00:bd:81:__COUNT__"/>
       <source network='drac00'/>
       <model type='virtio'/>
       <boot order='2'/>
