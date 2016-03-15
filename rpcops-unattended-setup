@@ -117,8 +117,8 @@ EOF
 
 # Create the cobbler systems and set mac address for pxe nic
 for node in $(get_all_hosts); do
-  hexchars="0123456789ABCDEF"
-  maddr=52:54:00$( for i in {1..6} ; do echo -n ${hexchars:$(( $RANDOM % 16 )):1} ; done | sed -e 's/\(..\)/:\1/g' )
+  #hexchars="0123456789ABCDEF"
+  #maddr=52:54:00$( for i in {1..6} ; do echo -n ${hexchars:$(( $RANDOM % 16 )):1} ; done | sed -e 's/\(..\)/:\1/g' )
   if ! cobbler system list | grep -qw "${node%%":"*}"; then
     cobbler system add \
       --name=${node%%":"*} \
@@ -126,7 +126,7 @@ for node in $(get_all_hosts); do
       --hostname=${node%%":"*}.local \
       --kopts="interface=${DEFAULT_NETWORK}" \
       --interface=${DEFAULT_NETWORK} \
-      --mac="${maddr}" \
+      --mac="52:54:00:bd:81:${node:(-2)}" \
       --ip-address="10.5.0.${node#*":"}" \
       --subnet=255.255.255.0 \
       --gateway=10.5.0.1 \
@@ -149,6 +149,7 @@ for node in $(get_all_hosts); do
   qemu-img create -f qcow2 /var/lib/libvirt/images/${node%%":"*}.local.qcow2 200G
   cp resources/nodes/node.xml /etc/libvirt/qemu/${node%%":"*}.local.xml
   sed -i "s/__NODE__/${node%%":"*}/g" /etc/libvirt/qemu/${node%%":"*}.local.xml
+  sed -i "s/__COUNT__/${node:(-2)}/g" /etc/libvirt/qemu/${node%%":"*}.local.xml
   virsh define /etc/libvirt/qemu/${node%%":"*}.local.xml || true
   virsh create /etc/libvirt/qemu/${node%%":"*}.local.xml
 done

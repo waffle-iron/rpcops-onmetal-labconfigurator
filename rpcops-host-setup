@@ -296,6 +296,9 @@ sed -i "s/Allow from all/Require all granted/" /etc/apache2/conf-enabled/cobbler
 # Permission Workarounds
 chown www-data /var/lib/cobbler/webui_sessions
 
+# Create a trusty sources file
+cp -v resources/files/sources.list /var/www/html/trusty-sources.list
+
 # Restart services
 service cobblerd restart
 service apache2 restart
