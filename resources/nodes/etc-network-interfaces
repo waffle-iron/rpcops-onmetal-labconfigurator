@@ -2,8 +2,8 @@
 # and how to activate them. For more information, see interfaces(5).
 
 # The loopback network interface
-auto lo
-iface lo inet loopback
+#auto lo
+#iface lo inet loopback
 
 # Keeping for historical reasons
 # The primary network interface

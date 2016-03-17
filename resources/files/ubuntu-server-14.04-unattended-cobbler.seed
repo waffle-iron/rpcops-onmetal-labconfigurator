@@ -24,6 +24,16 @@ d-i debian-installer/add-kernel-opts string $kernel_options_post
 
 #############
 #
+# Pre Install
+#
+#############
+
+# Command Line 1: This is necessary otherwise you will be prompted to umount /dev/__DEVICE_NAME__. See Ubuntu bug #1347726.
+d-i preseed/early_command string \
+      umount /media || true
+
+#############
+#
 # Networking
 #
 #############
@@ -55,16 +65,6 @@ d-i netcfg/get_domain string $hostname
 
 # Disable that annoying WEP key dialog.
 d-i netcfg/wireless_wep string
-
-#############
-#
-# Pre Install
-#
-#############
-
-# Command Line 1: This is necessary otherwise you will be prompted to umount /dev/__DEVICE_NAME__. See Ubuntu bug #1347726.
-d-i preseed/early_command string \
-      umount /media || true
 
 #############
 #
