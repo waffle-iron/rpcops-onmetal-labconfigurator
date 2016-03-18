@@ -40,6 +40,9 @@ done
 # Move to the root directory as starting point
 cd /root/rpcops-onmetal-labconfigurator
 
+# Get onmetal host bond0.101 address [public]
+__HOST_IP__=`ip addr show dev bond0.101|awk '/inet/ { split($2, ip, "/"); print ip[1]; exit }'`
+
 # Enable nested KVM
 # echo 'options kvm_intel nested=1' >> /etc/modprobe.d/qemu-system-x86.conf
 
@@ -228,8 +231,6 @@ virsh start firewall
 sleep 10
 virsh start loadbalancer
 
-echo -e "Loadbalancer (NetScaler VPX 1000) GUI available via http://${__HOST_IP__}:1413\n"
-sleep 10
 
 echo -e "Starting cobbler install\n"
 sleep 5
@@ -321,5 +322,5 @@ cobbler sync
 #END_COBBLER_INSTALL
 echo -e "Cobbler install complete.\n"
 echo -e "Your host machine has been bootstrapped for the lab successfully.\n"
-echo -e "Will proceed to run rpcops-unattended-setup or you can do so manually.\n"
+echo -e "Loadbalancer (NetScaler VPX 1000) GUI available via http://${__HOST_IP__}:1413\n"
 sleep 15
