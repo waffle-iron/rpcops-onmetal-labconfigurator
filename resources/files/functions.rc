@@ -1,0 +1,17 @@
+clear_cobbler() {
+  echo -e "Removing all cobbler systems"
+  for i in `cobbler system list`; do cobbler system remove --name $i; done;
+
+  echo -e "Removing all cobbler profiles"
+  for i in `cobbler profile list`; do cobbler profile remove --name $i; done;
+
+  echo -e "Removing all cobbler repos"
+  for i in `cobbler repo list`; do cobbler repo remove --name $i; done;
+
+  echo -e "Removing all cobbler distros"
+  for i in `cobbler distro list`; do cobbler distro remove --name $i; done;
+
+  echo -e "Removing custom preseed and resyncing cobbler"
+  rm -f /var/lib/cobbler/kickstarts/ubuntu-server-14.04-unattended-cobbler.seed;
+  cobbler sync;
+}

@@ -19,10 +19,18 @@ d-i keyboard-configuration/layoutcode string us
 # basic form of the layout will be used):
 #d-i keyboard-configuration/variantcode string dvorak
 
+#if "__DEFAULT_NETWORK__" in $interfaces
+    #set idata = $interfaces["__DEFAULT_NETWORK__"]
+    #set static = $idata['static']
+    #set ip_address = $idata.get("ip_address", "127.0.0.1")
+    #set netmask = $idata.get("netmask", "255.0.0.0")
+    #set gateway = $getVar('gateway','127.0.0.1')
+#end if
+
 # Disable network configuration entirely. This is useful for cdrom
 # installations on non-networked devices where the network questions,
 # warning and long timeouts are a nuisance.
-d-i netcfg/enable boolean false
+#d-i netcfg/enable boolean false
 
 # netcfg will choose an interface that has link if possible. This makes it
 # skip displaying a list if there is more than one interface.
@@ -44,14 +52,6 @@ d-i netcfg/disable_autoconfig boolean true
 # configuration below.
 d-i netcfg/dhcp_failed note
 d-i netcfg/dhcp_options select Configure network manually
-
-#if "__DEFAULT_NETWORK__" in $interfaces
-    #set idata = $interfaces["__DEFAULT_NETWORK__"]
-    #set static = $idata['static']
-    #set ip_address = $idata.get("ip_address", "127.0.0.1")
-    #set netmask = $idata.get("netmask", "255.0.0.0")
-    #set gateway = $getVar('gateway','127.0.0.1')
-#end if
 
 #if $static
 # Static network configuration.
@@ -471,21 +471,25 @@ d-i finish-install/reboot_in_progress note
 # here's a way to run any shell command you'd like inside the installer,
 # automatically.
 
+# Removed from late_command
+#in-target wget -O /root/desktop-bootstrap.sh "http://example.com/ubuntu-desktop-bootstrap.sh"; \
+#in-target chmod +x /root/desktop-bootstrap.sh; \
+#in-target /root/desktop-bootstrap.sh; \
+#wget http://$http_server/osa-$hostname-bridges.cfg -O /target/etc/network/interfaces.d/osa-$hostname-bridges.cfg; \
 
 d-i preseed/late_command string \
-  #in-target wget -O /root/desktop-bootstrap.sh "http://example.com/ubuntu-desktop-bootstrap.sh"; \
-  #in-target chmod +x /root/desktop-bootstrap.sh; \
-  #in-target /root/desktop-bootstrap.sh; \
-  cp /var/log/syslog /target/root/log/install-syslog; \
+  cp /target/var/log/syslog /target/root/install-syslog; \
   wget http://$http_server/trusty-sources.list -O /target/etc/apt/sources.list; \
-  #wget http://$http_server/osa-$hostname-bridges.cfg -O /target/etc/network/interfaces.d/osa-$hostname-bridges.cfg; \
-  #wget http://$http_server/cblr/svc/op/nopxe/system/$system_name -O /dev/null; \
-  sed -i '/PermitRootLogin / s/ .*/ yes/' /target/etc/ssh/sshd_config; \
+  wget http://$http_server/cblr/svc/op/nopxe/system/$system_name -O /dev/null; \
+  sed -i 's/PermitRootLogin without-password/PermitRootLogin yes/' /target/etc/ssh/sshd_config; \
   mkdir /target/root/.ssh; \
   chmod 0700 /target/root/.ssh; \
   echo "__SSHKEY__" >> /target/root/.ssh/authorized_keys; \
+  sed -i 's/sleep/#sleep/g' /target/etc/init/failsafe.conf; \
+  echo 'bonding' >> /target/etc/modules; \
+  echo '8021q' >> /target/etc/modules; \
   killall.sh || true; \
-  netcfg; \
+  netcfg;
 
 # No boot splash screen.
 #d-i debian-installer/splash boolean false
@@ -496,4 +500,4 @@ d-i preseed/late_command string \
 #oem-config oem-config/steps multiselect language, keyboard, user, network, tasks
 
 # Reboot after the install is finished.
-finish-install finish-install/reboot_in_progress note
+d-i finish-install/reboot_in_progress note

@@ -168,19 +168,21 @@ if ! grep "^source.*cfg$" /etc/network/interfaces; then
 echo 'source /etc/network/interfaces.d/*.cfg' | tee -a /etc/network/interfaces
 fi
 umount /deleteme || true
-lvchange -an /dev/lxc/deleteme00
-echo y | lvremove /dev/lxc/deleteme00 || true
-sed -i 's/^\/dev\/mapper\/lxc-deleteme00.*//g' /etc/fstab
+lvchange -an /dev/lxc/deleteme
+echo y | lvremove /dev/lxc/deleteme || true
+sed -i 's/^\/dev\/mapper\/lxc-deleteme.*//g' /etc/fstab
 cat > /etc/apt/preferences <<EOL
 Package: linux-generic linux-headers-generic linux-image-generic linux-restricted-modules-generic
 Pin: version 3.19.0-51
 Pin-Priority: 1001
 EOL
-apt-get remove -y linux-image-4.2.0-27-generic linux-headers-4.2.0-27-generic linux-image-extra-4.2.0-27-generic
+apt-get remove -y linux-image-4.2.0-.*-generic linux-headers-4.2.0-.*-generic linux-image-extra-4.2.0-.*-generic
 apt-get install -y linux-image-3.19.0-51-generic linux-image-extra-3.19.0-51-generic linux-headers-3.19.0-51-generic
-apt-get remove -y linux-image-4.2.0-30-generic linux-headers-4.2.0-30-generic linux-image-extra-4.2.0-30-generic
+apt-get remove -y linux-image-4.2.0-.*-generic linux-headers-4.2.0-.*-generic linux-image-extra-4.2.0-.*-generic
 apt-get autoremove -y
 update-grub
+sed -i 's/gateway 10.5.0.1/#/' /etc/network/interfaces
+echo 'UseDNS no' | tee -a /etc/ssh/sshd_config
 shutdown -r now
 EOF
 done
