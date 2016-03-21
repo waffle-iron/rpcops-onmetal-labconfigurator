@@ -15,7 +15,6 @@
 #	broadcast 192.168.0.255
 #	gateway 192.168.0.1
 # dns-* options are implemented by the resolvconf package, if installed
-#	dns-nameservers 192.168.0.1
 #	dns-search infra.local
 
 # Physical interface 1
@@ -51,7 +50,7 @@ iface bond0 inet static
     address 10.239.0.__OCTET__
     netmask 255.255.252.0
     gateway 10.239.0.1
-    dns-nameservers 69.20.0.164 69.20.0.196
+    dns-nameservers 10.5.0.6
 #    post-up ip route add 10.239.0.0/22 via 10.239.0.1 || true
 #    pre-down ip route delete 10.239.0.0/22 via 10.239.0.1 || true
 
@@ -69,7 +68,7 @@ iface bond0.202 inet manual
     vlan-raw-device bond0
 
 # OpenStack Networking VXLAN (tunnel/overlay) VLAN interface
-iface bond1.205 inet manual
+iface bond1.204 inet manual
     vlan-raw-device bond1
 
 # Storage network VLAN interface (optional)
@@ -86,7 +85,6 @@ iface br-mgmt inet static
     bridge_ports bond0.202
     address 172.29.236.__OCTET__
     netmask 255.255.252.0
-    dns-nameservers 69.20.0.164 69.20.0.196
 
 # OpenStack Networking VXLAN (tunnel/overlay) bridge
 auto br-vxlan
