@@ -130,7 +130,7 @@ for node in $(get_all_hosts); do
       --ip-address="10.5.0.${node#*":"}" \
       --subnet=255.255.255.0 \
       --gateway=10.5.0.1 \
-      --name-servers='69.20.0.164 69.20.0.196' \
+      --name-servers='10.5.0.1' \
       --static=1 \
       --virt-type=kvm
   fi

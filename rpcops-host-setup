@@ -137,7 +137,7 @@ gem install serverspec
 
 # Install pip and a few helper packages
 python <(curl -sk https://bootstrap.pypa.io/get-pip.py)
-pip install pyopenssl ndg-httpsclient pyasn1 bpython httpie ansible==1.9.4 pykickstart
+pip install pyopenssl ndg-httpsclient pyasn1 bpython httpie ansible==1.9.4
 
 # Mount the RPC Labs NFS share
 # TODO granted, the host needs to be in IAD for this
@@ -281,7 +281,7 @@ sed -i "s/manage_dhcp: .*/manage_dhcp: 1/" /etc/cobbler/settings
 # Change DHCP server template to match the given network configuration
 sed -i "s/subnet .* netmask .* {/subnet $NETWORK netmask $NETMASK {/" /etc/cobbler/dhcp.template
 sed -i "/option routers             192.168.1.5;/d" /etc/cobbler/dhcp.template
-sed -i "/option domain-name-servers 192.168.1.1;/d" /etc/cobbler/dhcp.template
+sed -i "/option domain-name-servers 192.168.1.1;/option domain-name-servers ${IP_ADDR};/" /etc/cobbler/dhcp.template
 sed -i "s/range dynamic-bootp .*/range dynamic-bootp        ${DHCP_MIN_HOST} ${DHCP_MAX_HOST};/" /etc/cobbler/dhcp.template
 
 # Change dhcp-server default listening interface

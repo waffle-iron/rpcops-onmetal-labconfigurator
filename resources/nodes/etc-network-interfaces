@@ -50,7 +50,7 @@ iface bond0 inet static
     address 10.239.0.__OCTET__
     netmask 255.255.252.0
     gateway 10.239.0.1
-    dns-nameservers 10.5.0.6
+    dns-nameservers 69.20.0.164 69.20.0.196
 #    post-up ip route add 10.239.0.0/22 via 10.239.0.1 || true
 #    pre-down ip route delete 10.239.0.0/22 via 10.239.0.1 || true
 
