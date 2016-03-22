@@ -42,33 +42,33 @@
     </controller>
     <interface type='network'>
       <source network='lbsrvsw' portgroup='bond0'/>
-      <model type='virtio'/>
+      <model type='e1000'/>
       <boot order='3'/>
     </interface>
     <interface type='network'>
       <source network='lbsrvsw' portgroup='bond1'/>
-      <model type='virtio'/>
+      <model type='e1000'/>
       <boot order='4'/>
     </interface>
     <interface type='network'>
       <source network='lbsrvsw' portgroup='bond0'/>
-      <model type='virtio'/>
+      <model type='e1000'/>
       <boot order='5'/>
     </interface>
     <interface type='network'>
       <source network='lbsrvsw' portgroup='bond1'/>
-      <model type='virtio'/>
+      <model type='e1000'/>
       <boot order='6'/>
     </interface>
     <interface type='network'>
       <source network='snet00'/>
-      <model type='virtio'/>
+      <model type='e1000'/>
       <boot order='7'/>
     </interface>
     <interface type='network'>
       <mac address="52:54:00:bd:81:__COUNT__"/>
       <source network='drac00'/>
-      <model type='virtio'/>
+      <model type='e1000'/>
       <boot order='2'/>
     </interface>
     <serial type='pty'>

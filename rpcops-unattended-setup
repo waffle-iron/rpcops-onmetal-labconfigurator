@@ -250,13 +250,3 @@ wait_ssh
 # done
 
 echo -e "Lab ${LAB_CONFIG} configuration succeeded.\n"
-echo -e "This configuration provides the following:\n"
-for node in $(get_host_type infra); do
-  echo -e "${node}\n"
-done
-for node in $(get_host_type compute); do
-  echo -e "${node}\n"
-done
-for node in $(get_host_type storage); do
-  echo -e "${node}\n"
-done
