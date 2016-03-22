@@ -7,8 +7,5 @@
     "compute": {
         "compute01": "104",
         "compute02": "105"
-    },
-    "storage": {
-        "storage01": "106"
     }
 }
