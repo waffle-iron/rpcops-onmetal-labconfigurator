@@ -72,7 +72,7 @@ echo 'add serviceGroup RPC_POOL_GLANCE_REGISTRY TCP -maxClient 0 -maxReq 0 -cip 
 echo 'add serviceGroup RPC_POOL_SWIFT HTTP -maxClient 0 -maxReq 0 -cip DISABLED -usip NO -useproxyport YES -cltTimeout 180 -svrTimeout 360 -CKA NO -TCPB NO -CMP NO'
 echo 'add serviceGroup RPC_POOL_KEYSTONE_ADMIN TCP -maxClient 0 -maxReq 0 -cip DISABLED -usip NO -useproxyport YES -cltTimeout 9000 -svrTimeout 9000 -CKA NO -TCPB NO -CMP NO'
 echo 'add serviceGroup RPC_POOL_KIBANA_SSL TCP -maxClient 0 -maxReq 0 -cip DISABLED -usip NO -useproxyport YES -cltTimeout 9000 -svrTimeout 9000 -CKA NO -TCPB NO -CMP NO'
-echo 'add serviceGroup RPC_POOL_REPO HTTP -maxClient 0 -maxReq 0 -cacheable YES -cip DISABLED -usip NO -useproxyport YES -cltTimeout 180 -svrTimeout 360 -CKA NO -TCPB NO -CMP NO -appflowLog DISABLED'
+echo 'add serviceGroup RPC_POOL_REPO HTTP -maxClient 0 -maxReq 0 -cip DISABLED -usip NO -useproxyport YES -cltTimeout 180 -svrTimeout 360 -CKA NO -TCPB NO -CMP NO'
 
 # Bind servers/services to ServiceGroups / Pools
 cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep horizon|while read i; do echo "bind serviceGroup RPC_POOL_HORIZON ${i} 80"; done;

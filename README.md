@@ -1,6 +1,7 @@
 # IMPORTANT
 Before you run this, ensure that your host machine has acpi=noirq in the kernel parameters for boot  
 This is necessary as there is a bug whereby the total number of CPUs will not be available if not done  
+This requirement will more than likely be removed going forward as issue has been raised with images team  
 
 #### Quick Fix (root or sudo required)
 ```shell
