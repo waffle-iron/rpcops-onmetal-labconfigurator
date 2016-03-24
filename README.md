@@ -143,6 +143,8 @@ LoadBalancers: 192.168.0.249-254/24
 Node Public Addresses: 192.168.239.101-124/24  
 OpenStack Public/Floating IPs: 192.168.240.1-99/22  
 
+Tenant VLANS: 206-210
+
 __NAT Translations on Firewall__  
 
 Type | Address Block | Translation
@@ -156,17 +158,19 @@ SNAT | 10.239.0.101-105/24 | 192.168.239.101-105/24
 
 
 
-Network | IP Block(s)
---------|------------
-Host/Node | 10.239.0.0/22
-Gateway | 10.240.0.0/22
-Container | 172.29.236.0/22
-Tunnel/Overlay | 172.29.240.0/22
-Storage | 172.29.244..0/22
-Swift | 172.29.248.0/22
-Drac | 10.5.0.0/24
-ServiceNet | 10.6.0.0/24
-Public | 192.168.0.0/24 192.168.239.0/24 192.168.240.0/22
+Network | IP Block(s) | VLAN
+--------|-------------|-----
+Host/Node | 10.239.0.0/22 | 201
+Gateway | 10.240.0.0/22 | 205
+Container | 172.29.236.0/22 | 202
+Tunnel/Overlay | 172.29.240.0/22 |
+Storage | 172.29.244..0/22 |
+Swift | 172.29.248.0/22 |
+DRAC | 10.5.0.0/24 |
+ServiceNet | 10.6.0.0/24 |
+Public | 192.168.0.0/24 |
+       | 192.168.239.0/24 |
+       | 192.168.240.0/22 | 
 
 ## Libvirt Virtualization Considerations ##
 #### Networks  
