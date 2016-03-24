@@ -43,8 +43,33 @@ shutdown -r now
 
 ## Installation Steps ##
 ```shell
+# From the OnMetal host change to root directory
+cd /root
+# Clone the lab repo
+git clone https://github.com/codebauss/rpcops-onmetal-labconfigurator
+# Change into the lab repo directory
+cd rpcops-onmetal-labconfigurator
+# Create tmux session for install
+tmux new-session -s rpcops
+# Run the host setup script; will take some time (10-15m)
+bash rpcops-host-setup
+# Run the lab configuration setup; will take some time (10-15m)
+bash rpcops-unattended-setup
 
+# Once the above have completed
+# Copy VPX builder script to infra01
+scp resources/files/vpx-builder-kilo root@10.5.0.101:/root/
+# Clone rpc-openstack to /opt
+git clone -b r11.1.5 --recursive https://github.com/rcbops/rpc-openstack /opt/rpc-openstack
+# Bootstrap ansible
+cd /opt/rpc-openstack/openstack-ansible
+scripts/bootstrap-ansible.sh
 ```
+
+__Before you proceed to install OpenStack, keep in mind that you will at some point need to
+have the VPX properly configured. It is suggested to run the vpx-builder-kilo script Before
+you begin the OpenStack playbooks install. It would be easiest to simply run the dynamic_inventory
+python script RIGHT BEFORE you are ready to run any plabooks.__
 
 ## Post Installation Considerations ##
 #### Configure public key authentication to load balancer (password: nsroot)
