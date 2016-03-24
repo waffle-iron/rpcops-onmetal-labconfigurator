@@ -41,7 +41,7 @@ fi
 shutdown -r now
 ```
 
-## Installation Steps ##  
+## Installation Steps ##
 ```shell
 
 ```
