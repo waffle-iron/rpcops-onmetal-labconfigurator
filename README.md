@@ -1,29 +1,24 @@
+## rpcops-onmetal-labconfigurator
+Configuration script that builds out a X node lab environment for onboarding and testing purposes for Rackspace Private Cloud.  
+
+## REQUIREMENTS ##
+#### IAD Region Public Cloud Server  
+
+OnMetal I/O v1: Ubuntu 14.04 LTS (Trusty Tahr)  
+CPU: Dual 2.8 Ghz, 10 core Intel® Xeon® E5-2680 v2  
+RAM: 128 GB  
+System Disk: 32 GB  
+Data Disk: Dual 1.6 TB PCIe flash cards  
+Network: Redundant 10 Gb / s connections in a high availability bond  
+Disk I/O: Good
+
 # IMPORTANT
 Before you run this, ensure that your host machine has acpi=noirq in the kernel parameters for boot  
 This is necessary as there is a bug whereby the total number of CPUs will not be available if not done  
 This requirement will more than likely be removed going forward as issue has been raised with images team  
 
-#### Quick Fix (root or sudo required)
-```shell
-if ! [ `awk '/processor/ { count++ } END { print count }' /proc/cpuinfo` -eq 40 ]; then
-  echo -e "No bueno! acpi=off or another issue.\n"
-  echo -e "Fixing acpi=off. If this does not work, investigate further."
-  sed -i.bak 's/acpi=off/acpi=noirq/' /etc/default/grub
-  grub-mkconfig -o /boot/grub/grub.cfg
-  update-grub
-  touch /acpi-fixed
-else
-  echo "Good to go! acpi=noirq or bug irrelevant"
-fi
-```
-
-## rpcops-onmetal-labconfigurator
-Configuration script that builds out a X node lab environment for onboarding and testing purposes for Rackspace Private Cloud.
-
 ## Pre Installation Considerations
-##### Make sure your OnMetal host is using all available CPU _see IMPORTANT above_  
-
-##### Here is what I suggest once you have OnMetal host built
+##### Make sure your OnMetal host package cache is up-to-date, has git as it is required, vim|tmux|screen are optional, and using all available CPUs  
 
 ```shell
 # Install at a minimum git
@@ -46,26 +41,48 @@ fi
 shutdown -r now
 ```
 
-## REQUIREMENTS ##
-#### IAD Region Public Cloud Server  
+## Installation Steps ##  
+```shell
 
-OnMetal I/O v1: Ubuntu 14.04 LTS (Trusty Tahr)  
-CPU: Dual 2.8 Ghz, 10 core Intel® Xeon® E5-2680 v2  
-RAM: 128 GB  
-System Disk: 32 GB  
-Data Disk: Dual 1.6 TB PCIe flash cards  
-Network: Redundant 10 Gb / s connections in a high availability bond  
-Disk I/O: Good
+```
 
 ## Login Considerations ##  
-OnMetal Host  
-SSH Public Key Authentication  
-*you can modify the /etc/ssh/sshd_config to allow password auth*  
+__OnMetal Host__  
+SSH Public Key Authentication required during build  
+*you can modify /etc/ssh/sshd_config to allow password authentication*  
 
-OpenStack Nodes  
+__VyOS Firewall__  
+ssh vyos@192.168.0.2  
+password: vyos
+
+__NetScaler VPX LoadBalancer__  
+ssh nsroot@10.5.0.4  
+password: nsroot  
+GUI: http://<onmetal_public_ipv4_address>:1413  
+
+__OpenStack Nodes__  
 root : openstack  
 
 ## Network Considerations ##
+
+Firewalls: 192.168.0.2-7/24  
+LoadBalancers: 192.168.0.249-254/24  
+Node Public Addresses: 192.168.239.101-124/24  
+OpenStack Public/Floating IPs: 192.168.240.1-99/22  
+
+__NAT Translations on Firewall__  
+
+Type | Address Block | Translation
+-----|---------------|------------
+DNAT | 192.168.239.101-105/24 | 10.239.0.101-105/24
+| 192.168.240.1-16/22 | 10.240.0.21-36/22
+| 172.29.236.100/22 | 192.168.0.249/24
+SNAT | 10.239.0.101-105/24 | 192.168.239.101-105/24
+| 10.240.0.21-36/22 | 192.168.240.1-16/22
+| 172.24.96.249/24 | 192.168.0.249/24
+
+
+
 Network | IP Block(s)
 --------|------------
 Host/Node | 10.239.0.0/22
