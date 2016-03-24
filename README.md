@@ -93,7 +93,7 @@ http://10.5.0.4/nitro/v1/config/reboot -d '{"reboot":{"warm":true}}'
 
 ```
 
-## Login Considerations ##  
+## Login Considerations ##
 __OnMetal Host__  
 SSH Public Key Authentication required during build  
 *you can modify /etc/ssh/sshd_config to allow password authentication*  
