@@ -46,67 +46,6 @@ shutdown -r now
 
 ```
 
-## Login Considerations ##  
-__OnMetal Host__  
-SSH Public Key Authentication required during build  
-*you can modify /etc/ssh/sshd_config to allow password authentication*  
-
-__VyOS Firewall__  
-ssh vyos@192.168.0.2  
-password: vyos
-
-__NetScaler VPX LoadBalancer__  
-ssh nsroot@10.5.0.4  
-password: nsroot  
-GUI: http://<onmetal_public_ipv4_address>:1413  
-
-__OpenStack Nodes__  
-root : openstack  
-
-## Network Considerations ##
-
-Firewalls: 192.168.0.2-7/24  
-LoadBalancers: 192.168.0.249-254/24  
-Node Public Addresses: 192.168.239.101-124/24  
-OpenStack Public/Floating IPs: 192.168.240.1-99/22  
-
-__NAT Translations on Firewall__  
-
-Type | Address Block | Translation
------|---------------|------------
-DNAT | 192.168.239.101-105/24 | 10.239.0.101-105/24
-| 192.168.240.1-16/22 | 10.240.0.21-36/22
-| 172.29.236.100/22 | 192.168.0.249/24
-SNAT | 10.239.0.101-105/24 | 192.168.239.101-105/24
-| 10.240.0.21-36/22 | 192.168.240.1-16/22
-| 172.24.96.249/24 | 192.168.0.249/24
-
-
-
-Network | IP Block(s)
---------|------------
-Host/Node | 10.239.0.0/22
-Gateway | 10.240.0.0/22
-Container | 172.29.236.0/22
-Tunnel/Overlay | 172.29.240.0/22
-Storage | 172.29.244..0/22
-Swift | 172.29.248.0/22
-Drac | 10.5.0.0/24
-ServiceNet | 10.6.0.0/24
-Public | 192.168.0.0/24 192.168.239.0/24 192.168.240.0/22
-
-## Libvirt Virtualization Considerations ##
-#### Networks  
-drac00  
-snet00  
-public00
-
-## Open vSwitch Considerations ##
-#### Virtual Switches  
-fwlbsw  
-lbsrvsw  
-hasw
-
 ## Post Installation Considerations ##
 #### Configure public key authentication to load balancer (password: nsroot)
 ```shell
@@ -153,6 +92,68 @@ curl -s -X POST -H 'Content-Type: application/json' \
 http://10.5.0.4/nitro/v1/config/reboot -d '{"reboot":{"warm":true}}'
 
 ```
+
+## Login Considerations ##  
+__OnMetal Host__  
+SSH Public Key Authentication required during build  
+*you can modify /etc/ssh/sshd_config to allow password authentication*  
+
+__VyOS Firewall__  
+ssh vyos@192.168.0.2  
+password: vyos
+
+__NetScaler VPX LoadBalancer__  
+ssh nsroot@10.5.0.4  
+password: nsroot  
+GUI: http://{{ onmetal_host_public_ipv4_address }}:1413  
+
+__OpenStack Nodes__  
+User: root  
+Pass: openstack  
+
+## Network Considerations ##
+
+Firewalls: 192.168.0.2-7/24  
+LoadBalancers: 192.168.0.249-254/24  
+Node Public Addresses: 192.168.239.101-124/24  
+OpenStack Public/Floating IPs: 192.168.240.1-99/22  
+
+__NAT Translations on Firewall__  
+
+Type | Address Block | Translation
+-----|---------------|------------
+DNAT | 192.168.239.101-105/24 | 10.239.0.101-105/24
+     | 192.168.240.1-16/22 | 10.240.0.21-36/22
+     | 172.29.236.100/22 | 192.168.0.249/24
+SNAT | 10.239.0.101-105/24 | 192.168.239.101-105/24
+     | 10.240.0.21-36/22 | 192.168.240.1-16/22
+     | 172.24.96.249/24 | 192.168.0.249/24
+
+
+
+Network | IP Block(s)
+--------|------------
+Host/Node | 10.239.0.0/22
+Gateway | 10.240.0.0/22
+Container | 172.29.236.0/22
+Tunnel/Overlay | 172.29.240.0/22
+Storage | 172.29.244..0/22
+Swift | 172.29.248.0/22
+Drac | 10.5.0.0/24
+ServiceNet | 10.6.0.0/24
+Public | 192.168.0.0/24 192.168.239.0/24 192.168.240.0/22
+
+## Libvirt Virtualization Considerations ##
+#### Networks  
+drac00  
+snet00  
+public00
+
+## Open vSwitch Considerations ##
+#### Virtual Switches  
+fwlbsw  
+lbsrvsw  
+hasw  
 
 #### Contributors
 Melvin Hillsman _codebauss_  

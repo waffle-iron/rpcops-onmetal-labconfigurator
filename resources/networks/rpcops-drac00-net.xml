@@ -10,10 +10,5 @@
   <domain name='drac00'/>
   <ip address='10.5.0.1' netmask='255.255.255.0'>
     <tftp root='/tftpboot'/>
-    <dhcp>
-      <range start='10.5.0.10' end='10.5.0.60'/>
-      <bootp file='pxelinux.0'/>
-    </dhcp>
   </ip>
 </network>
-

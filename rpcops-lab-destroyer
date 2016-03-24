@@ -9,8 +9,9 @@
 # - delete profiles
 # - delete systems
 
-# Force shutdown all instances
+# Force shutdown and remove all instances
 for i in `virsh list --all|awk '/local/ { print $2 }'`; do virsh destroy $i; done;
+for i in `virsh list --all|awk '/local/ { print $2 }'`; do virsh undefine $i; done;
 
 # Delete all disks
 rm -f /var/lib/libvirt/images/*.local.qcow2
