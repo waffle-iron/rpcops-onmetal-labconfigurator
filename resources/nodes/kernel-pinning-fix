@@ -8,6 +8,6 @@ EOF
 
 apt-get remove -y linux-image-4.2.0-27-generic linux-headers-4.2.0-27-generic linux-image-extra-4.2.0-27-generic
 apt-get install -y linux-image-3.19.0-51-generic linux-image-extra-3.19.0-51-generic linux-headers-3.19.0-51-generic
-apt-get remove -y linux-image-4.2.0-30-generic linux-headers-4.2.0-30-generic linux-image-extra-4.2.0-30-generic
+apt-get remove -y linux-image-4.2.0-.*-generic linux-headers-4.2.0-.*-generic linux-image-extra-4.2.0-.*-generic
 apt-get autoremove -y
 update-grub

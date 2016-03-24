@@ -8,3 +8,13 @@
 # cobbler
 # - delete profiles
 # - delete systems
+
+# Force shutdown all instances
+for i in `virsh list --all|awk '/local/ { print $2 }'`; do virsh destroy $i; done;
+
+# Delete all disks
+rm -f /var/lib/libvirt/images/*.local.qcow2
+
+# Source functions and run clear_cobbler function
+source /root/rpcops-onmetal-labconfigurator/resources/files/functions.rc
+clear_cobbler

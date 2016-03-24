@@ -57,7 +57,13 @@ Data Disk: Dual 1.6 TB PCIe flash cards
 Network: Redundant 10 Gb / s connections in a high availability bond  
 Disk I/O: Good
 
-## Login Considerations ##
+## Login Considerations ##  
+OnMetal Host  
+SSH Public Key Authentication  
+*you can modify the /etc/ssh/sshd_config to allow password auth*  
+
+OpenStack Nodes  
+root : openstack  
 
 ## Network Considerations ##
 Network | IP Block(s)
