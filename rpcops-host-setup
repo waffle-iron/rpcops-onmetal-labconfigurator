@@ -72,7 +72,7 @@ apt-get install -y qemu tcpdump libvirt-bin libvirt-dev libguestfs-tools git git
 zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 \
 libxml2-dev libxslt1-dev libcurl4-openssl-dev python-software-properties libffi-dev python-dev \
 python curl vim telnet zip unzip nfs-common python-libvirt tmux iptables-persistent \
-ebtables pm-utils dsh expect
+ebtables pm-utils dsh expect empty-expect
 apt-get autoremove -y
 
 pushd /usr/local/bin
