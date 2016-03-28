@@ -37,7 +37,7 @@ __DELETE_STATUS__=( release reconnect )
 add_rules(){
   case $1 in
         firewall)
-                 /sbin/iptables -w -I FORWARD -i ${__HOST_PUBLIC_NIC__} -o ${__DRAC_BRIDGE__} -p tcp -d ${__FW_PUBLIC_IP__} --dport ${__PRIVATE_PORTS__[0]} -m state --state ${__STATES__} -j ACCEPT
+                 /sbin/iptables -w -I FORWARD -i ${__HOST_PUBLIC_NIC__} -o ${__PUBLIC_BRIDGE__} -p tcp -d ${__FW_PUBLIC_IP__} --dport ${__PRIVATE_PORTS__[0]} -m state --state ${__STATES__} -j ACCEPT
                  /sbin/iptables -w -t nat -I PREROUTING -i ${__HOST_PUBLIC_NIC__} -p tcp -d ${__HOST_IP__} --dport ${__PUBLIC_PORTS__[0]} -j DNAT --to-destination ${__FW_PUBLIC_IP__}:${__PRIVATE_PORTS__[0]}
                  ;;
     loadbalancer)
@@ -62,7 +62,7 @@ add_rules(){
 delete_rules(){
   case $1 in
         firewall)
-                 /sbin/iptables -w -D FORWARD -i ${__HOST_PUBLIC_NIC__} -o ${__DRAC_BRIDGE__} -p tcp -d ${__FW_PUBLIC_IP__} --dport ${__PRIVATE_PORTS__[0]} -m state --state ${__STATES__} -j ACCEPT
+                 /sbin/iptables -w -D FORWARD -i ${__HOST_PUBLIC_NIC__} -o ${__PUBLIC_BRIDGE__} -p tcp -d ${__FW_PUBLIC_IP__} --dport ${__PRIVATE_PORTS__[0]} -m state --state ${__STATES__} -j ACCEPT
                  /sbin/iptables -w -t nat -D PREROUTING -i ${__HOST_PUBLIC_NIC__} -p tcp -d ${__HOST_IP__} --dport ${__PUBLIC_PORTS__[0]} -j DNAT --to-destination ${__FW_PUBLIC_IP__}:${__PRIVATE_PORTS__[0]}
                  ;;
     loadbalancer)
