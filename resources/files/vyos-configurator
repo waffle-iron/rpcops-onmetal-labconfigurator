@@ -1,5 +1,4 @@
 #!/bin/bash
-# This has been tested and works with VyOS 1.1.7
 
 # Check that empty-expect is installed and install if not
 dpkg --get-selections | grep empty
@@ -8,10 +7,25 @@ if ! [ $rc -eq 0 ]; then
   apt-get install -y empty-expect
 fi
 
-#TODO automate ssh-copy-id host to firewall
+# Check that firewall is in /etc/hosts
+grep 192.168.0.2 /etc/hosts
+rc=$?
+if ! [ $rc -eq 0 ]; then
+  echo -e "\n192.168.0.2\tfirewall" >> /etc/hosts
+fi
+
+# Get hostname for firewall
+__FWHOSTNAME__=`awk '/192.168.0.2/ { print $2 }' /etc/hosts`
+
+# Copy SSH key to firewall
+empty -f -i in.fifo -o out.fifo -p vyosconfig.pid -L vyosconfig.log ssh-copy-id -o StrictHostKeyChecking=no vyos@$__FWHOSTNAME__
+empty -w -i out.fifo -o in.fifo "assword" "vyos\n"
+
+# Remove empty artifacts
+rm -f in.fifo out.fifo vyosconfig.pid vyosconfig.log
 
 # Login into firewall
-empty -f -i input.fifo -o output.fifo -p vyosconfig.pid -L vyosconfig.log ssh vyos@firewall
+empty -f -i input.fifo -o output.fifo -p vyosconfig.pid -L vyosconfig.log ssh -o StrictHostKeyChecking=no vyos@$__FWHOSTNAME__
 
 # Enter configuration mode
 empty -w -i output.fifo -o input.fifo "vyos\@vyos" "conf\n"
@@ -632,12 +646,10 @@ empty -w -i output.fifo -o input.fifo "vyos\@vyos" "set service dns forwarding n
 empty -w -i output.fifo -o input.fifo "vyos\@vyos" "commit\n"
 # Save runtime configuration
 empty -w -i output.fifo -o input.fifo "vyos\@vyos" "save config\n"
-# Save runtime configuration to boot
-empty -w -i output.fifo -o input.fifo "vyos\@vyos" "save\n"
 # Exit configuration mode
 empty -w -i output.fifo -o input.fifo "vyos\@vyos" "exit\n"
 # Logout of the firewall
 empty -w -i output.fifo -o input.fifo "vyos\@vyos" "exit\n"
 
 # Remove empty artifacts
-rm input.fifo output.fifo vyosconfig.pid
+rm input.fifo output.fifo vyosconfig.pid vyosconfig.log
