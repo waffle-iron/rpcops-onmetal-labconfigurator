@@ -59,6 +59,8 @@ bash rpcops-unattended-setup
 # Once the above have completed
 # Copy VPX builder script to infra01
 scp resources/files/vpx-builder-kilo root@10.5.0.101:/root/
+# SSH into infra01
+ssh root@10.5.0.101
 # Clone rpc-openstack to /opt
 git clone -b r11.1.5 --recursive https://github.com/rcbops/rpc-openstack /opt/rpc-openstack
 # Bootstrap ansible
