@@ -632,6 +632,8 @@ empty -w -i output.fifo -o input.fifo "vyos\@vyos" "set service dns forwarding n
 empty -w -i output.fifo -o input.fifo "vyos\@vyos" "commit\n"
 # Save runtime configuration
 empty -w -i output.fifo -o input.fifo "vyos\@vyos" "save config\n"
+# Save runtime configuration to boot
+empty -w -i output.fifo -o input.fifo "vyos\@vyos" "save\n"
 # Exit configuration mode
 empty -w -i output.fifo -o input.fifo "vyos\@vyos" "exit\n"
 # Logout of the firewall
