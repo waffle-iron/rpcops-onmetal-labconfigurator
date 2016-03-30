@@ -28,59 +28,14 @@
 cd /root/rpcops-onmetal-labconfigurator
 
 # Set LAB_CONFIG [default for now]
-LAB_CONFIG='default'
+if ! [ -z "$1" ]; then
+  LAB_CONFIG=$1
+else
+  LAB_CONFIG='default'
+fi
 
-# This is being set because sda is on hosts, vda is kvm, xvda is xen.
-DRIVE_NAME="vda"
 # This gets the root users SSH-public-key
 SSHKEY=$(cat /root/.ssh/id_rsa.pub)
-# This is set to instruct the preseed what the default network is expected to be
-DEFAULT_NETWORK="eth5"
-
-#  when templated replace \$ with $ and \\ with \
-# Not sure what ^ means, check with Kevin
-cp resources/files/ubuntu-server-14.04-unattended-cobbler.seed /var/lib/cobbler/kickstarts/ubuntu-server-14.04-unattended-cobbler.seed
-sed -i "s/__DRIVE_NAME__/${DRIVE_NAME}/g" /var/lib/cobbler/kickstarts/ubuntu-server-14.04-unattended-cobbler.seed
-sed -i "s|__SSHKEY__|${SSHKEY}|g" /var/lib/cobbler/kickstarts/ubuntu-server-14.04-unattended-cobbler.seed
-sed -i "s/__DEFAULT_NETWORK__/${DEFAULT_NETWORK}/g" /var/lib/cobbler/kickstarts/ubuntu-server-14.04-unattended-cobbler.seed
-
-# Restart services again and configure autostart
-service cobblerd restart
-service apache2 restart
-service xinetd stop
-service xinetd start
-#update-rc.d cobblerd defaults
-
-# Mount Ubuntu server iso
-mkdir -p /var/cache/iso
-pushd /var/cache/iso
-cp /labshare/isos/ubuntu-14.04.4-server-amd64.iso .
-popd
-
-# import cobbler image
-if ! cobbler distro list | grep -qw "ubuntu-14.04.4-server-x86_64"; then
-  mkdir -p /mnt/iso
-  mount -o loop /var/cache/iso/ubuntu-14.04.4-server-amd64.iso /mnt/iso
-  cobbler import --name=ubuntu-14.04.4-server-amd64 --path=/mnt/iso
-  umount /mnt/iso
-fi
-
-# Create cobbler profile
-if ! cobbler profile list | grep -qw "ubuntu-14.04.4-server-unattended"; then
-  cobbler profile add \
-    --name ubuntu-14.04.4-server-unattended \
-    --distro ubuntu-14.04.4-server-x86_64 \
-    --kickstart /var/lib/cobbler/kickstarts/ubuntu-server-14.04-unattended-cobbler.seed
-
-  # sync cobbler
-  cobbler sync
-fi
-
-# Get Loaders
-cobbler get-loaders
-
-# Update Cobbler Signatures
-cobbler signature update
 
 function wait_ssh() {
 echo "Waiting for all nodes to become available. This can take around 10 min"
@@ -115,138 +70,30 @@ for i in x.values():
 EOF
 }
 
-# Create the cobbler systems and set mac address for pxe nic
-for node in $(get_all_hosts); do
-  #hexchars="0123456789ABCDEF"
-  #maddr=52:54:00$( for i in {1..6} ; do echo -n ${hexchars:$(( $RANDOM % 16 )):1} ; done | sed -e 's/\(..\)/:\1/g' )
-  if ! cobbler system list | grep -qw "${node%%":"*}"; then
-    cobbler system add \
-      --name=${node%%":"*} \
-      --profile=ubuntu-14.04.4-server-unattended \
-      --hostname=${node%%":"*}.local \
-      --kopts="interface=${DEFAULT_NETWORK}" \
-      --interface=${DEFAULT_NETWORK} \
-      --mac="52:54:00:bd:81:${node:(-2)}" \
-      --ip-address="10.5.0.${node#*":"}" \
-      --subnet=255.255.255.0 \
-      --gateway=10.5.0.1 \
-      --name-servers='10.5.0.1' \
-      --static=1 \
-      --virt-type=kvm
-  fi
-done
-
-# sync cobbler
-cobbler sync
-
-# Restart XinetD
-service xinetd stop
-service xinetd start
-
 # Create the VM root disk then define and start the VMs.
 #  !!!THIS TASK WILL DESTROY ALL OF THE ROOT DISKS IF THEY ALREADY EXIST!!!
 for node in $(get_all_hosts); do
+#TODO change node creation process
+# create node storage using backing image
   qemu-img create -f qcow2 /var/lib/libvirt/images/${node%%":"*}.local.qcow2 200G
+# create node xml file
   cp resources/nodes/node.xml /etc/libvirt/qemu/${node%%":"*}.local.xml
   sed -i "s/__NODE__/${node%%":"*}/g" /etc/libvirt/qemu/${node%%":"*}.local.xml
   sed -i "s/__COUNT__/${node:(-2)}/g" /etc/libvirt/qemu/${node%%":"*}.local.xml
+# define node
   virsh define /etc/libvirt/qemu/${node%%":"*}.local.xml || true
+
+#TODO use libguestfs-tools to configure node
+# inject onmetal host SSH key
+# update /etc/hosts
+# update /etc/network/interfaces
+# update /etc/network/interfaces.d/node.cfg
+
+# create node
   virsh create /etc/libvirt/qemu/${node%%":"*}.local.xml
 done
 
 # Wait here for all nodes to be booted and ready with SSH
 wait_ssh
-
-# Do the basic host setup for all nodes
-for node in $(get_all_hosts); do
-cp resources/nodes/etc-network-interfaces resources/nodes/${node%%":"*}.local-interfaces.cfg
-sed -i "s/__OCTET__/${node#*":"}/g" resources/nodes/${node%%":"*}.local-interfaces.cfg
-scp -o StrictHostKeyChecking=no resources/nodes/${node%%":"*}.local-interfaces.cfg 10.5.0.${node#*":"}:/etc/network/interfaces.d/${node%%":"*}.local-interfaces.cfg
-rm -f resources/nodes/${node%%":"*}.local-interfaces.cfg
-ssh -q -o StrictHostKeyChecking=no 10.5.0.${node#*":"} <<EOF
-if ! grep "^source.*cfg$" /etc/network/interfaces; then
-echo 'source /etc/network/interfaces.d/*.cfg' | tee -a /etc/network/interfaces
-fi
-umount /deleteme || true
-lvchange -an /dev/lxc/deleteme
-echo y | lvremove /dev/lxc/deleteme || true
-sed -i 's/^\/dev\/mapper\/lxc-deleteme.*//g' /etc/fstab
-cat > /etc/apt/preferences <<EOL
-Package: linux-generic linux-headers-generic linux-image-generic linux-restricted-modules-generic
-Pin: version 3.19.0-51
-Pin-Priority: 1001
-EOL
-apt-get remove -y linux-image-4.2.0-.*-generic linux-headers-4.2.0-.*-generic linux-image-extra-4.2.0-.*-generic
-apt-get install -y linux-image-3.19.0-51-generic linux-image-extra-3.19.0-51-generic linux-headers-3.19.0-51-generic
-apt-get remove -y linux-image-4.2.0-.*-generic linux-headers-4.2.0-.*-generic linux-image-extra-4.2.0-.*-generic
-apt-get autoremove -y
-update-grub
-sed -i 's/gateway 10.5.0.1/#/' /etc/network/interfaces
-echo 'UseDNS no' | tee -a /etc/ssh/sshd_config
-shutdown -r now
-EOF
-done
-
-# Wait here for all nodes to be booted and ready with SSH
-wait_ssh
-
-# infra node setup
-# for node in $(get_host_type infra); do
-# ssh -q -o StrictHostKeyChecking=no 10.5.0.${node#*":"} <<EOF
-# umount /var/lib/nova
-# echo y | lvremove  /dev/lxc/nova00 || true
-# sed -i 's/^\/dev\/mapper\/lxc-nova00.*//g' /etc/fstab
-# lvresize -r -l+100%FREE /dev/lxc/root00
-# EOF
-# done
-
-# logger node setup
-# for node in $(get_host_type logger); do
-# ssh -q -o StrictHostKeyChecking=no 10.5.0.${node#*":"} <<EOF
-# umount /var/lib/nova
-# echo y | lvremove  /dev/lxc/nova00 || true
-# sed -i 's/^\/dev\/mapper\/lxc-nova00.*//g' /etc/fstab
-# lvresize -r -l+100%FREE /dev/lxc/openstack00
-# EOF
-# done
-
-# storage node setup
-# for node in $(get_host_type storage); do
-# ssh -q -o StrictHostKeyChecking=no 10.5.0.${node#*":"} <<EOF
-# umount /var/lib/nova
-# echo y | lvremove /dev/lxc/nova00 || true
-# sed -i 's/^\/dev\/mapper\/lxc-nova00.*//g' /etc/fstab
-# lvcreate --name cinder -l 100%FREE lxc
-# vgcreate cinder-volumes /dev/lxc/cinder
-# EOF
-# done
-
-# swift node setup
-# for node in $(get_host_type swift); do
-# ssh -q -o StrictHostKeyChecking=no 10.5.0.${node#*":"} <<EOF
-# umount /var/lib/nova
-# echo y | lvremove  /dev/lxc/nova00 || true
-# sed -i 's/^\/dev\/mapper\/lxc-nova00.*//g' /etc/fstab
-# # apt-get update && apt-get -y install xfsprogs
-# for disk in disk1 disk2 disk3; do
-# lvcreate --name \${disk} -L 30G lxc
-# mkfs.xfs /dev/lxc/\${disk}
-# mkdir -p /src/\${disk}
-# mount /dev/lxc/\${disk} /srv/\${disk}
-# echo "/dev/mapper/lxc-\${disk} /srv/\${disk} xfs defaults 0 0" | tee -a /etc/fstab
-# done
-# EOF
-# done
-
-# ceph node setup
-# for node in $(get_host_type storage); do
-# ssh -q -o StrictHostKeyChecking=no 10.5.0.${node#*":"} <<EOF
-# umount /var/lib/nova
-# echo y | lvremove /dev/lxc/nova00 || true
-# sed -i 's/^\/dev\/mapper\/lxc-nova00.*//g' /etc/fstab
-# lvcreate --name cinder -l 100%FREE lxc
-# vgcreate cinder-volumes /dev/lxc/cinder
-# EOF
-# done
 
 echo -e "Lab ${LAB_CONFIG} configuration succeeded.\n"
