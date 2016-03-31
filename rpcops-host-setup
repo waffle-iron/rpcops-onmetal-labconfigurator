@@ -40,8 +40,11 @@ done
 # Move to the root directory as starting point
 cd /root/rpcops-onmetal-labconfigurator
 
-# Get onmetal host bond0.101 address [public]
-__HOST_IP__=`ip addr show dev bond0.101|awk '/inet/ { split($2, ip, "/"); print ip[1]; exit }'`
+# Get onmetal host bond0.XXX
+__HOST_BOND_INT__=( `ip link list|grep -oP "(?<=\ )bond0\.[0-9]{3}(?=@bond0)"` )
+
+# Get onmetal host bond0.XXX address [public]
+__HOST_IP__=`ip addr show dev "${__HOST_BOND_INT__[0]}"|awk '/inet/ { split($2, ip, "/"); print ip[1]; exit }'`
 
 # Enable nested KVM
 # echo 'options kvm_intel nested=1' >> /etc/modprobe.d/qemu-system-x86.conf
