@@ -10,9 +10,11 @@ declare -a __DELETE_STATUS__
 declare -a __EDGE_DEVICES__
 
 __NFS_SHARE_IP__='10.184.8.159'
-__HOST_IP__=`ip addr show dev bond0.101|awk '/inet/ { split($2, ip, "/"); print ip[1]; exit }'`
-__HOST_PUBLIC_NIC__='bond0.101'
-__HOST_PRIVATE_NIC__='bond0.401'
+# Dynamically get host machine bonds
+__HOST_BOND_INT__=( `ip link list|grep -oP "(?<=\ )bond0\.[0-9]{3}(?=@bond0)"` )
+__HOST_IP__=`ip addr show dev "${__HOST_BOND_INT__[0]}"|awk '/inet/ { split($2, ip, "/"); print ip[1]; exit }'`
+__HOST_PUBLIC_NIC__="${__HOST_BOND_INT__[0]}"
+__HOST_PRIVATE_NIC__="${__HOST_BOND_INT__[1]}"
 
 __DRAC_BRIDGE__='virbr0'
 __SNET_BRIDGE__='virbr1'
