@@ -40,8 +40,11 @@ done
 # Move to the root directory as starting point
 cd /root/rpcops-onmetal-labconfigurator
 
-# Get onmetal host bond0.101 address [public]
-__HOST_IP__=`ip addr show dev bond0.101|awk '/inet/ { split($2, ip, "/"); print ip[1]; exit }'`
+# Get onmetal host bond0.XXX
+__HOST_BOND_INT__=( `ip link list|grep -oP "(?<=\ )bond0\.[0-9]{3}(?=@bond0)"` )
+
+# Get onmetal host bond0.XXX address [public]
+__HOST_IP__=`ip addr show dev "${__HOST_BOND_INT__[0]}"|awk '/inet/ { split($2, ip, "/"); print ip[1]; exit }'`
 
 # Enable nested KVM
 # echo 'options kvm_intel nested=1' >> /etc/modprobe.d/qemu-system-x86.conf
@@ -194,6 +197,61 @@ echo -e "Building virtual network infrastructure\n"
 # drac00 will not start without /tftpboot
 mkdir /tftpboot
 pushd resources/networks
+
+# Dynamically generate networks that depend on host bond interfaces
+cat << EON > rpcops-drac00-net.xml
+<network>
+  <name>drac00</name>
+  <forward dev='${__HOST_BOND_INT__[0]}' mode='nat'>
+    <nat>
+      <port start='1024' end='65535'/>
+    </nat>
+    <interface dev='${__HOST_BOND_INT__[0]}'/>
+  </forward>
+  <bridge name='virbr0' stp='off' delay='0'/>
+  <domain name='drac00'/>
+  <ip address='10.5.0.1' netmask='255.255.255.0'>
+    <tftp root='/tftpboot'/>
+  </ip>
+</network>
+EON
+
+cat << EON > rpcops-public00-net.xml
+<network>
+  <name>public00</name>
+  <forward dev='${__HOST_BOND_INT__[0]}' mode='nat'>
+    <nat>
+      <port start='1024' end='65535'/>
+    </nat>
+    <interface dev='${__HOST_BOND_INT__[0]}'/>
+  </forward>
+  <bridge name='virbr2' stp='off' delay='0'/>
+  <domain name='public00'/>
+  <ip address='192.168.0.1' netmask='255.255.255.0'>
+  </ip>
+  <ip address='192.168.239.1' netmask='255.255.255.0'>
+  </ip>
+  <ip address='192.168.240.1' netmask='255.255.252.0'>
+  </ip>
+</network>
+EON
+
+cat << EON > rpcops-snet00-net.xml
+<network>
+  <name>snet00</name>
+  <forward dev='${__HOST_BOND_INT__[1]}' mode='nat'>
+    <nat>
+      <port start='1024' end='65535'/>
+    </nat>
+    <interface dev='${__HOST_BOND_INT__[1]}'/>
+  </forward>
+  <bridge name='virbr1' stp='off' delay='0'/>
+  <domain name='snet00'/>
+  <ip address='10.6.0.1' netmask='255.255.255.0'>
+  </ip>
+</network>
+EON
+
 for i in rpcops-*-net.xml
 do
   virsh net-define $i
