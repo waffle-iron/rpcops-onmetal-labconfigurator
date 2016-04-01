@@ -87,7 +87,7 @@ for node in $(get_all_hosts); do
 
   # inject onmetal host SSH key
   pushd /var/lib/libvirt/images
-  echo -e "Injecting host SSH key into node: ${node}\n"
+  echo -e "Injecting host SSH key into node: ${node%%":"*}\n"
   guestfish -d ${node%%":"*} -i <<EOG
 mkdir-p /root/.ssh
 touch /root/.ssh/authorized_keys
