@@ -34,6 +34,9 @@ else
   LAB_CONFIG='default'
 fi
 
+# Set BACKING_FILE
+BACKING_FILE='/var/lib/libvirt/images/nodebase.qcow2'
+
 # This gets the root users SSH-public-key
 SSHKEY=$(cat /root/.ssh/id_rsa.pub)
 
@@ -73,21 +76,47 @@ EOF
 # Create the VM root disk then define and start the VMs.
 #  !!!THIS TASK WILL DESTROY ALL OF THE ROOT DISKS IF THEY ALREADY EXIST!!!
 for node in $(get_all_hosts); do
-#TODO change node creation process
 # create node storage using backing image
-  qemu-img create -f qcow2 /var/lib/libvirt/images/${node%%":"*}.local.qcow2 200G
+  qemu-img create -f qcow2 -b ${BACKING_FILE} /var/lib/libvirt/images/${node%%":"*}.qcow2
 # create node xml file
-  cp resources/nodes/node.xml /etc/libvirt/qemu/${node%%":"*}.local.xml
-  sed -i "s/__NODE__/${node%%":"*}/g" /etc/libvirt/qemu/${node%%":"*}.local.xml
-  sed -i "s/__COUNT__/${node:(-2)}/g" /etc/libvirt/qemu/${node%%":"*}.local.xml
+  cp resources/nodes/node.xml /etc/libvirt/qemu/${node%%":"*}.xml
+  sed -i "s/__NODE__/${node%%":"*}/g" /etc/libvirt/qemu/${node%%":"*}.xml
+  sed -i "s/__COUNT__/${node:(-2)}/g" /etc/libvirt/qemu/${node%%":"*}.xml
 # define node
-  virsh define /etc/libvirt/qemu/${node%%":"*}.local.xml || true
+  virsh define /etc/libvirt/qemu/${node%%":"*}.xml || true
 
-#TODO use libguestfs-tools to configure node
-# inject onmetal host SSH key
+  # inject onmetal host SSH key
+pushd /var/lib/libvirt/images
+guestfish -d ${node%%":"*} -i <<EOG
+mkdir-p /root/.ssh
+touch /root/.ssh/authorized_keys
+chmod 0600 /root/.ssh/authorized_keys
+EOG
+sleep 5
+guestfish -d ${node%%":"*} -i write /root/.ssh/authorized_keys "${SSHKEY}"
+sleep 5
+
 # update /etc/hosts
+guestfish -d ${node%%":"*} -i <<EOG
+command "sed -i -e 's/nodebase/${node%%":"*}/g' -e 's/10.5.0.5/10.5.0.${node:(-3)}/' /etc/hosts"
+EOG
+sleep 5
+
 # update /etc/network/interfaces
+guestfish -d ${node%%":"*} -i <<EOG
+sh 'sed -i -e "s/nodebase/${node%%":"*}/g" -e "s/10.5.0.5/10.5.0.${node:(-3)}/" /etc/network/interfaces'
+EOG
+sleep 5
+
 # update /etc/network/interfaces.d/node.cfg
+guestfish -d ${node%%":"*} -i <<EOG
+sh 'sed -i -re "s/nodebase/${node%%":"*}/g" /etc/network/interfaces.d/node.cfg'
+EOG
+sleep 5
+guestfish -d ${node%%":"*} -i <<EOG
+sh 'sed -i -re "s/(([0-9]{1,3}[.]){3})(5)/\1${node:(-3)}/g" /etc/network/interfaces.d/node.cfg'
+EOG
+sleep 5
 
 # create node
   virsh create /etc/libvirt/qemu/${node%%":"*}.local.xml
