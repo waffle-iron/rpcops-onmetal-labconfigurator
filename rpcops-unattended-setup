@@ -125,6 +125,7 @@ EOG
 # create node
   echo -e "Creating/starting node: ${node}\n"
   virsh create /etc/libvirt/qemu/${node%%":"*}.xml
+  popd
 done
 
 # Wait here for all nodes to be booted and ready with SSH
