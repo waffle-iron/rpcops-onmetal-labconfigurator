@@ -98,21 +98,21 @@ EOG
   sleep 5
 
   # update /etc/hosts
-  echo -e "Updating /etc/hosts on node: ${node}\n"
+  echo -e "Updating /etc/hosts on node: ${node%%":"*}\n"
   guestfish -d ${node%%":"*} -i <<EOG
 command "sed -i -e 's/nodebase/${node%%":"*}/g' -e 's/10.5.0.5/10.5.0.${node:(-3)}/' /etc/hosts"
 EOG
   sleep 5
 
   # update /etc/network/interfaces
-  echo -e "Updating /etc/network/interfaces of node: ${node}\n"
+  echo -e "Updating /etc/network/interfaces of node: ${node%%":"*}\n"
   guestfish -d ${node%%":"*} -i <<EOG
 sh 'sed -i -e "s/nodebase/${node%%":"*}/g" -e "s/10.5.0.5/10.5.0.${node:(-3)}/" /etc/network/interfaces'
 EOG
   sleep 5
 
   # update /etc/network/interfaces.d/node.cfg
-  echo -e "Updating /etc/network/interfaces.d/node.cfg of node: ${node}\n"
+  echo -e "Updating /etc/network/interfaces.d/node.cfg of node: ${node%%":"*}\n"
   guestfish -d ${node%%":"*} -i <<EOG
 sh 'sed -i -re "s/nodebase/${node%%":"*}/g" /etc/network/interfaces.d/node.cfg'
 EOG
@@ -123,7 +123,7 @@ EOG
   sleep 5
 
 # create node
-  echo -e "Creating/starting node: ${node}\n"
+  echo -e "Creating and starting node: ${node%%":"*}\n"
   virsh create /etc/libvirt/qemu/${node%%":"*}.xml
   popd
 done
