@@ -1,5 +1,5 @@
 <domain type='kvm'>
-  <name>__NODE__.local</name>
+  <name>__NODE__</name>
   <memory unit='KiB'>8388608</memory>
   <currentMemory unit='KiB'>8388608</currentMemory>
   <vcpu placement='static'>8</vcpu>
@@ -29,7 +29,7 @@
     <emulator>/usr/bin/qemu-system-x86_64</emulator>
     <disk type='file' device='disk'>
       <driver name='qemu' type='qcow2'/>
-      <source file='/var/lib/libvirt/images/__NODE__.local.qcow2'/>
+      <source file='/var/lib/libvirt/images/__NODE__.qcow2'/>
       <target dev='vda' bus='virtio'/>
       <boot order='1'/>
       <alias name='virtio-disk0'/>
