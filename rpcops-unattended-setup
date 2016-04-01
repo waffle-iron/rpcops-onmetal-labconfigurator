@@ -41,7 +41,7 @@ BACKING_FILE='/var/lib/libvirt/images/nodebase.qcow2'
 SSHKEY=$(cat /root/.ssh/id_rsa.pub)
 
 function wait_ssh() {
-echo "Waiting for all nodes to become available. This can take around 10 min"
+echo "Waiting for all nodes to become available."
 for node in $(get_all_hosts); do
     echo "Waiting for node: ${node%%":"*} on 10.5.0.${node#*":"}"
     ssh -q -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=10 10.5.0.${node#*":"} exit > /dev/null
@@ -139,5 +139,5 @@ wait_ssh
 echo -e "Configuration succeeded for lab: ${LAB_CONFIG}\n"
 echo -e "Login for all nodes user: root | password: openstack\n"
 for node in $(get_all_hosts); do
-  echo "Node Name: ${node%%":"*}\t\tDRAC IP: 10.5.0.${node:(-3)}\n"
+  echo -e "Node Name: ${node%%":"*}\t\tDRAC IP: 10.5.0.${node:(-3)}\n"
 done
