@@ -245,4 +245,5 @@ popd
 # Notify end of setup
 echo -e "Your host machine has been bootstrapped for the lab successfully.\n"
 echo -e "Loadbalancer (NetScaler VPX 1000) GUI available via http://${__HOST_IP__}:1413\n"
+echo -e "Proceed to run rpcops-unattended-setup"
 sleep 5
