@@ -234,6 +234,14 @@ sleep 10
 virsh start loadbalancer
 sleep 10
 
+# Copy backing image from NFS share
+pushd /var/lib/libvirt/images
+echo -e "Copying backing file image\n"
+cp /labshare/templates/nodes/nodebase.tar.gz /var/lib/libvirt/images
+echo -e "Extracting backing image\n "
+tar xzf nodebase.tar.gz
+popd
+
 # Notify end of setup
 echo -e "Your host machine has been bootstrapped for the lab successfully.\n"
 echo -e "Loadbalancer (NetScaler VPX 1000) GUI available via http://${__HOST_IP__}:1413\n"
