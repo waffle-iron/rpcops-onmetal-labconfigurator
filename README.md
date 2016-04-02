@@ -40,6 +40,7 @@ fi
 # Reboot for server to realize changes
 shutdown -r now
 ```
+__Ping requests will fail, keep checking for SSH connectivity__
 
 ## Installation Steps ##
 ```shell
@@ -49,7 +50,7 @@ cd /root
 git clone https://github.com/codebauss/rpcops-onmetal-labconfigurator
 # Change into the lab repo directory
 cd rpcops-onmetal-labconfigurator
-# Create tmux session for install
+# Create tmux session for install (recommended but not required)
 tmux new-session -s rpcops
 # Run the host setup script; will take some time (10-15m)
 bash rpcops-host-setup
@@ -124,8 +125,6 @@ echo $__SSHKEY__ > /nsconfig/ssh/authorized_keys
 EOF
 ```
 
-
-
 **Note:**  
 This uses a trial license from Citrix - NetScaler VPX 1000 - which is good for 90 days. Once your lab is online, check the loadbalancer via SSH with the command 'show license'. You will want to be sure you see the following:
 ( ssh nsroot@10.5.0.4 'show license' )
@@ -185,20 +184,7 @@ LoadBalancers: 192.168.0.249-254/24
 Node Public Addresses: 192.168.239.101-124/24  
 OpenStack Public/Floating IPs: 192.168.240.1-99/22  
 
-Tenant VLANS: 206-210
-
-__NAT Translations on Firewall__  
-
-Type | Address Block | Translation
------|---------------|------------
-DNAT | 192.168.239.101-105/24 | 10.239.0.101-105/24
-     | 192.168.240.2-16/22 | 10.240.0.21-36/22
-     | 172.29.236.100/22 | 192.168.0.249/24
-SNAT | 10.239.0.101-105/24 | 192.168.239.101-105/24
-     | 10.240.0.21-36/22 | 192.168.240.2-16/22
-     | 172.24.96.249/24 | 192.168.0.249/24
-
-
+Tenant VLANS: 206-210  
 
 Network | IP Block(s) | VLAN
 --------|-------------|-----
@@ -214,11 +200,22 @@ Public | 192.168.0.0/24 |
        | 192.168.239.0/24 |
        | 192.168.240.0/22 |
 
+__NAT Translations on Firewall__  
+
+Type | Address Block | Translation
+-----|---------------|------------
+DNAT | 192.168.239.101-105/24 | 10.239.0.101-105/24
+     | 192.168.240.2-16/22 | 10.240.0.21-36/22
+     | 172.29.236.100/22 | 192.168.0.249/24
+SNAT | 10.239.0.101-105/24 | 192.168.239.101-105/24
+     | 10.240.0.21-36/22 | 192.168.240.2-16/22
+     | 172.24.96.249/24 | 192.168.0.249/24
+
 ## Libvirt Virtualization Considerations ##
 #### Networks  
-drac00  
-snet00  
-public00
+drac00: 10.5.0.0/24  
+snet00: 10.6.0.0/24  
+public00: 192.168.0.0/24 192.168.239.0/24 192.168.240.0/22
 
 ## Open vSwitch Considerations ##
 #### Virtual Switches  
