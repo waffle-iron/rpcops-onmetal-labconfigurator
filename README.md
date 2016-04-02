@@ -176,7 +176,7 @@ GUI: http://{{ onmetal_host_public_ipv4_address }}:1413
 
 __OpenStack Nodes__  
 User: root  
-Pass: openstack  
+Pass: stack  
 
 ## Network Considerations ##
 
