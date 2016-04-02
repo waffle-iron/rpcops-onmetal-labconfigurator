@@ -53,25 +53,65 @@ cd rpcops-onmetal-labconfigurator
 tmux new-session -s rpcops
 # Run the host setup script; will take some time (10-15m)
 bash rpcops-host-setup
-# Run the lab configuration setup; will take some time (10-15m)
+# Run the lab configuration setup; will take some time (5m)
+# You can pass lab configuration/type, if nothing, default
+# Lab Configs: (only default available at this time)
+# default, defaultceph, defaultswift, defaultcinder, cephonly, swiftonly
 bash rpcops-unattended-setup
 
 # Once the above have completed
-# Copy VPX builder script to infra01
-scp resources/files/vpx-builder-kilo root@10.5.0.101:/root/
+
 # SSH into infra01
 ssh root@10.5.0.101
 # Clone rpc-openstack to /opt
-git clone -b r11.1.5 --recursive https://github.com/rcbops/rpc-openstack /opt/rpc-openstack
+cd /opt
+# Using Kilo here, be sure to check out branch you want
+git clone -b r11.1.5 --recursive https://github.com/rcbops/rpc-openstack
 # Bootstrap ansible
-cd /opt/rpc-openstack/openstack-ansible
+cd rpc-openstack/openstack-ansible
 scripts/bootstrap-ansible.sh
-```
 
-__Before you proceed to install OpenStack, keep in mind that you will at some point need to
-have the VPX properly configured. It is suggested to run the vpx-builder-kilo script Before
-you begin the OpenStack playbooks install. It would be easiest to simply run the dynamic_inventory
-python script RIGHT BEFORE you are ready to run any plabooks.__
+# Copy VPX configuration script
+cd /root
+curl -sk https://raw.githubusercontent.com/codebauss/rpcops-onmetal-labconfigurator/master/resources/files/vpx-configurator -o vpx-configurator
+
+# Get jq helper library
+pushd /usr/local/bin
+wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64
+mv jq-linux64 jq
+chmod +x jq
+popd
+
+# Generate OpenStack Inventory
+/opt/rpc-openstack/openstack-ansible/playbooks/inventory/dynamic_inventory.py > /dev/null
+
+# Update LoadBalancer with servers and bindings from inventory
+# password is nsroot
+ssh nsroot@10.5.0.4 <<EOF
+`bash /root/vpx-configurator`
+save config
+EOF
+
+# Check for existing SSH key on infra01 and create if there is not one
+if [ ! -f "/root/.ssh/id_rsa" ]; then
+  echo -e "\n" | ssh-keygen -t rsa -N ''
+fi
+
+# Copy infra01 SSH key to all nodes
+# password is stack
+for i in infra01 infra02 infra03 compute01 compute02; do
+  ssh-copy-id -o StrictHostKeyChecking=no $i
+done
+
+# Set deploy.sh envrionment variables
+export DEPLOY_HAPROXY='no'
+export DEPLOY_MAAS='no'
+export DEPLOY_ELK='no'
+
+# Run deploy.sh
+cd /opt/rpc-openstack
+scripts/deploy.sh
+```
 
 ## Post Installation Considerations ##
 #### Configure public key authentication to load balancer (password: nsroot)

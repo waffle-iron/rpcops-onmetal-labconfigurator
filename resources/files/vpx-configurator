@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# Configure servers/services
+cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name") \($server."ansible_ssh_host")"'|grep container|while read i; do echo "add server ${i}"; done;
+
+# Bind servers/services to ServiceGroups / Pools
+cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep horizon|while read i; do echo "bind serviceGroup RPC_POOL_HORIZON ${i} 80"; done;
+cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep horizon|while read i; do echo "bind serviceGroup RPC_POOL_HORIZON_SSL ${i} 443"; done;
+cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep keystone|while read i; do echo "bind serviceGroup RPC_POOL_KEYSTONE_SERVICE ${i} 5000"; done;
+cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep galera|while read i; do echo "bind serviceGroup RPC_POOL_GALERA ${i} 3306"; done;
+cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep elasticsearch|while read i; do echo "bind serviceGroup RPC_POOL_ELASTICSEARCH ${i} 9200"; done;
+cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep neutron_server|while read i; do echo "bind serviceGroup RPC_POOL_NEUTRON_SERVER ${i} 9696"; done;
+cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep nova_api_ec2|while read i; do echo "bind serviceGroup RPC_POOL_NOVA_API_EC2 ${i} 8773"; done;
+cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep heat_apis|while read i; do echo "bind serviceGroup RPC_POOL_HEAT_API ${i} 8004"; done;
+cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep cinder_api|while read i; do echo "bind serviceGroup RPC_POOL_CINDER_API ${i} 8776"; done;
+cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep kibana|while read i; do echo "bind serviceGroup RPC_POOL_KIBANA ${i} 8888"; done;
+cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep nova_api_metadata|while read i; do echo "bind serviceGroup RPC_POOL_NOVA_API_METADATA ${i} 8775"; done;
+cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep nova_api_os_compute|while read i; do echo "bind serviceGroup RPC_POOL_NOVA_API_OS_COMPUTE ${i} 8774"; done;
+cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep glance|while read i; do echo "bind serviceGroup RPC_POOL_GLANCE_API ${i} 9292"; done;
+cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep nova_spice_console|while read i; do echo "bind serviceGroup RPC_POOL_NOVA_SPICE_CONSOLE ${i} 6082"; done;
+cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep nova_console|while read i; do echo "bind serviceGroup RPC_POOL_NOVA_SPICE_CONSOLE ${i} 6082"; done;
+cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep heat_apis|while read i; do echo "bind serviceGroup RPC_POOL_HEAT_API_CLOUDWATCH ${i} 8003"; done;
+cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep heat_apis|while read i; do echo "bind serviceGroup RPC_POOL_HEAT_API_CFN ${i} 8000"; done;
+cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep glance|while read i; do echo "bind serviceGroup RPC_POOL_GLANCE_REGISTRY ${i} 9191"; done;
+cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep kibana|while read i; do echo "bind serviceGroup RPC_POOL_SWIFT ${i} 8080"; done;
+cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep keystone|while read i; do echo "bind serviceGroup RPC_POOL_KEYSTONE_ADMIN ${i} 35357"; done;
+cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep kibana|while read i; do echo "bind serviceGroup RPC_POOL_KIBANA_SSL ${i} 8443"; done;
+cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep repo|while read i; do echo "bind serviceGroup RPC_POOL_REPO ${i} 8181"; done;
