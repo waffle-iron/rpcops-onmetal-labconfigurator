@@ -137,7 +137,7 @@ done
 wait_ssh
 
 echo -e "Configuration succeeded for lab: ${LAB_CONFIG}\n"
-echo -e "Login for all nodes user: root | password: openstack\n"
+echo -e "Login for all nodes user: root | password: stack\n"
 for node in $(get_all_hosts); do
   echo -e "Node Name: ${node%%":"*}\t\tDRAC IP: 10.5.0.${node:(-3)}\n"
 done
