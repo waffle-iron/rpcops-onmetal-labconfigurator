@@ -71,6 +71,8 @@ git clone -b r11.1.5 --recursive https://github.com/rcbops/rpc-openstack
 # Bootstrap ansible
 cd rpc-openstack/openstack-ansible
 scripts/bootstrap-ansible.sh
+# Copy openstack_deploy to etc
+cp -r /opt/rpc-openstack/openstack-ansible/etc/openstack_deploy /etc/
 
 # Copy VPX configuration script
 cd /root
