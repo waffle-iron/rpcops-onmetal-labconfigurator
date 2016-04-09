@@ -18,13 +18,19 @@
 #}
 
 destroy_all() {
+  echo -e "Completing removing OpenStack VMs\n"
   # Change to libvirt images directory
-  cd /var/lib/libvirt/images
+  pushd /var/lib/libvirt/images
 
   # Force shutdown and remove all instances
   for i in `virsh list --all --name|awk '/infra|compute|storage|cinder|ceph|swift|logger/ { print }'`; do virsh destroy $i; done;
   for i in `virsh list --all --name|awk '/infra|compute|storage|cinder|ceph|swift|logger/ { print }'`; do virsh undefine $i; done;
 
   # Delete all disks
+  echo -e "Removing disk images\n"
   find . -regextype posix-extended -iregex '.*(infra|compute|storage|cinder|ceph|swift|logger).*' -delete
+  echo -e "Lab completed destroyed\n"
+
+  # Return to previous directory
+  popd
 }
