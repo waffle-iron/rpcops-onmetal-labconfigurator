@@ -94,7 +94,9 @@ touch /root/.ssh/authorized_keys
 chmod 0600 /root/.ssh/authorized_keys
 EOG
   sleep 5
-  guestfish -d ${node%%":"*} -i write /root/.ssh/authorized_keys "${SSHKEY}"
+  guestfish -d ${node%%":"*} -i <<EOF
+sh "echo ${SSHKEY} > /root/.ssh/authorized_keys"
+EOF
   sleep 5
 
   # update /etc/hosts
