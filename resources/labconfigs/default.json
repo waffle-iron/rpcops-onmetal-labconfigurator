@@ -6,6 +6,19 @@
     },
     "compute": {
         "compute01": "104",
-        "compute02": "105"
+        "compute02": "105",
+        "compute03": "106",
+        "compute04": "107",
+        "compute05": "108"
+    },
+    "ceph": {
+    	"ceph01": "109",
+    	"ceph02": "110",
+    	"ceph03": "111"
+    },
+    "swift": {
+    	"swift01": "112",
+    	"swift02": "113",
+    	"swift03": "114"
     }
 }
