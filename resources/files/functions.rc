@@ -1,17 +1,30 @@
-clear_cobbler() {
-  echo -e "Removing all cobbler systems"
-  for i in `cobbler system list`; do cobbler system remove --name $i; done;
+# Keeping for historical reasons but not needed as cobbler has been removed
+#clear_cobbler() {
+#  echo -e "Removing all cobbler systems"
+#  for i in `cobbler system list`; do cobbler system remove --name $i; done;
+#
+#  echo -e "Removing all cobbler profiles"
+#  for i in `cobbler profile list`; do cobbler profile remove --name $i; done;
+#
+#  echo -e "Removing all cobbler repos"
+#  for i in `cobbler repo list`; do cobbler repo remove --name $i; done;
+#
+#  echo -e "Removing all cobbler distros"
+#  for i in `cobbler distro list`; do cobbler distro remove --name $i; done;
+#
+#  echo -e "Removing custom preseed and resyncing cobbler"
+#  rm -f /var/lib/cobbler/kickstarts/ubuntu-server-14.04-unattended-cobbler.seed;
+#  cobbler sync;
+#}
 
-  echo -e "Removing all cobbler profiles"
-  for i in `cobbler profile list`; do cobbler profile remove --name $i; done;
+destroy_all() {
+  # Change to libvirt images directory
+  cd /var/lib/libvirt/images
 
-  echo -e "Removing all cobbler repos"
-  for i in `cobbler repo list`; do cobbler repo remove --name $i; done;
+  # Force shutdown and remove all instances
+  for i in `virsh list --all --name|awk '/infra|compute|storage|cinder|ceph|swift|logger/ { print }'`; do virsh destroy $i; done;
+  for i in `virsh list --all --name|awk '/infra|compute|storage|cinder|ceph|swift|logger/ { print }'`; do virsh undefine $i; done;
 
-  echo -e "Removing all cobbler distros"
-  for i in `cobbler distro list`; do cobbler distro remove --name $i; done;
-
-  echo -e "Removing custom preseed and resyncing cobbler"
-  rm -f /var/lib/cobbler/kickstarts/ubuntu-server-14.04-unattended-cobbler.seed;
-  cobbler sync;
+  # Delete all disks
+  find . -regextype posix-extended -iregex '.*(infra|compute|storage|cinder|ceph|swift|logger).*' -delete
 }
