@@ -9,13 +9,11 @@
 # - delete profiles
 # - delete systems
 
+cd /var/lib/libvirt/images
+
 # Force shutdown and remove all instances
-for i in `virsh list --all|awk '/local/ { print $2 }'`; do virsh destroy $i; done;
-for i in `virsh list --all|awk '/local/ { print $2 }'`; do virsh undefine $i; done;
+for i in `virsh list --all --name|awk '/infra|compute|storage|cinder|ceph|swift|logger/ { print }'`; do virsh destroy $i; done;
+for i in `virsh list --all --name|awk '/infra|compute|storage|cinder|ceph|swift|logger/ { print }'`; do virsh undefine $i; done;
 
 # Delete all disks
-rm -f /var/lib/libvirt/images/*.local.qcow2
-
-# Source functions and run clear_cobbler function
-source /root/rpcops-onmetal-labconfigurator/resources/files/functions.rc
-clear_cobbler
+find . -regextype posix-extended -iregex '.*(infra|compute|storage|cinder|ceph|swift|logger).*' -delete
