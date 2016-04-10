@@ -94,9 +94,9 @@ touch /root/.ssh/authorized_keys
 chmod 0600 /root/.ssh/authorized_keys
 EOG
   sleep 5
-  guestfish -d ${node%%":"*} -i <<EOF
+  guestfish -d ${node%%":"*} -i <<EOG
 sh "echo ${SSHKEY} > /root/.ssh/authorized_keys"
-EOF
+EOG
   sleep 5
 
   # update /etc/hosts
@@ -128,11 +128,20 @@ EOG
   guestfish -d ${node%%":"*} -i <<EOG
   sh 'echo ${node%%":"*} > /etc/hostname'
 EOG
+  popd
+done
 
+echo -e "Adding nodes to infra01 hosts file"
+for node in $(get_all_hosts); do
+  guestfish -d infra01 -i <<EOG
+sh 'echo -e "echo -e "10.5.0.${node:(-3)}\t${node%%":"*}" >> /etc/hosts"'
+EOG
+done
+
+for node in $(get_all_hosts); do
 # create node
   echo -e "Creating and starting node: ${node%%":"*}\n"
   virsh create /etc/libvirt/qemu/${node%%":"*}.xml
-  popd
 done
 
 # Wait here for all nodes to be booted and ready with SSH
