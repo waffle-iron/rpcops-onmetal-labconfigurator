@@ -6,10 +6,13 @@
     },
     "compute": {
         "compute01": "104",
-        "compute02": "105"
+        "compute02": "105",
+        "compute03": "106",
+        "compute04": "107",
+        "compute05": "108"
     },
     "storage": {
-        "storage01": "106",
-        "storage02": "107"
+        "storage01": "109",
+        "storage02": "110"
     }
 }
