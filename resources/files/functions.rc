@@ -17,6 +17,17 @@
 #  cobbler sync;
 #}
 
+function get_all_hosts () {
+python <<EOF
+import json
+with open('resources/labconfigs/${LAB_CONFIG}.json') as f:
+    x = json.loads(f.read())
+for i in x.values():
+    for k, v in i.items():
+      print('%s:%s' % (k, v))
+EOF
+}
+
 destroy_all() {
   echo -e "Completing removing OpenStack VMs\n"
   # Change to libvirt images directory
