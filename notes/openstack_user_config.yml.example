@@ -57,7 +57,7 @@
 #     as cinder and swift.
 #
 cidr_networks:
-  management: 172.29.236.0/22
+  container: 172.29.236.0/22
   tunnel: 172.29.240.0/22
   storage: 172.29.244.0/22
 #
@@ -222,7 +222,7 @@ global_overrides:
         container_bridge: "br-mgmt"
         container_interface: "eth1"
         container_type: "veth"
-        ip_from_q: "management"
+        ip_from_q: "container"
         is_container_address: true
         is_ssh_address: true
     - network:
