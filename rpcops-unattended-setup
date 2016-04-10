@@ -134,7 +134,7 @@ done
 echo -e "Adding nodes to infra01 hosts file"
 for node in $(get_all_hosts); do
   guestfish -d infra01 -i <<EOG
-sh 'echo -e "echo -e "10.5.0.${node:(-3)}\t${node%%":"*}" >> /etc/hosts"'
+sh 'echo -e "10.5.0.${node:(-3)}\t${node%%":"*}" >> /etc/hosts'
 EOG
 done
 
@@ -154,5 +154,5 @@ for node in $(get_all_hosts); do
 done
 echo -e "Updating /etc/hosts with lab nodes\n"
 for node in $(get_all_hosts); do
-  echo -e "echo -e "10.5.0.${node:(-3)}\t${node%%":"*}" >> /etc/hosts"
+  echo -e "10.5.0.${node:(-3)}\t${node%%":"*}" >> /etc/hosts
 done
