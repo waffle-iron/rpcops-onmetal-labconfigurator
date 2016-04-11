@@ -138,6 +138,17 @@ sh "echo '10.5.0.${node:(-3)}\t${node%%":"*}' >> /etc/hosts"
 EOG
 done
 
+echo -e "Creating and configuring nova logical volume"
+for node in $(get_host_type compute); do
+  guestfish -d ${node%%":"*} -i <<EOG
+lvcreate-free nova lxc 100
+mkfs ext3 /dev/lxc/nova
+mkdir-p /var/lib/nova
+mount /dev/lxc/nova /var/lib/nova
+sh 'tail -n1 /etc/mtab >> /etc/fstab'
+EOG
+done
+
 for node in $(get_all_hosts); do
 # create node
   echo -e "Creating and starting node: ${node%%":"*}\n"
