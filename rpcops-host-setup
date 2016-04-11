@@ -71,7 +71,7 @@ echo 'iptables-persistent iptables-persistent/autosave_v4 boolean false' | debco
 echo 'libguestfs-tools libguestfs/update-appliance boolean true' | debconf-set-selections
 
 # Install identified necessary host packages (this can be adjusted as needed)
-apt-get install -y qemu tcpdump libvirt-bin libvirt-dev libguestfs-tools git git-core curl \
+apt-get install -y qemu tcpdump libvirt-bin libvirt-dev git git-core curl \
 zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 \
 libxml2-dev libxslt1-dev libcurl4-openssl-dev python-software-properties libffi-dev python-dev \
 python curl vim telnet zip unzip nfs-common python-libvirt tmux iptables-persistent \
@@ -310,7 +310,7 @@ make install
 popd
 tar xzf libguestfs.tar.gz
 pushd libguestfs
-make install
+make install REALLY_INSTALL=yes
 popd
 
 # Notify end of setup
