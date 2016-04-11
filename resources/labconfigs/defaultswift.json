@@ -6,11 +6,14 @@
     },
     "compute": {
         "compute01": "104",
-        "compute02": "105"
+        "compute02": "105",
+        "compute03": "106",
+        "compute04": "107",
+        "compute05": "108"
     },
     "swift": {
-        "swift01": "106",
-        "swift02": "107",
-        "swift03": "108"
+        "swift01": "201",
+        "swift02": "202",
+        "swift03": "203"
     }
 }
