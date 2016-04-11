@@ -12,7 +12,8 @@
         "compute05": "108"
     },
     "storage": {
-        "storage01": "109",
-        "storage02": "110"
+        "storage01": "190",
+        "storage02": "191",
+        "storage03": "192"
     }
 }
