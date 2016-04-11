@@ -6,11 +6,14 @@
     },
     "compute": {
         "compute01": "104",
-        "compute02": "105"
+        "compute02": "105",
+        "compute03": "106",
+        "compute04": "107",
+        "compute05": "108"
     },
     "ceph": {
-        "ceph01": "106",
-        "ceph02": "107",
-        "ceph03": "108"
+        "ceph01": "241",
+        "ceph02": "242",
+        "ceph03": "243"
     }
 }
