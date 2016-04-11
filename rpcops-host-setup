@@ -294,10 +294,23 @@ sleep 10
 
 # Copy backing image from NFS share
 pushd /var/lib/libvirt/images
-echo -e "Copying backing file image\n"
+echo -e "Copying node backing file image\n"
 cp /labshare/templates/nodes/nodebase.tar.gz /var/lib/libvirt/images
-echo -e "Extracting backing image\n "
+echo -e "Extracting node backing image\n "
 tar xzf nodebase.tar.gz
+popd
+
+echo -e "Install supermin 5.1.15 and libguestfs 1.32.4"
+cd /root
+cp /labshare/supermin.tar.gz /root/
+cp /labshare/libguestfs.tar.gz /root/
+tar xzf supermin.tar.gz
+pushd supermin
+make install
+popd
+tar xzf libguestfs.tar.gz
+pushd libguestfs
+make install
 popd
 
 # Notify end of setup
