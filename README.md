@@ -50,7 +50,7 @@ __Ping requests will fail, keep checking for SSH connectivity__
 # From the OnMetal host change to root directory
 cd /root
 # Clone the lab repo
-git clone https://github.com/codebauss/rpcops-onmetal-labconfigurator
+git clone https://github.com/mrhillsman/rpcops-onmetal-labconfigurator
 # Change into the lab repo directory
 cd rpcops-onmetal-labconfigurator
 # Create tmux session for install (recommended but not required)
@@ -79,7 +79,7 @@ cp -r /opt/rpc-openstack/openstack-ansible/etc/openstack_deploy /etc/
 
 # Copy VPX configuration script
 cd /root
-curl -sk https://raw.githubusercontent.com/codebauss/rpcops-onmetal-labconfigurator/master/resources/files/vpx-configurator -o vpx-configurator
+curl -sk https://raw.githubusercontent.com/mrhillsman/rpcops-onmetal-labconfigurator/master/resources/files/vpx-configurator -o vpx-configurator
 
 # Get jq helper library
 pushd /usr/local/bin
@@ -149,7 +149,7 @@ EOF
 # Add new license to load balancer
 ssh nsroot@10.5.0.4 <<EOF
 shell cd /nsconfig/license && \
-curl -sk https://raw.githubusercontent.com/codebauss/rpcops-onmetal-labconfigurator/master/resources/files/lb.lic -o lb.lic
+curl -sk https://raw.githubusercontent.com/mrhillsman/rpcops-onmetal-labconfigurator/master/resources/files/lb.lic -o lb.lic
 EOF
 
 # Get session token
@@ -229,6 +229,6 @@ lbsrvsw
 hasw  
 
 #### Contributors
-Melvin Hillsman _codebauss_  
+Melvin Hillsman _mrhillsman_  
 Kevin Carter _cloudnull_  
 James Thorne _jameswthorne_
