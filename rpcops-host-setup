@@ -314,6 +314,7 @@ tar xzf libguestfs.tar.gz
 pushd libguestfs
 make install REALLY_INSTALL=yes
 popd
+ldconfig
 
 # Notify end of setup
 echo -e "Your host machine has been bootstrapped for the lab successfully.\n"
