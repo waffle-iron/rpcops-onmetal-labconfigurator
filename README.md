@@ -25,6 +25,9 @@ This requirement will more than likely be removed going forward as issue has bee
 apt-get update
 apt-get install -y vim tmux screen git
 
+# Disable SSH StrictHostKeyChecking
+echo -e "    StrictHostKeyChecking no" >> /etc/ssh/ssh_config
+
 # Manually check for acpi bug and fix if you did not already heed the IMPORTANT section above
 if ! [ `awk '/processor/ { count++ } END { print count }' /proc/cpuinfo` -eq 40 ]; then
   echo -e "No bueno! acpi=off or another issue.\n"
