@@ -145,7 +145,7 @@ lvcreate-free nova lxc 100
 mkfs ext3 /dev/lxc/nova
 mkdir-p /var/lib/nova
 mount /dev/lxc/nova /var/lib/nova
-sh 'tail -n1 /etc/mtab >> /etc/fstab'
+write-append /etc/fstab '/dev/mapper/lxc-nova    /var/lib/nova    ext3    rw    0    0'
 EOG
 done
 
