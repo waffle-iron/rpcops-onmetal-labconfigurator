@@ -75,7 +75,7 @@ apt-get install -y qemu tcpdump libvirt-bin libvirt-dev lvm2 git git-core curl \
 zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 \
 libxml2-dev libxslt1-dev libcurl4-openssl-dev python-software-properties libffi-dev python-dev \
 python curl vim telnet zip unzip nfs-common python-libvirt tmux iptables-persistent \
-ebtables pm-utils dsh expect empty-expect
+ebtables pm-utils dsh expect empty-expect screen
 apt-get autoremove -y
 
 apt-get build-dep -y supermin libguestfs
