@@ -52,7 +52,7 @@ tmux new-session -s rpcops
 bash rpcops-host-setup
 # Run the lab configuration setup; will take some time (5m)
 # You can pass lab configuration/type, if nothing, default
-# Lab Configs: (only default available at this time)
+# Lab Configs: default (3 infra, 5 compute)
 # default, defaultceph, defaultswift, defaultcinder, cephonly, swiftonly
 bash rpcops-unattended-setup
 
