@@ -19,4 +19,4 @@ for i in `virsh list --all --name|awk '/infra|compute|storage|cinder|ceph|swift|
 find . -regextype posix-extended -iregex '.*(infra|compute|storage|cinder|ceph|swift|logger).*' -delete
 
 # Remove instances from OnMetal /etc/hosts
-sed '/.*\(infra\|compute\|storage\|cinder\|ceph\|swift\|logger\).*/d' /etc/hosts
+sed -i '/.*\(infra\|compute\|storage\|cinder\|ceph\|swift\|logger\).*/d' /etc/hosts
