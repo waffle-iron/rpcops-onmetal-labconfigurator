@@ -160,7 +160,7 @@ sh "ssh-keygen -f /root/.ssh/id_rsa -t rsa -N ''"
 EOG
 
 echo -e "Injecting infra01 SSH key into all instances"
-INFRA01_SSHKEY=`virt-cat -d infra01 /root/.ssh/id_rsa.pub`
+INFRA01_SSHKEY=`virt-cat -d infra01 /root/.ssh/id_rsa.pub|cut -d' ' -f1,2`
 for node in $(get_all_hosts); do
   guestfish -d ${node%%":"*} -i <<EOG
 sh "echo ${INFRA01_SSHKEY} >> /root/.ssh/authorized_keys"
