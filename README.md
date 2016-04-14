@@ -29,7 +29,7 @@ if ! [ `awk '/processor/ { count++ } END { print count }' /proc/cpuinfo` -eq 40 
   grub-mkconfig -o /boot/grub/grub.cfg
   update-grub
   touch /acpi-fixed
-  
+
   # Reboot for server to realize changes
   shutdown -r now
 else
@@ -40,6 +40,9 @@ __Ping requests will fail, keep checking for SSH connectivity__
 
 ## Installation Steps ##
 ```shell
+# Install required packages
+apt-get update
+apt-get install -y tmux vim git
 # From the OnMetal host change to root directory
 cd /root
 # Clone the lab repo
