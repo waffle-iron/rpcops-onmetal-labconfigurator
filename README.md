@@ -29,12 +29,12 @@ if ! [ `awk '/processor/ { count++ } END { print count }' /proc/cpuinfo` -eq 40 
   grub-mkconfig -o /boot/grub/grub.cfg
   update-grub
   touch /acpi-fixed
+  
+  # Reboot for server to realize changes
+  shutdown -r now
 else
   echo "Good to go! acpi=noirq or bug irrelevant"
 fi
-
-# Reboot for server to realize changes
-shutdown -r now
 ```
 __Ping requests will fail, keep checking for SSH connectivity__
 
