@@ -59,6 +59,9 @@ fi
 
 cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
 
+# Disable StrictHostKeyChecking in SSH since VMs will change this when rebuilt
+echo -e "    StrictHostKeyChecking no" >> /etc/ssh/ssh_config
+
 # Upgrade repository data and install required packages
 apt-get update #&& apt-get upgrade -y
 
