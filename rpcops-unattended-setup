@@ -138,14 +138,32 @@ sh "echo '10.5.0.${node:(-3)}\t${node%%":"*}' >> /etc/hosts"
 EOG
 done
 
-echo -e "Creating and configuring nova logical volume"
 for node in $(get_host_type compute); do
+  echo -e "Creating and configuring nova logical volume for ${node%%":"*}"
   guestfish -d ${node%%":"*} -i <<EOG
 lvcreate-free nova lxc 100
 mkfs ext3 /dev/lxc/nova
 mkdir-p /var/lib/nova
 mount /dev/lxc/nova /var/lib/nova
 write-append /etc/fstab '/dev/mapper/lxc-nova    /var/lib/nova    ext3    rw    0    0'
+EOG
+done
+
+echo -e "Setting StrictHostKeyChecking to no in /etc/ssh/ssh_config"
+guestfish -d infra01 -i <<EOG
+write-append /etc/ssh/ssh_config '    StrictHostKeyChecking no'
+EOG
+
+echo -e "Creating SSH key on infra01"
+guestfish -d infra01 -i <<EOG
+sh "ssh-keygen -f /root/.ssh/id_rsa -t rsa -N ''"
+EOG
+
+echo -e "Injecting infra01 SSH key into all instances"
+INFRA01_SSHKEY=`virt-cat -d infra01 /root/.ssh/id_rsa.pub`
+for node in $(get_all_hosts); do
+  guestfish -d ${node%%":"*} -i <<EOG
+sh "echo ${INFRA01_SSHKEY} >> /root/.ssh/authorized_keys"
 EOG
 done
 
