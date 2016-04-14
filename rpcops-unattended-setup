@@ -170,6 +170,9 @@ done
 echo -e "Adding jq helper library to infra01"
 virt-copy-in -d infra01 /root/rpcops-onmetal-labconfigurator/resources/files/jq /usr/local/bin
 
+echo -e "Adding VPX configuration script to infra01"
+virt-copy-in -d infra01 /root/rpcops-onmetal-labconfigurator/resources/files/vpx-configurator /root
+
 for node in $(get_all_hosts); do
 # create node
   echo -e "Creating and starting node: ${node%%":"*}\n"
