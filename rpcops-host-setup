@@ -66,22 +66,48 @@ echo -e "    StrictHostKeyChecking no" >> /etc/ssh/ssh_config
 apt-get update #&& apt-get upgrade -y
 
 # Ensure debconf utilities are installed
-apt-get install -y debconf-utils
+apt-get install -y debconf-utils nsf-common
 
 # Set debconf answers
 echo 'iptables-persistent iptables-persistent/autosave_v6 boolean false' | debconf-set-selections
 echo 'iptables-persistent iptables-persistent/autosave_v4 boolean false' | debconf-set-selections
 echo 'libguestfs-tools libguestfs/update-appliance boolean true' | debconf-set-selections
 
+# Mount the RPC Labs NFS share
+# TODO granted, the host needs to be in IAD for this
+# setting up the repo will alleviate region specific issue
+# however will also introduce some delay and bandwidth usage
+# being that files are not in dc available via servicenet
+mkdir /labshare
+mount 10.209.128.54:/mnt/builder /labshare
+
+# Setup latest version of supermin (5.1.15)
+apt-get build-dep -y supermin
+cp /labshare/supermin.tar.gz /root/
+pushd /root
+tar xzf supermin.tar.gz
+pushd supermin
+make install
+popd
+popd
+
+# Setup latest version of libguestfs and libguestfs-tools (1.32.4)
+apt-get build-dep -y libguestfs
+cp /labshare/libguestfs.tar.gz /root/
+pushd /root
+tar xzf libguestfs.tar.gz
+pushd libguestfs
+make install REALLY_INSTALL=yes
+ldconfig
+popd
+popd
+
 # Install identified necessary host packages (this can be adjusted as needed)
 apt-get install -y qemu tcpdump libvirt-bin libvirt-dev lvm2 git git-core curl \
 zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 \
 libxml2-dev libxslt1-dev libcurl4-openssl-dev python-software-properties libffi-dev python-dev \
-python curl vim telnet zip unzip nfs-common python-libvirt tmux iptables-persistent \
+python curl vim telnet zip unzip python-libvirt tmux iptables-persistent \
 ebtables pm-utils dsh expect empty-expect screen
-apt-get autoremove -y
-
-apt-get build-dep -y supermin libguestfs
 
 pushd /usr/local/bin
 wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64
@@ -146,14 +172,6 @@ gem install serverspec
 # Install pip and a few helper packages
 python <(curl -sk https://bootstrap.pypa.io/get-pip.py)
 pip install pyopenssl ndg-httpsclient pyasn1 bpython httpie ansible==1.9.4
-
-# Mount the RPC Labs NFS share
-# TODO granted, the host needs to be in IAD for this
-# setting up the repo will alleviate region specific issue
-# however will also introduce some delay and bandwidth usage
-# being that files are not in dc available via servicenet
-mkdir /labshare
-mount 10.209.128.54:/mnt/builder /labshare
 
 # Install Open vSwitch
 pushd ovs
@@ -304,20 +322,6 @@ cp /labshare/templates/nodes/nodebase.tar.gz /var/lib/libvirt/images
 echo -e "Extracting node backing image\n "
 tar xzf nodebase.tar.gz
 popd
-
-echo -e "Install supermin 5.1.15 and libguestfs 1.32.4"
-cd /root
-cp /labshare/supermin.tar.gz /root/
-cp /labshare/libguestfs.tar.gz /root/
-tar xzf supermin.tar.gz
-pushd supermin
-make install
-popd
-tar xzf libguestfs.tar.gz
-pushd libguestfs
-make install REALLY_INSTALL=yes
-popd
-ldconfig
 
 # Notify end of setup
 echo -e "Your host machine has been bootstrapped for the lab successfully.\n"
