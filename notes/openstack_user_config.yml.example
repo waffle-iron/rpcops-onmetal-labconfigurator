@@ -447,6 +447,12 @@ compute_hosts:
     ip: 172.29.236.104
   compute02:
     ip: 172.29.236.105
+  compute03:
+    ip: 172.29.236.106
+  compute04:
+    ip: 172.29.236.107
+  compute05:
+    ip: 172.29.236.108
 #
 # --------
 #
@@ -466,13 +472,13 @@ compute_hosts:
 #
 # Define three OpenStack storage infrastructure hosts:
 #
-storage-infra_hosts:
-  infra01:
-    ip: 172.29.236.101
-  infra02:
-    ip: 172.29.236.102
-  infra03:
-    ip: 172.29.236.103
+#storage-infra_hosts:
+#  infra01:
+#    ip: 172.29.236.101
+#  infra02:
+#    ip: 172.29.236.102
+#  infra03:
+#    ip: 172.29.236.103
 #
 # --------
 #
