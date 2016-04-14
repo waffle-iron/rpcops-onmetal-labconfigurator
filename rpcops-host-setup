@@ -66,7 +66,7 @@ echo -e "    StrictHostKeyChecking no" >> /etc/ssh/ssh_config
 apt-get update #&& apt-get upgrade -y
 
 # Ensure debconf utilities are installed
-apt-get install -y debconf-utils nsf-common
+apt-get install -y debconf-utils nfs-common
 
 # Set debconf answers
 echo 'iptables-persistent iptables-persistent/autosave_v6 boolean false' | debconf-set-selections
@@ -90,6 +90,8 @@ pushd supermin
 make install
 popd
 popd
+
+source /root/.bashrc
 
 # Setup latest version of libguestfs and libguestfs-tools (1.32.4)
 apt-get build-dep -y libguestfs
