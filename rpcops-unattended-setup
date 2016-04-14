@@ -167,6 +167,9 @@ sh "echo ${INFRA01_SSHKEY} >> /root/.ssh/authorized_keys"
 EOG
 done
 
+echo -e "Adding jq helper library to infra01"
+virt-copy-in -d infra01 /root/rpcops-onmetal-labconfigurator/resources/files/jq /usr/local/bin
+
 for node in $(get_all_hosts); do
 # create node
   echo -e "Creating and starting node: ${node%%":"*}\n"
