@@ -71,16 +71,11 @@ scripts/bootstrap-ansible.sh
 # Copy openstack_deploy to etc
 cp -r /opt/rpc-openstack/openstack-ansible/etc/openstack_deploy /etc/
 
-# Copy VPX configuration script
-cd /root
-curl -sk https://raw.githubusercontent.com/mrhillsman/rpcops-onmetal-labconfigurator/master/resources/files/vpx-configurator -o vpx-configurator
-
-# Get jq helper library
-pushd /usr/local/bin
-wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64
-mv jq-linux64 jq
-chmod +x jq
-popd
+# Update your openstack_user_config.yml file
+# An example file is located in the repo directory
+# /root/rpcops-onmetal-labconfigurator/notes/openstack_user_config.yml.example
+# Currently only addresses the default labconfig (3 infra, 5 compute)
+wget https://raw.githubusercontent.com/mrhillsman/rpcops-onmetal-labconfigurator/master/notes/openstack_user_config.yml.example -O /etc/openstack_deploy/openstack_user_config.yml
 
 # Generate OpenStack Inventory
 /opt/rpc-openstack/openstack-ansible/playbooks/inventory/dynamic_inventory.py > /dev/null
@@ -92,18 +87,7 @@ ssh nsroot@10.5.0.4 <<EOF
 save config
 EOF
 
-# Check for existing SSH key on infra01 and create if there is not one
-if [ ! -f "/root/.ssh/id_rsa" ]; then
-  echo -e "\n" | ssh-keygen -t rsa -N ''
-fi
-
-# Copy infra01 SSH key to all nodes
-# password is stack
-for i in infra01 infra02 infra03 compute01 compute02; do
-  ssh-copy-id -o StrictHostKeyChecking=no $i
-done
-
-# Set deploy.sh envrionment variables
+# Set deploy.sh environment variables
 export DEPLOY_HAPROXY='no'
 export DEPLOY_MAAS='no'
 export DEPLOY_ELK='no'
