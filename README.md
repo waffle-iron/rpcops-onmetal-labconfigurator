@@ -54,6 +54,7 @@ bash rpcops-host-setup
 # You can pass lab configuration/type, if nothing, default
 # Lab Configs: default (3 infra, 5 compute)
 # default, defaultceph, defaultswift, defaultcinder, cephonly, swiftonly
+# ex. bash rpcops-unattended-setup defaultcinder
 bash rpcops-unattended-setup
 
 # Once the above have completed
