@@ -60,7 +60,7 @@ fi
 cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
 
 # Upgrade repository data and install required packages
-apt-get update && apt-get upgrade -y
+apt-get update #&& apt-get upgrade -y
 
 # Ensure debconf utilities are installed
 apt-get install -y debconf-utils
