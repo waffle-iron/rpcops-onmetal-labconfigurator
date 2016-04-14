@@ -18,7 +18,7 @@ This is necessary as there is a bug whereby the total number of CPUs will not be
 This requirement will more than likely be removed going forward as issue has been raised with images team  
 
 ## Pre Installation Considerations
-##### Make sure your OnMetal host package cache is up-to-date, has git as it is required, vim|tmux|screen are optional, and using all available CPUs  
+##### Make sure your OnMetal host is using all available CPU power  
 
 ```shell
 # Manually check for acpi bug and fix if you did not already heed the IMPORTANT section above
