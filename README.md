@@ -70,6 +70,9 @@ cd /opt
 git clone -b r11.1.5 --recursive https://github.com/rcbops/rpc-openstack
 cd /opt/rpc-openstack
 
+# Copy openstack_deploy to etc
+cp -r /opt/rpc-openstack/openstack-ansible/etc/openstack_deploy /etc/
+
 # Merge /etc/openstack_deploy/user_variables.yml with rpcd/etc/openstack_deploy/user_variables.yml
 scripts/update-yaml.py /etc/openstack_deploy/user_variables.yml rpcd/etc/openstack_deploy/user_variables.yml
 
@@ -77,14 +80,12 @@ scripts/update-yaml.py /etc/openstack_deploy/user_variables.yml rpcd/etc/opensta
 cp rpcd/etc/openstack_deploy/user_extras_*.yml /etc/openstack_deploy
 cp rpcd/etc/openstack_deploy/env.d/* /etc/openstack_deploy/env.d
 
-# Remove container configurations for ELK (unless you are using it)
+# Remove container configurations for ELK (unless you need them)
 rm -f /etc/openstack_deploy/env.d/{elasticsearch,logstash,kibana}.yml
 
 # Bootstrap ansible
 cd rpc-openstack/openstack-ansible
 scripts/bootstrap-ansible.sh
-# Copy openstack_deploy to etc
-cp -r /opt/rpc-openstack/openstack-ansible/etc/openstack_deploy /etc/
 
 # Update your openstack_user_config.yml file
 # An example file is located in the repo directory
@@ -102,7 +103,7 @@ ssh nsroot@10.5.0.4 <<EOF
 save config
 EOF
 
-# Set deploy.sh environment variables
+# Set deploy.sh environment variables (set yes for those you need, default here is no)
 export DEPLOY_HAPROXY='no'
 export DEPLOY_MAAS='no'
 export DEPLOY_ELK='no'
