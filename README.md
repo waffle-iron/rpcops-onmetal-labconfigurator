@@ -68,6 +68,18 @@ ssh root@10.5.0.101
 cd /opt
 # Using Kilo here, be sure to check out branch you want
 git clone -b r11.1.5 --recursive https://github.com/rcbops/rpc-openstack
+cd /opt/rpc-openstack
+
+# Merge /etc/openstack_deploy/user_variables.yml with rpcd/etc/openstack_deploy/user_variables.yml
+scripts/update-yaml.py /etc/openstack_deploy/user_variables.yml rpcd/etc/openstack_deploy/user_variables.yml
+
+# Copy the RPC configuration files
+cp rpcd/etc/openstack_deploy/user_extras_*.yml /etc/openstack_deploy
+cp rpcd/etc/openstack_deploy/env.d/* /etc/openstack_deploy/env.d
+
+# Remove container configurations for ELK (unless you are using it)
+rm -f /etc/openstack_deploy/env.d/{elasticsearch,logstash,kibana}.yml
+
 # Bootstrap ansible
 cd rpc-openstack/openstack-ansible
 scripts/bootstrap-ansible.sh
