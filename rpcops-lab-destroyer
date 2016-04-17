@@ -23,6 +23,7 @@ if [ $? -eq 0 ]; then
 `ssh infra01 '/opt/rpc-openstack/openstack-ansible/scripts/inventory-manage.py -g'|awk '/container/ { print $2 }'|while read i; do echo "rm server ${i}"; done|grep -v container_name;`
 EOF
 else
+  echo -e "Password is nsroot\n"
   __SSHKEY__=$(cat /root/.ssh/id_rsa.pub|cut -d' ' -f1,2)
   ssh nsroot@10.5.0.4 <<EOF
 shell touch /nsconfig/ssh/authorized_keys && \
