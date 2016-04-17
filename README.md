@@ -84,7 +84,7 @@ cp rpcd/etc/openstack_deploy/env.d/* /etc/openstack_deploy/env.d
 rm -f /etc/openstack_deploy/env.d/{elasticsearch,logstash,kibana}.yml
 
 # Bootstrap ansible
-cd rpc-openstack/openstack-ansible
+cd openstack-ansible
 scripts/bootstrap-ansible.sh
 
 # Update your openstack_user_config.yml file
