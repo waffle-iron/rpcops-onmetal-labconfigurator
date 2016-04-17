@@ -4,7 +4,7 @@
 
 # $1 will be the lab configuration requested
 # if not set, will use default
-# ex. bash rpcops-unattended-setup cephonly
+# ex. bash rpcops-lab-setup cephonly
 
 # Get all defined lab configurations
 # LABS=( `ls -1 resources/labconfigs/` )
