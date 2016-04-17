@@ -116,7 +116,7 @@ scripts/deploy.sh
 ## Post Installation Considerations ##
 #### Configure public key authentication to load balancer (password: nsroot)
 ```shell
-__SSHKEY__=$(cat /root/.ssh/id_rsa.pub)
+__SSHKEY__=$(cat /root/.ssh/id_rsa.pub|cut -d' ' -f1,2)
 ssh nsroot@10.5.0.4 <<EOF
 shell touch /nsconfig/ssh/authorized_keys && \
 chmod 600 /nsconfig/ssh/authorized_keys && \
