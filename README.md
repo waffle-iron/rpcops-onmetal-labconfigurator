@@ -70,10 +70,15 @@ cd /opt
 git clone -b r11.1.5 --recursive https://github.com/rcbops/rpc-openstack
 cd /opt/rpc-openstack
 
+# Bootstrap ansible
+cd openstack-ansible
+scripts/bootstrap-ansible.sh
+
 # Copy openstack_deploy to etc
 cp -r /opt/rpc-openstack/openstack-ansible/etc/openstack_deploy /etc/
 
 # Merge /etc/openstack_deploy/user_variables.yml with rpcd/etc/openstack_deploy/user_variables.yml
+cd /opt/rpc-openstack
 scripts/update-yaml.py /etc/openstack_deploy/user_variables.yml rpcd/etc/openstack_deploy/user_variables.yml
 
 # Copy the RPC configuration files
@@ -82,10 +87,6 @@ cp rpcd/etc/openstack_deploy/env.d/* /etc/openstack_deploy/env.d
 
 # Remove container configurations for ELK (unless you need them)
 rm -f /etc/openstack_deploy/env.d/{elasticsearch,logstash,kibana}.yml
-
-# Bootstrap ansible
-cd openstack-ansible
-scripts/bootstrap-ansible.sh
 
 # Update your openstack_user_config.yml file
 # An example file is located in the repo directory
