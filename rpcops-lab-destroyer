@@ -9,7 +9,32 @@
 # - delete profiles
 # - delete systems
 
+# Change to where instance disks are
 cd /var/lib/libvirt/images
+
+# Check if password-less login to VPX is working
+ssh -o BatchMode=yes nsroot@10.5.0.4 'exit'
+
+# If password-less login works, remove containers from VPX
+# else setup password-login and then remove containers from VPX
+if [ $? -eq 0 ]; then
+  # Remove all containers from the VPX
+  ssh nsroot@10.5.0.4 <<EOF
+`ssh infra01 '/opt/rpc-openstack/openstack-ansible/scripts/inventory-manage.py -g'|awk '/container/ { print $2 }'|while read i; do echo "rm server ${i}"; done|grep -v container_name;`
+EOF
+else
+  __SSHKEY__=$(cat /root/.ssh/id_rsa.pub|cut -d' ' -f1,2)
+  ssh nsroot@10.5.0.4 <<EOF
+shell touch /nsconfig/ssh/authorized_keys && \
+chmod 600 /nsconfig/ssh/authorized_keys && \
+echo $__SSHKEY__ > /nsconfig/ssh/authorized_keys
+EOF
+
+  # Remove all containers from the VPX
+  ssh nsroot@10.5.0.4 <<EOF
+`ssh infra01 '/opt/rpc-openstack/openstack-ansible/scripts/inventory-manage.py -g'|awk '/container/ { print $2 }'|while read i; do echo "rm server ${i}"; done|grep -v container_name;`
+EOF
+fi
 
 # Force shutdown and remove all instances
 for i in `virsh list --all --name|awk '/infra|compute|storage|cinder|ceph|swift|logger/ { print }'`; do virsh destroy $i; done;
