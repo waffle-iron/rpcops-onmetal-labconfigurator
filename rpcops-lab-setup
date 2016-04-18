@@ -149,6 +149,14 @@ write-append /etc/fstab '/dev/mapper/lxc-nova    /var/lib/nova    ext3    rw    
 EOG
 done
 
+for node in $(get_host_type storage); do
+  echo -e "Creating and configuring cinder-volumes logical volume for ${node%%":"*}"
+  guestfish -d ${node%%":"*} -i <<EOG
+lvcreate-free cinder-volumes lxc 100
+mkfs ext3 /dev/lxc/cinder-volumes
+EOG
+done
+
 echo -e "Setting StrictHostKeyChecking to no in /etc/ssh/ssh_config"
 guestfish -d infra01 -i <<EOG
 write-append /etc/ssh/ssh_config '    StrictHostKeyChecking no'
