@@ -11,9 +11,9 @@
         "compute04": "107",
         "compute05": "108"
     },
-    "storage": {
-        "storage01": "190",
-        "storage02": "191",
-        "storage03": "192"
+    "cinder": {
+        "cinder01": "190",
+        "cinder02": "191",
+        "cinder03": "192"
     }
 }
