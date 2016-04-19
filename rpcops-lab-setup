@@ -38,7 +38,7 @@ fi
 BACKING_FILE='/var/lib/libvirt/images/nodebase.qcow2'
 
 # This gets the root users SSH-public-key
-SSHKEY=$(cat /root/.ssh/id_rsa.pub)
+SSHKEY=$(cat /root/.ssh/id_rsa.pub|cut -d' ' -f1,2)
 
 function wait_ssh() {
 echo "Waiting for all nodes to become available."
