@@ -21,6 +21,7 @@ if [ $? -eq 0 ]; then
   # Remove all containers from the VPX
   ssh nsroot@10.5.0.4 <<EOF
 `ssh infra01 '/opt/rpc-openstack/openstack-ansible/scripts/inventory-manage.py -g'|awk '/container/ { print $2 }'|while read i; do echo "rm server ${i}"; done|grep -v container_name;`
+save config
 EOF
 else
   echo -e "Password is nsroot\n"
@@ -34,6 +35,7 @@ EOF
   # Remove all containers from the VPX
   ssh nsroot@10.5.0.4 <<EOF
 `ssh infra01 '/opt/rpc-openstack/openstack-ansible/scripts/inventory-manage.py -g'|awk '/container/ { print $2 }'|while read i; do echo "rm server ${i}"; done|grep -v container_name;`
+save config
 EOF
 fi
 
