@@ -149,7 +149,7 @@ write-append /etc/fstab '/dev/mapper/lxc-nova    /var/lib/nova    ext3    rw    
 EOG
 done
 
-for node in $(get_host_type storage); do
+for node in $(get_host_type cinder); do
   echo -e "Creating and configuring cinder-volumes logical volume for ${node%%":"*}"
   guestfish -d ${node%%":"*} -i <<EOG
 lvcreate-free cinder-volumes lxc 100
