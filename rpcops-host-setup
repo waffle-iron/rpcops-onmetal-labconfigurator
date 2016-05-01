@@ -181,8 +181,28 @@ dpkg -i openvswitch-common_2.4.90-1_amd64.deb openvswitch-switch_2.4.90-1_amd64.
 apt-get -f install
 popd
 
+function get_host_disks() {
+python <<EOF
+from subprocess import Popen, PIPE
+lsblk = Popen(['lsblk', '-lnd'], stdout=PIPE)
+disks = lsblk.communicate()[0].strip()
+lsblk.wait()
+
+drives = []
+
+disks = disks.split("\n")
+
+for disk in disks:
+    drive = disk.strip().split(" ")[0]
+    drives.append(drive)
+
+print ' '.join(drives[-2:])
+EOF
+}
+
 # Setup additional drives as storage pools
-__DRIVES__='/dev/sdb /dev/sdc'
+HOST_DISKS=( $(get_host_disks) )
+__DRIVES__="/dev/${HOST_DISKS[0]} /dev/${HOST_DISKS[1]}"
 for i in $__DRIVES__
 do
   echo -e "n\np\n\n\n\nw\n"|fdisk $i
@@ -190,7 +210,7 @@ do
 done
 
 # Create storage pool volume group
-vgcreate storage /dev/sdb1 /dev/sdc1
+vgcreate storage /dev/${HOST_DISKS[0]}1 /dev/${HOST_DISKS[1]}1
 
 # Create storage pool logical volume
 lvcreate -l 100%FREE -n images storage
