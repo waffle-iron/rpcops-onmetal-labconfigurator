@@ -9,6 +9,7 @@
 #TODO
 #set lab to destroy
 #better logic to remove containers from vpx
+#ask to destroy or revert, add revert logic
 
 # Change to where instance disks are
 cd /var/lib/libvirt/images
