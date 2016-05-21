@@ -199,3 +199,7 @@ echo -e "Updating /etc/hosts with lab nodes\n"
 for node in $(get_all_hosts); do
   echo -e "10.5.0.${node:(-3)}\t${node%%":"*}" >> /etc/hosts
 done
+echo -e "Create \"Mint Condition\" snapshots"
+for node in $(get_all_hosts); do
+  virsh snapshot-create-as --domain ${node%%":"*} --name ${node%%":"*}-mint --atomic --description 'Mint Condition'
+done
