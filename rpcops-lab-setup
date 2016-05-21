@@ -46,7 +46,7 @@ for node in $(get_all_hosts); do
     echo "Waiting for node: ${node%%":"*} on 10.5.0.${node#*":"}"
     ssh -q -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=10 10.5.0.${node#*":"} exit > /dev/null
     while test $? -gt 0; do
-      sleep 15
+      sleep 7
       ssh -q -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=10 10.5.0.${node#*":"} exit > /dev/null
     done
 done
