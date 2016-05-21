@@ -5,9 +5,10 @@
 # all nodes (VMs)
 # - delete virtual disk
 # - undefine node
-# cobbler
-# - delete profiles
-# - delete systems
+
+#TODO
+#set lab to destroy
+#better logic to remove containers from vpx
 
 # Change to where instance disks are
 cd /var/lib/libvirt/images
@@ -19,10 +20,11 @@ ssh -o BatchMode=yes nsroot@10.5.0.4 'exit'
 # else setup password-login and then remove containers from VPX
 if [ $? -eq 0 ]; then
   # Remove all containers from the VPX
-  ssh nsroot@10.5.0.4 <<EOF
-`ssh infra01 '/opt/rpc-openstack/openstack-ansible/scripts/inventory-manage.py -g'|awk '/container/ { print $2 }'|while read i; do echo "rm server ${i}"; done|grep -v container_name;`
-save config
-EOF
+  for server in `ssh nsroot@10.5.0.4 'show server'|awk '/Name/ { print $3 }'`
+  do
+    ssh nsroot@10.5.0.4 "rm server $server"
+  done
+  ssh nsroot@10.5.0.4 'save config'
 else
   echo -e "Password is nsroot\n"
   __SSHKEY__=$(cat /root/.ssh/id_rsa.pub|cut -d' ' -f1,2)
@@ -33,10 +35,11 @@ echo $__SSHKEY__ > /nsconfig/ssh/authorized_keys
 EOF
 
   # Remove all containers from the VPX
-  ssh nsroot@10.5.0.4 <<EOF
-`ssh infra01 '/opt/rpc-openstack/openstack-ansible/scripts/inventory-manage.py -g'|awk '/container/ { print $2 }'|while read i; do echo "rm server ${i}"; done|grep -v container_name;`
-save config
-EOF
+  for server in `ssh nsroot@10.5.0.4 'show server'|awk '/Name/ { print $3 }'`
+  do
+    ssh nsroot@10.5.0.4 "rm server $server"
+  done
+  ssh nsroot@10.5.0.4 'save config'
 fi
 
 # Force shutdown and remove all instances
