@@ -61,7 +61,7 @@ with open('resources/labconfigs/${LAB_CONFIG}.json') as f:
         for k, v in x.get("$1").items():
             print('%s:%s' % (k, v))
     except:
-        print("Host type does not exist")
+        pass
 EOF
 }
 
