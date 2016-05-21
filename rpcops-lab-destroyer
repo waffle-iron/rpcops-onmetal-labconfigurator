@@ -42,6 +42,15 @@ EOF
   ssh nsroot@10.5.0.4 'save config'
 fi
 
+# Remove any existing snapshots
+for i in `virsh list --all --name|awk '/infra|compute|storage|cinder|ceph|swift|logger/ { print }'`
+do
+  for j in `virsh snapshot-list --name $i`
+  do
+    virsh snapshot-delete --domain $i --snapshotname $j
+  done
+done
+
 # Force shutdown and remove all instances
 for i in `virsh list --all --name|awk '/infra|compute|storage|cinder|ceph|swift|logger/ { print }'`; do virsh destroy $i; done;
 for i in `virsh list --all --name|awk '/infra|compute|storage|cinder|ceph|swift|logger/ { print }'`; do virsh undefine $i; done;
