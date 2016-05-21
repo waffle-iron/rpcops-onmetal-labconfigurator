@@ -1,8 +1,8 @@
 <domain type='kvm'>
   <name>__NODE__</name>
-  <memory unit='KiB'>8388608</memory>
-  <currentMemory unit='KiB'>8388608</currentMemory>
-  <vcpu placement='static'>8</vcpu>
+  <memory unit='KiB'>__RAM__</memory>
+  <currentMemory unit='KiB'>__RAM__</currentMemory>
+  <vcpu placement='static'>__CPU__</vcpu>
   <os>
     <type arch='x86_64' machine='pc-i440fx-trusty'>hvm</type>
   </os>
