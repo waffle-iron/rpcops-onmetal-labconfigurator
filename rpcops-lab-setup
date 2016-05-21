@@ -84,6 +84,12 @@ for node in $(get_all_hosts); do
   # create node xml file
   cp resources/nodes/node.xml /etc/libvirt/qemu/${node%%":"*}.xml
   sed -i "s/__NODE__/${node%%":"*}/g" /etc/libvirt/qemu/${node%%":"*}.xml
+  sed -i "s/__RAM__/8388608/g" /etc/libvirt/qemu/${node%%":"*}.xml
+  sed -i "s/__CPU__/8/" /etc/libvirt/qemu/${node%%":"*}.xml
+  for compute in $(get_host_type compute); do
+    sed -i "s/__RAM__/16777216/g" /etc/libvirt/qemu/${compute%%":"*}.xml
+    sed -i "s/__CPU__/16/" /etc/libvirt/qemu/${compute%%":"*}.xml
+  done
   # define node
   virsh define /etc/libvirt/qemu/${node%%":"*}.xml || true
 
