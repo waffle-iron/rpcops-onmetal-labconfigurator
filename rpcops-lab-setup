@@ -57,8 +57,11 @@ python <<EOF
 import json
 with open('resources/labconfigs/${LAB_CONFIG}.json') as f:
     x = json.loads(f.read())
-for k, v in x.get("$1").items():
-    print('%s:%s' % (k, v))
+    try:
+        for k, v in x.get("$1").items():
+            print('%s:%s' % (k, v))
+    except:
+        print("Host type does not exist")
 EOF
 }
 
