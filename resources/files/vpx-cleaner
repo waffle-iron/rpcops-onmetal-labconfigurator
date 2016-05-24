@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Check if password-less login to VPX is working
+ssh -o BatchMode=yes nsroot@10.5.0.4 'exit'
+
+# If password-less login works, remove containers from VPX
+# else setup password-login and then remove containers from VPX
+if [ $? -eq 0 ]; then
+  # Remove all containers from the VPX
+  for server in `ssh nsroot@10.5.0.4 'show server'|awk '/Name/ { print $3 }'`
+  do
+    ssh nsroot@10.5.0.4 "rm server $server"
+  done
+  ssh nsroot@10.5.0.4 'save config'
+else
+  echo -e "Password is nsroot\n"
+  __SSHKEY__=$(cat /root/.ssh/id_rsa.pub|cut -d' ' -f1,2)
+  ssh nsroot@10.5.0.4 <<EOF
+shell touch /nsconfig/ssh/authorized_keys && \
+chmod 600 /nsconfig/ssh/authorized_keys && \
+echo $__SSHKEY__ > /nsconfig/ssh/authorized_keys
+EOF
+
+  # Remove all containers from the VPX
+  for server in `ssh nsroot@10.5.0.4 'show server'|awk '/Name/ { print $3 }'`
+  do
+    ssh nsroot@10.5.0.4 "rm server $server"
+  done
+  ssh nsroot@10.5.0.4 'save config'
+fi
