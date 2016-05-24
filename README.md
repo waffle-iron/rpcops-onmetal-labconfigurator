@@ -138,7 +138,7 @@ If not, run the following commands to get the latest license file, remove the cu
 ```shell
 # Remove current license
 ssh nsroot@10.5.0.4 <<EOF
-shell rm -f /nsconfig/license/lb.lic
+shell rm -f /nsconfig/license/*.lic
 EOF
 
 # Add new license to load balancer
