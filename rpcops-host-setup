@@ -345,6 +345,12 @@ echo -e "Extracting node backing image\n "
 tar xzf nodebase.tar.gz
 popd
 
+# Add routing for OpenStack
+echo -e "Adding route for OpenStack"
+ip route add 172.29.236.0/22 via 192.168.0.2
+# persist route Add
+sed -i.bak '/iface lo inet loopback/a \ \ post-up ip route add 172.29.236.0\/22 via 192.168.0.2 || true' /etc/network/interfaces
+
 # Notify end of setup
 echo -e "Your host machine has been bootstrapped for the lab successfully.\n"
 echo -e "Loadbalancer (NetScaler VPX 1000) GUI available via http://${__HOST_IP__}:1413\n"
