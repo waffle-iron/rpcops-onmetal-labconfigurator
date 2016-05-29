@@ -5,11 +5,11 @@
         "infra03": "103"
     },
     "compute": {
-        "compute01": "104",
-        "compute02": "105",
-        "compute03": "106",
-        "compute04": "107",
-        "compute05": "108"
+        "compute01": "120",
+        "compute02": "121",
+        "compute03": "122",
+        "compute04": "123",
+        "compute05": "124"
     },
     "cinder": {
         "cinder01": "190",
