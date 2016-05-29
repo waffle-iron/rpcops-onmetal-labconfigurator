@@ -259,15 +259,15 @@ global_overrides:
         type: "vlan"
         range: "206:210"
         net_name: "vlan"
-#     - network:
-#         group_binds:
-#           - neutron_linuxbridge_agent
-#         container_bridge: "br-vlan"
-#         container_type: "veth"
-#         container_interface: "eth12"
-#         host_bind_override: "eth12"
-#         type: "flat"
-#         net_name: "flat"
+    - network:
+        group_binds:
+          - neutron_linuxbridge_agent
+        container_bridge: "br-vlan"
+        container_type: "veth"
+        container_interface: "eth12"
+        host_bind_override: "br-vlan-flat"
+        type: "flat"
+        net_name: "flat"
 #
 #   Example:
 #
@@ -444,15 +444,15 @@ network_hosts:
 #
 compute_hosts:
   compute01:
-    ip: 172.29.236.104
+    ip: 172.29.236.120
   compute02:
-    ip: 172.29.236.105
+    ip: 172.29.236.121
   compute03:
-    ip: 172.29.236.106
+    ip: 172.29.236.122
   compute04:
-    ip: 172.29.236.107
+    ip: 172.29.236.123
   compute05:
-    ip: 172.29.236.108
+    ip: 172.29.236.124
 #
 # --------
 #
@@ -672,6 +672,10 @@ compute_hosts:
 #
 # Define a logging host:
 #
-# log_hosts:
-#   log1:
-#     ip: 172.29.236.131
+log_hosts:
+  logger01:
+    ip: 172.29.236.110
+  logger02:
+    ip: 172.29.236.111
+  logger03:
+    ip: 172.29.236.112
