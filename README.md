@@ -121,7 +121,7 @@ __SSHKEY__=$(cat /root/.ssh/id_rsa.pub|cut -d' ' -f1,2)
 ssh nsroot@10.5.0.4 <<EOF
 shell touch /nsconfig/ssh/authorized_keys && \
 chmod 600 /nsconfig/ssh/authorized_keys && \
-echo $__SSHKEY__ > /nsconfig/ssh/authorized_keys
+echo $__SSHKEY__ >> /nsconfig/ssh/authorized_keys
 EOF
 ```
 
