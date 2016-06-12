@@ -121,6 +121,12 @@ empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set interfaces ethernet 
 empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set interfaces ethernet eth0 address 192.168.239.121/24\n"
 empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set interfaces ethernet eth0 address 192.168.239.122/24\n"
 empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set interfaces ethernet eth0 address 192.168.239.123/24\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set interfaces ethernet eth0 address 192.168.239.124/24\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set interfaces ethernet eth0 address 192.168.239.125/24\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set interfaces ethernet eth0 address 192.168.239.126/24\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set interfaces ethernet eth0 address 192.168.239.127/24\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set interfaces ethernet eth0 address 192.168.239.128/24\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set interfaces ethernet eth0 address 192.168.239.129/24\n"
 empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set interfaces ethernet eth0 address 192.168.239.190/24\n"
 empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set interfaces ethernet eth0 address 192.168.239.191/24\n"
 empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set interfaces ethernet eth0 address 192.168.239.192/24\n"
@@ -386,6 +392,76 @@ empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule
 empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 115 destination address 192.168.239.115\n"
 empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 115 inbound-interface eth0\n"
 empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 115 translation address 10.239.0.115\n"
+
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 116\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 116 destination address 192.168.239.116\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 116 inbound-interface eth0\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 116 translation address 10.239.0.116\n"
+
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 117\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 117 destination address 192.168.239.117\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 117 inbound-interface eth0\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 117 translation address 10.239.0.117\n"
+
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 118\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 118 destination address 192.168.239.118\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 118 inbound-interface eth0\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 118 translation address 10.239.0.118\n"
+
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 119\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 119 destination address 192.168.239.119\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 119 inbound-interface eth0\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 119 translation address 10.239.0.119\n"
+
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 120\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 120 destination address 192.168.239.120\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 120 inbound-interface eth0\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 120 translation address 10.239.0.120\n"
+
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 121\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 121 destination address 192.168.239.121\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 121 inbound-interface eth0\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 121 translation address 10.239.0.121\n"
+
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 122\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 122 destination address 192.168.239.122\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 122 inbound-interface eth0\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 122 translation address 10.239.0.122\n"
+
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 123\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 123 destination address 192.168.239.123\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 123 inbound-interface eth0\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 123 translation address 10.239.0.123\n"
+
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 124\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 124 destination address 192.168.239.124\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 124 inbound-interface eth0\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 124 translation address 10.239.0.124\n"
+
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 125\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 125 destination address 192.168.239.125\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 125 inbound-interface eth0\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 125 translation address 10.239.0.125\n"
+
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 126\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 126 destination address 192.168.239.126\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 126 inbound-interface eth0\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 126 translation address 10.239.0.126\n"
+
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 127\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 127 destination address 192.168.239.127\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 127 inbound-interface eth0\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 127 translation address 10.239.0.127\n"
+
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 128\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 128 destination address 192.168.239.128\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 128 inbound-interface eth0\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 128 translation address 10.239.0.128\n"
+
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 129\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 129 destination address 192.168.239.129\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 129 inbound-interface eth0\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 129 translation address 10.239.0.129\n"
 
 empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 190\n"
 empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat destination rule 190 destination address 192.168.239.190\n"
@@ -788,6 +864,76 @@ empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 215\
 empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 215 outbound-interface eth0\n"
 empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 215 source address 10.239.0.115\n"
 empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 215 translation address 192.168.239.115\n"
+
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 216\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 216 outbound-interface eth0\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 216 source address 10.239.0.116\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 216 translation address 192.168.239.116\n"
+
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 217\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 217 outbound-interface eth0\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 217 source address 10.239.0.117\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 217 translation address 192.168.239.117\n"
+
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 218\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 218 outbound-interface eth0\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 218 source address 10.239.0.118\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 218 translation address 192.168.239.118\n"
+
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 219\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 219 outbound-interface eth0\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 219 source address 10.239.0.119\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 219 translation address 192.168.239.119\n"
+
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 220\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 220 outbound-interface eth0\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 220 source address 10.239.0.120\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 220 translation address 192.168.239.120\n"
+
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 221\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 221 outbound-interface eth0\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 221 source address 10.239.0.121\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 221 translation address 192.168.239.121\n"
+
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 222\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 222 outbound-interface eth0\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 222 source address 10.239.0.122\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 222 translation address 192.168.239.122\n"
+
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 223\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 223 outbound-interface eth0\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 223 source address 10.239.0.123\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 223 translation address 192.168.239.123\n"
+
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 224\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 224 outbound-interface eth0\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 224 source address 10.239.0.124\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 224 translation address 192.168.239.124\n"
+
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 225\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 225 outbound-interface eth0\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 225 source address 10.239.0.125\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 225 translation address 192.168.239.125\n"
+
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 226\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 226 outbound-interface eth0\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 226 source address 10.239.0.126\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 226 translation address 192.168.239.126\n"
+
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 227\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 227 outbound-interface eth0\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 227 source address 10.239.0.127\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 227 translation address 192.168.239.127\n"
+
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 228\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 228 outbound-interface eth0\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 228 source address 10.239.0.128\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 228 translation address 192.168.239.128\n"
+
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 229\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 229 outbound-interface eth0\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 229 source address 10.239.0.129\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 229 translation address 192.168.239.129\n"
 
 empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 290\n"
 empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set nat source rule 290 source address 10.239.0.190\n"
