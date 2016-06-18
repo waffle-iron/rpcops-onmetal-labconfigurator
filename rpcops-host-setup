@@ -343,6 +343,14 @@ sleep 10
 virsh start loadbalancer
 sleep 10
 
+# Updating vyos configuration
+echo -e "Ensuring vyos firewall has latest configuration"
+echo -e "Waiting an additional 10 seconds for firewall to start"
+sleep 10
+pushd resources/files
+bash vyos-configurator
+popd
+
 # Copy backing image from NFS share
 pushd /var/lib/libvirt/images
 echo -e "Copying node backing file image\n"
