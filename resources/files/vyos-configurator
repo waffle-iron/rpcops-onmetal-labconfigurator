@@ -18,11 +18,19 @@ fi
 __FWHOSTNAME__=`awk '/192.168.0.2/ { print $2 }' /etc/hosts`
 
 # Copy SSH key to firewall
-empty -f -i in.fifo -o out.fifo -p vyosconfig.pid -L vyosconfig.log ssh-copy-id -o StrictHostKeyChecking=no vyos@$__FWHOSTNAME__
-empty -w -i out.fifo -o in.fifo "assword" "vyos\n"
+# Check if password-less login to firewall is working
+ssh -o BatchMode=yes vyos@$__FWHOSTNAME__ 'exit'
 
-# Remove empty artifacts
-rm -f in.fifo out.fifo vyosconfig.pid vyosconfig.log
+# If password-less login works, continue
+# else setup password-login and then continue
+if ! [ $? -eq 0 ]; then
+  # Copy SSH key to firewall
+  empty -f -i input.fifo -o output.fifo -p vyosconfig.pid -L vyosconfig.log ssh-copy-id -o StrictHostKeyChecking=no vyos@$__FWHOSTNAME__
+  empty -w -i output.fifo -o input.fifo "assword" "vyos\n"
+
+  # Remove empty artifacts
+  rm -f input.fifo output.fifo vyosconfig.pid vyosconfig.log
+fi
 
 # Login into firewall
 empty -f -i input.fifo -o output.fifo -p vyosconfig.pid -L vyosconfig.log ssh -o StrictHostKeyChecking=no vyos@$__FWHOSTNAME__
@@ -1649,4 +1657,4 @@ empty -w -i output.fifo -o input.fifo "vyos\@firewall" "exit\n"
 empty -w -i output.fifo -o input.fifo "vyos\@firewall" "exit\n"
 
 # Remove empty artifacts
-#rm input.fifo output.fifo vyosconfig.pid vyosconfig.log
+rm input.fifo output.fifo vyosconfig.pid
