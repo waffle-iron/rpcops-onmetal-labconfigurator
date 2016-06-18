@@ -121,7 +121,13 @@ popd
 /etc/init.d/iptables-persistent flush
 
 # Ensure ip forwarding is enabled on host
-sysctl -w net.ipv4.ip_forward=1 | tee -a /etc/sysctl.conf
+grep -oP -m1 "^#net.ipv4.ip_forward" /etc/sysctl.conf
+if [ `echo $?` -eq 0 ]; then
+  sed -i 's/^#net.ipv4.ip_forward.*/net.ipv4.ip_forward=1/' /etc/sysctl.conf
+else
+  sysctl -w net.ipv4.ip_forward=1 | tee -a /etc/sysctl.conf
+fi
+sysctl -p /etc/sysctl.conf
 
 # Opinionated tmux configuration setup
 # Change default prefix to C-a
@@ -355,4 +361,3 @@ sed -i.bak '/iface lo inet loopback/a \ \ post-up ip route add 172.29.236.0\/22 
 echo -e "Your host machine has been bootstrapped for the lab successfully.\n"
 echo -e "Loadbalancer (NetScaler VPX 1000) GUI available via http://${__HOST_IP__}:1413\n"
 echo -e "Proceed to run rpcops-lab-setup"
-sleep 5
