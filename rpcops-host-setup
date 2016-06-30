@@ -361,7 +361,13 @@ popd
 
 # Add routing for OpenStack
 echo -e "Adding route for OpenStack"
-ip route add 172.29.236.0/22 via 192.168.0.2
+ip link add name ext-lbsrvsw type veth peer name int-lbsrvsw
+ip addr add 172.29.236.90/22 dev ext-lbsrvsw
+ovs-vsctl add-port lbsrvsw int-lbsrvsw
+ovs-vsctl set Port int-lbsrvsw tag=202
+ip link set dev int-lbsrvsw up
+ip link set dev ext-lbsrvsw up
+
 # persist route Add
 sed -i.bak '/iface lo inet loopback/a \ \ post-up ip route add 172.29.236.0\/22 via 192.168.0.2 || true' /etc/network/interfaces
 
