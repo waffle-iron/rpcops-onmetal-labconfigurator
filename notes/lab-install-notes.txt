@@ -151,3 +151,52 @@ qemu-img create -f qcow2 compute02-lxc.qcow2 204800M
 
 # Reboot the system
 shutdown -r now
+
+
+
+
+
+
+
+
+
+
+# Setting up veth pair for connecting with environment from host
+
+root@melv7301-rpcops-lab:~# ip route
+default via 23.253.157.1 dev bond0.101
+10.5.0.0/24 dev virbr0  proto kernel  scope link  src 10.5.0.1
+10.6.0.0/24 dev virbr1  proto kernel  scope link  src 10.6.0.1
+10.176.0.0/12 via 10.184.0.1 dev bond0.401
+10.184.0.0/20 dev bond0.401  proto kernel  scope link  src 10.184.11.188
+10.208.0.0/12 via 10.184.0.1 dev bond0.401
+23.253.157.0/24 dev bond0.101  proto kernel  scope link  src 23.253.157.167
+172.29.236.0/22 dev ext-lbsrvsw  proto kernel  scope link  src 172.29.236.200
+192.168.0.0/24 dev virbr2  proto kernel  scope link  src 192.168.0.1
+192.168.236.0/22 dev virbr2  proto kernel  scope link  src 192.168.236.1
+192.168.240.0/22 dev virbr2  proto kernel  scope link  src 192.168.240.1
+root@melv7301-rpcops-lab:~# history|grep ext-lbsrvsw
+ 1859  ip link add name host-ext-lbsrvsw type veth peer name host-int-lbsrvsw
+ 1860  ip link add name ext-lbsrvsw type veth peer name int-lbsrvsw
+ 1862  ip link show ext-lbsrvsw
+ 1867  ip addr add 172.29.236.200/22 dev ext-lbsrvsw
+ 1873  ip link set dev ext-lbsrvsw up
+ 1968  history|grep ext-lbsrvsw
+root@melv7301-rpcops-lab:~# history|grep int-lbsrvsw
+ 1859  ip link add name host-ext-lbsrvsw type veth peer name host-int-lbsrvsw
+ 1860  ip link add name ext-lbsrvsw type veth peer name int-lbsrvsw
+ 1866  ovs-vsctl add-port lbsrvsw int-lbsrvsw
+ 1882  ip link set dev int-lbsrvsw up
+ 1890  ovs-vsctl get port int-lbsrvsw
+ 1891  ovs-vsctl set port int-lbsrvsw tag=201
+ 1892  ovs-vsctl get port int-lbsrvsw
+ 1894  ovs-vsctl set Port int-lbsrvsw tag=201
+ 1897  ovs-vsctl get Port lbsrvsw int-lbsrvsw
+ 1898  ovs-vsctl get Port int-lbsrvsw
+ 1899  ovs-vsctl get Port int-lbsrvsw vlan
+ 1900  ovs-vsctl get Port int-lbsrvsw tag
+ 1902  ovs-vsctl set Port int-lbsrvsw tag=202
+ 1969  history|grep int-lbsrvsw
+
+
+ 
