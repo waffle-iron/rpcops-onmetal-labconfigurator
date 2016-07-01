@@ -160,16 +160,16 @@ EOG
 done
 
 for node in $(get_host_type storage); do
-  echo -e "Creating and attaching block storage device for ${node%%":"*}"
+  echo -e "Creating block storage block device for ${node%%":"*}"
   qemu-img create -f raw /var/lib/libvirt/images/${node%%":"*}-cv-disk 102400M
-  virsh attach-disk ${node%%":"*} --source /var/lib/libvirt/images/${node%%":"*}-cv-disk --target vdb --persistent
+  #virsh attach-disk ${node%%":"*} --source /var/lib/libvirt/images/${node%%":"*}-cv-disk --target vdb --persistent
 done
 
 for node in $(get_host_type object); do
-  echo -e "Creating and attaching object storage devices for ${node%%":"*}"
+  echo -e "Creating object storage block devices for ${node%%":"*}"
   for disk in {b..f}; do
     qemu-img create -f raw /var/lib/libvirt/images/${node%%":"*}-ob-${disk} 20480M
-    virsh attach-disk ${node%%":"*} --source /var/lib/libvirt/images/${node%%":"*}-ob-${disk} --target vd${disk} --persistent
+    #virsh attach-disk ${node%%":"*} --source /var/lib/libvirt/images/${node%%":"*}-ob-${disk} --target vd${disk} --persistent
   done
 done
 
@@ -217,21 +217,17 @@ for node in $(get_all_hosts); do
 done
 echo -e "Create \"Mint Condition\" snapshots"
 for node in $(get_all_hosts); do
-  echo -e "Detaching raw block devices pre-snapshot\n"
-  for disk in `virsh domblklist --domain ${node%%":"*}|awk '/^vd[b-z]/ { print $1 }'`; do
-    virsh detach-disk --domain ${node%%":"*} --target ${disk} --persistent
-  done
   virsh snapshot-create-as --domain ${node%%":"*} --name ${node%%":"*}-mint --atomic --description 'Mint Condition'
 done
 
 echo -e "Attaching raw block devices post-snapshot\n"
 for node in $(get_host_type storage); do
-  echo -e "Attaching block storage device for ${node%%":"*}"
+  echo -e "Attaching block storage block device for ${node%%":"*}"
   virsh attach-disk ${node%%":"*} --source /var/lib/libvirt/images/${node%%":"*}-cv-disk --target vdb --persistent
 done
 
 for node in $(get_host_type object); do
-  echo -e "Attaching object storage devices for ${node%%":"*}"
+  echo -e "Attaching object storage block devices for ${node%%":"*}"
   for disk in {b..f}; do
     virsh attach-disk ${node%%":"*} --source /var/lib/libvirt/images/${node%%":"*}-ob-${disk} --target vd${disk} --persistent
   done
