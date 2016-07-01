@@ -11,6 +11,19 @@
 #better logic to remove containers from vpx
 #ask to destroy or revert, add revert logic
 
+function get_host_type () {
+python <<EOF
+import json
+with open('resources/labconfigs/${LAB_CONFIG}.json') as f:
+    x = json.loads(f.read())
+    try:
+        for k, v in x.get("$1").items():
+            print('%s:%s' % (k, v))
+    except:
+        pass
+EOF
+}
+
 # Change to where instance disks are
 cd /var/lib/libvirt/images
 
