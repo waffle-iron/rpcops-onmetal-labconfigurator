@@ -21,7 +21,7 @@ fi
 function get_host_type () {
 python <<EOF
 import json
-with open('resources/labconfigs/${LAB_CONFIG}.json') as f:
+with open('/root/rpcops-onmetal-labconfigurator/resources/labconfigs/${LAB_CONFIG}.json') as f:
     x = json.loads(f.read())
     try:
         for k, v in x.get("$1").items():
