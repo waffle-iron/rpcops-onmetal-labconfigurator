@@ -34,17 +34,24 @@ shell touch /nsconfig/ssh/authorized_keys && \
 chmod 600 /nsconfig/ssh/authorized_keys && \
 echo $__SSHKEY__ > /nsconfig/ssh/authorized_keys
 EOF
-
-  # Remove all containers from the VPX
-  for server in `ssh nsroot@10.5.0.4 'show server'|awk '/Name/ { print $3 }'`
-  do
-    ssh nsroot@10.5.0.4 "rm server $server"
-  done
-  ssh nsroot@10.5.0.4 'save config'
 fi
 
+# Detach all block devices
+echo -e "Detaching raw block devices\n"
+for node in $(get_host_type storage); do
+  echo -e "Detaching block storage block device for ${node%%":"*}"
+  virsh detach-disk ${node%%":"*} --target vdb --persistent
+done
+
+for node in $(get_host_type object); do
+  echo -e "Detaching object storage block devices for ${node%%":"*}"
+  for disk in {b..f}; do
+    virsh detach-disk ${node%%":"*} --target vd${disk} --persistent
+  done
+done
+
 # Remove any existing snapshots
-for i in `virsh list --all --name|awk '/infra|compute|storage|cinder|ceph|swift|logger/ { print }'`
+for i in `virsh list --all --name|awk '/infra|compute|storage|cinder|ceph|swift|object|logger/ { print }'`
 do
   for j in `virsh snapshot-list --name $i`
   do
@@ -53,11 +60,18 @@ do
 done
 
 # Force shutdown and remove all instances
-for i in `virsh list --all --name|awk '/infra|compute|storage|cinder|ceph|swift|logger/ { print }'`; do virsh destroy $i; done;
-for i in `virsh list --all --name|awk '/infra|compute|storage|cinder|ceph|swift|logger/ { print }'`; do virsh undefine $i; done;
+for i in `virsh list --all --name|awk '/infra|compute|storage|cinder|ceph|swift|object|logger/ { print }'`; do virsh destroy $i; done;
+for i in `virsh list --all --name|awk '/infra|compute|storage|cinder|ceph|swift|object|logger/ { print }'`; do virsh undefine $i; done;
+
+# Remove all containers from the VPX
+for server in `ssh nsroot@10.5.0.4 'show server'|awk '/Name/ { print $3 }'`
+do
+  ssh nsroot@10.5.0.4 "rm server $server"
+done
+ssh nsroot@10.5.0.4 'save config'
 
 # Delete all disks
-find . -regextype posix-extended -iregex '.*(infra|compute|storage|cinder|ceph|swift|logger).*' -delete
+find . -regextype posix-extended -iregex '.*(infra|compute|storage|cinder|ceph|swift|object|logger).*' -delete
 
 # Remove instances from OnMetal /etc/hosts
-sed -i '/.*\(infra\|compute\|storage\|cinder\|ceph\|swift\|logger\).*/d' /etc/hosts
+sed -i '/.*\(infra\|compute\|storage\|cinder\|ceph\|swift\|object\|logger\).*/d' /etc/hosts
