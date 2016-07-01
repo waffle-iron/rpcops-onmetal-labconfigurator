@@ -11,6 +11,13 @@
 #better logic to remove containers from vpx
 #ask to destroy or revert, add revert logic
 
+# Set LAB_CONFIG [default for now]
+if ! [ -z "$1" ]; then
+  LAB_CONFIG=$1
+else
+  LAB_CONFIG='default'
+fi
+
 function get_host_type () {
 python <<EOF
 import json
