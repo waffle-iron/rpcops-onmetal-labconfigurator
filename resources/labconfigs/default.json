@@ -4,11 +4,24 @@
         "infra02": "102",
         "infra03": "103"
     },
+    "logging": {
+        "logger01": "110",
+        "logger02": "111",
+        "logger03": "112"
+    },
     "compute": {
         "compute01": "120",
         "compute02": "121",
-        "compute03": "122",
-        "compute04": "123",
-        "compute05": "124"
+        "compute03": "122"
+    },
+    "storage": {
+        "cinder01": "130",
+        "cinder02": "131",
+        "cinder03": "132"
+    },
+    "object": {
+        "swift01": "140",
+        "swift02": "141",
+        "swift03": "142"
     }
 }
