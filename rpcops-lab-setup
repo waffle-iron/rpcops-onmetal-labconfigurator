@@ -159,12 +159,18 @@ write-append /etc/fstab '/dev/mapper/lxc-nova    /var/lib/nova    ext3    rw    
 EOG
 done
 
-for node in $(get_host_type cinder); do
-  echo -e "Creating and configuring cinder-volumes logical volume for ${node%%":"*}"
-  guestfish -d ${node%%":"*} -i <<EOG
-lvcreate-free cinder-volumes lxc 100
-mkfs ext3 /dev/lxc/cinder-volumes
-EOG
+for node in $(get_host_type storage); do
+  echo -e "Creating and attaching block storage devices for ${node%%":"*}"
+  qemu-img create -f raw /var/lib/libvirt/images/${node%%":"*}-cv-disk 102400M
+  virsh attach-disk ${node%%":"*} --source /var/lib/libvirt/images/${node%%":"*}-cv-disk --target vdb --persistent
+done
+
+for node in $(get_host_type object); do
+  echo -e "Creating and attaching object storage devices for ${node%%":"*}"
+  for disk in {b..f}; do
+    qemu-img create -f raw /var/lib/libvirt/images/${node%%":"*}-ob-${disk} 20480M
+    virsh attach-disk ${node%%":"*} --source /var/lib/libvirt/images/${node%%":"*}-ob-${disk} --target vd${disk} --persistent
+  done
 done
 
 echo -e "Setting StrictHostKeyChecking to no in /etc/ssh/ssh_config"
