@@ -222,10 +222,11 @@ done
 
 echo -e "Creating inventory file\n"
 for type in "${TYPES[@]}"; do
-  echo -e "[${type}]\n" >> /root/rpcops-onmetal-labconfigurator/inventory
+  echo -e "[${type}]\r" >> /root/rpcops-onmetal-labconfigurator/inventory
   for node in $(get_host_type ${type}); do
-    echo -e "${node%%":"*}\n" >> /root/rpcops-onmetal-labconfigurator/inventory
+    echo -e "${node%%":"*}" >> /root/rpcops-onmetal-labconfigurator/inventory
   done
+  echo -e "\n"
 done
 
 echo -e "Clean known_hosts"
