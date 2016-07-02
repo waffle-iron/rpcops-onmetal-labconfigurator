@@ -9,7 +9,6 @@
       repo: http://github.com/openstack/openstack-ansible
       dest: /opt/openstack-ansible
       clone: yes
-      version: liberty
       accept_hostkey: yes
       recursive: yes
       version: liberty
