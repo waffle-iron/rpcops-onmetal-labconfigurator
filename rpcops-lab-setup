@@ -228,6 +228,9 @@ for type in "${TYPES[@]}"; do
   done
 done
 
+echo -e "Clean known_hosts"
+: > /root/.ssh/known_hosts
+
 echo -e "Create \"Mint Condition\" snapshots"
 for node in $(get_all_hosts); do
   virsh snapshot-create-as --domain ${node%%":"*} --name ${node%%":"*}-mint --atomic --description 'Mint Condition'
