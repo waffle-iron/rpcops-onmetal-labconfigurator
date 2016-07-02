@@ -69,3 +69,6 @@
       owner: root
       group: root
       mode: 0600
+
+  - name: Build openstack-ansible inventory
+    command: /opt/openstack-ansible/playbooks/inventory/dynamic_inventory.py > /dev/null
