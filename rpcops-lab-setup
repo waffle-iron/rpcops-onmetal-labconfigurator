@@ -40,6 +40,9 @@ BACKING_FILE='/var/lib/libvirt/images/nodebase.qcow2'
 # This gets the root users SSH-public-key
 SSHKEY=$(cat /root/.ssh/id_rsa.pub|cut -d' ' -f1,2)
 
+# Node types
+TYPES=( infra logging compute object storage ceph )
+
 function wait_ssh() {
 echo "Waiting for all nodes to become available."
 for node in $(get_all_hosts); do
@@ -211,16 +214,25 @@ echo -e "Login for all nodes user: root | password: stack\n"
 for node in $(get_all_hosts); do
   echo -e "Node Name: ${node%%":"*}\t\tDRAC IP: 10.5.0.${node:(-3)}\n"
 done
+
 echo -e "Updating /etc/hosts with lab nodes\n"
 for node in $(get_all_hosts); do
-  echo -e "10.5.0.${node:(-3)}\t${node%%":"*}" >> /etc/hosts
+  echo -e "\n172.29.236.${node:(-3)}\t${node%%":"*}" >> /etc/hosts
 done
+
+echo -e "Creating inventory file\n"
+for type in "${TYPES[@]}"; do
+  echo -e "[${type}]\n" >> /root/rpcops-onmetal-labconfigurator/inventory
+  for node in $(get_host_type ${type}); do
+    echo -e "${node%%":"*}\n" >> /root/rpcops-onmetal-labconfigurator/inventory
+  done
+done
+
 echo -e "Create \"Mint Condition\" snapshots"
 for node in $(get_all_hosts); do
   virsh snapshot-create-as --domain ${node%%":"*} --name ${node%%":"*}-mint --atomic --description 'Mint Condition'
 done
 
-echo -e "Attaching raw block devices post-snapshot\n"
 for node in $(get_host_type storage); do
   echo -e "Attaching block storage block device for ${node%%":"*}"
   virsh attach-disk ${node%%":"*} --source /var/lib/libvirt/images/${node%%":"*}-cv-disk --target vdb --persistent
