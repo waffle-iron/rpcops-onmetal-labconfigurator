@@ -105,5 +105,6 @@
     script: /root/rpcops-onmetal-labconfigurator/playbooks/scripts/vpx-login-setup.sh
     register: result
     failed_when: "'Permission denied' not in result.stdout"
+    ignore_errors: True
     tags:
       - vpx-login-setup
