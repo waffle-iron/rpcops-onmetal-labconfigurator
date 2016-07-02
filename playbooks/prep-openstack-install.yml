@@ -22,6 +22,13 @@
   - name: Generate service credentials
     command: python pw-token-gen.py --file /etc/openstack_deploy/user_secrets.yml chdir=/opt/openstack-ansible/scripts
 
+  - name: Persist admin password
+    lineinfile:
+      dest: /etc/openstack_deploy/user_secrets.yml
+      regexp: "^keystone_auth_admin_password.*"
+      state: present
+      line: "keystone_auth_admin_password: a83074ce8dc7d0ca1157c07856e3"
+
   - name: Configure image service
     lineinfile:
       dest: /etc/openstack_deploy/user_variables.yml
@@ -54,7 +61,7 @@
       owner: root
       group: root
       mode: 0600
-  
+
   - name: Copy swift.yml
     copy:
       src: templates/swift.yml
