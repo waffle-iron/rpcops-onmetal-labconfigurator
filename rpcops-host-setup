@@ -109,7 +109,7 @@ apt-get install -y qemu tcpdump libvirt-bin libvirt-dev lvm2 git git-core curl \
 zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 \
 libxml2-dev libxslt1-dev libcurl4-openssl-dev python-software-properties libffi-dev python-dev \
 python curl vim telnet zip unzip python-libvirt tmux iptables-persistent \
-ebtables pm-utils dsh expect empty-expect screen
+ebtables pm-utils dsh expect empty-expect screen ntp ntpdate
 
 pushd /usr/local/bin
 wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64
