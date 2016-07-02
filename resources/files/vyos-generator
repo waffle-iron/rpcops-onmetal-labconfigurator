@@ -16,7 +16,7 @@ fi
 grep 192.168.0.2 /etc/hosts
 rc=$?
 if ! [ $rc -eq 0 ]; then
-  echo -e "\n192.168.0.2\tfirewall" >> /etc/hosts
+  echo -e "\\n192.168.0.2\\tfirewall" >> /etc/hosts
 fi
 
 # Get hostname for firewall
@@ -72,19 +72,28 @@ empty -w -t 30 -i output.fifo -o input.fifo "vyos\@firewall" "commit\\n"
 # Configure IPv4 addresses for host nodes
 """
 
-host_nat_ips = IPNetwork('192.168.239.0/24').iter_hosts()
-node_nat_ips = IPNetwork('10.239.0.0/24').iter_hosts()
-floating_ips = IPNetwork('192.168.240.0/22').iter_hosts()
+host_nat_net = '192.168.239.0/24'
+node_nat_net = '10.239.0.0/24'
+host_flt_net = '192.168.240.0/22'
+node_flt_net = '10.240.0.0/22'
+
+host_nat_ips = IPNetwork(host_nat_net).iter_hosts()
+node_nat_ips = IPNetwork(node_nat_net).iter_hosts()
+host_flt_ips = IPNetwork(host_flt_net).iter_hosts()
+node_flt_ips = IPNetwork(node_flt_net).iter_hosts()
 
 next(host_nat_ips)
 next(node_nat_ips)
-next(floating_ips)
+next(host_flt_ips)
+next(node_flt_ips)
 
-host_ips = [str(host_nat_ip) for host_nat_ip in host_nat_ips]
-node_ip = [str(node_nat_ip) for node_nat_ip in node_nat_ips]
+host_nips = [str(host_nat_ip) for host_nat_ip in host_nat_ips]
+node_nip = [str(node_nat_ip) for node_nat_ip in node_nat_ips]
+host_fips = [str(host_flt_ip) for host_flt_ip in host_flt_ips]
+node_fip = [str(node_flt_ip) for node_flt_ip in node_flt_ips]
 
-for index, host_ip in enumerate(host_ips):
-    print 'empty -w -t 30 -i output.fifo -o input.fifo \"vyos\\@firewall\" \"set interfaces ethernet eth0 address %s/24\\n\"' % host_ip
+for index, host_nip in enumerate(host_nips):
+    print 'empty -w -i output.fifo -o input.fifo \"vyos\\@firewall\" \"set interfaces ethernet eth0 address %s/24\\n\"' % host_nip
 
 print """
 
@@ -92,11 +101,10 @@ print """
 empty -w -t 30 -i output.fifo -o input.fifo "vyos\@firewall" "commit\\n"'
 
 # Configure IPv4 addresses for floating IPs
-
 """
 
-for index, floating_ip in enumerate(floating_ips):
-    print 'empty -w -t 30 -i output.fifo -o input.fifo \"vyos\\@firewall\" \"set interfaces ethernet eth0 address %s/22\\n\"' % floating_ip
+for index, host_fip in enumerate(host_fips):
+    print 'empty -w -i output.fifo -o input.fifo \"vyos\\@firewall\" \"set interfaces ethernet eth0 address %s/22\\n\"' % host_fip
 
 print """
 
@@ -104,23 +112,21 @@ print """
 empty -w -t 30 -i output.fifo -o input.fifo "vyos\@firewall" "commit\\n"
 
 # Create vif for vyOS <-> VPX traffic
-empty -w -t 30 -i output.fifo -o input.fifo "vyos\@firewall" "set interfaces ethernet eth1 vif 100 address 172.24.96.1/22\n"
+empty -w -i output.fifo -o input.fifo "vyos\@firewall" "set interfaces ethernet eth1 vif 100 address 172.24.96.1/22\\n"
 
 # Commit changes to firewall runtime configuration
 empty -w -t 30 -i output.fifo -o input.fifo "vyos\@firewall" "commit\\n"
 
 # Configure destination NAT translation public node to private node IPv4 address
-
 """
 
-for index, host_ip in enumerate(host_ips):
-    rule = host_ip.split('.')[3]
+for index, host_nip in enumerate(host_nips):
+    rule = host_nip.split('.')[3]
 
     print 'empty -w -i output.fifo -o input.fifo \"vyos\\@firewall\" \"set nat destination rule %s\\n\"' % rule
-    print 'empty -w -i output.fifo -o input.fifo \"vyos\\@firewall\" \"set nat destination rule %s destination address %s\\n\"' % (rule, host_ip)
+    print 'empty -w -i output.fifo -o input.fifo \"vyos\\@firewall\" \"set nat destination rule %s destination address %s\\n\"' % (rule, host_nip)
     print 'empty -w -i output.fifo -o input.fifo \"vyos\\@firewall\" \"set nat destination rule %s inbound-interface eth0\\n\"' % rule
-    print 'empty -w -i output.fifo -o input.fifo \"vyos\\@firewall\" \"set nat destination rule %s translation address %s\\n\"' % (rule, node_ip[index])
-    print ''
+    print 'empty -w -i output.fifo -o input.fifo \"vyos\\@firewall\" \"set nat destination rule %s translation address %s\\n\"' % (rule, node_nip[index])
 
 print """
 
@@ -128,26 +134,39 @@ print """
 empty -w -t 30 -i output.fifo -o input.fifo "vyos\@firewall" "commit\\n"
 
 # Configure source NAT translation private node to public node IPv4 address
-
 """
 
-for index, host_ip in enumerate(host_ips):
-    rule = host_ip.split('.')[3]
+for index, host_nip in enumerate(host_nips):
+    rule = host_nip.split('.')[3]
 
     print 'empty -w -i output.fifo -o input.fifo \"vyos\\@firewall\" \"set nat source rule %s\\n\"' % rule
     print 'empty -w -i output.fifo -o input.fifo \"vyos\\@firewall\" \"set nat source rule %s outbound-interface eth0\\n\"' % rule
-    print 'empty -w -i output.fifo -o input.fifo \"vyos\\@firewall\" \"set nat source rule %s source address %s\\n\"' % (rule, node_ip[index])
-    print 'empty -w -i output.fifo -o input.fifo \"vyos\\@firewall\" \"set nat source rule %s translation address %s\\n\"' % (rule, host_ip)
-    print ''
+    print 'empty -w -i output.fifo -o input.fifo \"vyos\\@firewall\" \"set nat source rule %s source address %s\\n\"' % (rule, node_nip[index])
+    print 'empty -w -i output.fifo -o input.fifo \"vyos\\@firewall\" \"set nat source rule %s translation address %s\\n\"' % (rule, host_nip)
 
 print """
 
 # Commit changes to firewall runtime configuration
 empty -w -t 30 -i output.fifo -o input.fifo "vyos\@firewall" "commit\\n"
 
+# Configure destination NAT translation public floating to private floating IPv4 address
 """
 
+for index, host_fip in enumerate(host_fips):
+    rule = host_fip.split('.')[3]
+    print 'empty -w -i output.fifo -o input.fifo \"vyos\\@firewall\" \"set nat destination rule %s\\n\"' % rule
+    print 'empty -w -i output.fifo -o input.fifo \"vyos\\@firewall\" \"set nat destination rule %s destination address %s\\n\"' % (rule, host_fip)
+    print 'empty -w -i output.fifo -o input.fifo \"vyos\\@firewall\" \"set nat destination rule %s inbound-interface eth0\\n\"' % rule
+    print 'empty -w -i output.fifo -o input.fifo \"vyos\\@firewall\" \"set nat destination rule %s translation address %s\\n\"' % (rule, node_fip[index])
 
+print '# Configure source NAT translation private floating to public floating IPv4 address'
+
+for index, host_fip in enumerate(host_fips):
+    rule = host_fip.split('.')[3]
+    print 'empty -w -i output.fifo -o input.fifo \"vyos\@firewall\" \"set nat source rule %s\\n\"' % rule
+    print 'empty -w -i output.fifo -o input.fifo \"vyos\@firewall\" \"set nat source rule %s outbound-interface eth0\\n\"' % rule
+    print 'empty -w -i output.fifo -o input.fifo \"vyos\@firewall\" \"set nat source rule %s source address %s\\n\"' % (rule, node_fip[index])
+    print 'empty -w -i output.fifo -o input.fifo \"vyos\@firewall\" \"set nat source rule %s translation address %s\\n\"' % (rule, host_fip)
 
 print """
 
