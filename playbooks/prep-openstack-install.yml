@@ -12,18 +12,29 @@
       accept_hostkey: yes
       recursive: yes
       version: "{{ openstack_release }}"
+    tags:
+      - clone-openstack-ansible
 
   - name: Remove existing openstack_deploy
     command: rm -rf /etc/openstack_deploy
+    tags:
+      - remove-openstack-deploy
+      - copy-openstack-deploy
 
   - name: Copy openstack_deploy to etc
     command: cp -R etc/openstack_deploy /etc/ chdir=/opt/openstack-ansible
+    tags:
+      - copy-openstack-deploy
 
   - name: Bootstrap Ansible
     command: scripts/bootstrap-ansible.sh chdir=/opt/openstack-ansible
+    tags:
+      - bootstrap-ansible
 
   - name: Generate service credentials
     command: python pw-token-gen.py --file /etc/openstack_deploy/user_secrets.yml chdir=/opt/openstack-ansible/scripts
+    tags:
+      - generate-credentials
 
   - name: Persist admin password
     lineinfile:
@@ -31,6 +42,8 @@
       regexp: "^keystone_auth_admin_password.*"
       state: present
       line: "keystone_auth_admin_password: a83074ce8dc7d0ca1157c07856e3"
+    tags:
+      - persist-admin-password
 
   - name: Configure image service
     lineinfile:
@@ -38,6 +51,8 @@
       insertafter: "^#glance_default_store"
       state: present
       line: "glance_default_store: swift"
+    tags:
+      - set-glance-default-store
 
   - name: Configure cinder AZ
     lineinfile:
@@ -45,6 +60,8 @@
       insertafter: EOF
       state: present
       line: "cinder_default_availability_zone: cinderAZ_1"
+    tags:
+      - set-cinder-default-az
 
   - name: Deploy LBaaS v2
     blockinfile:
@@ -56,6 +73,8 @@
           - neutron.services.l3_router.l3_router_plugin.L3RouterPlugin
           - neutron.services.metering.metering_plugin.MeteringPlugin
           - neutron_lbaas.services.loadbalancer.plugin.LoadBalancerPluginv2
+    tags:
+      - add-lbaas-v2
 
   - name: Copy openstack_user_config.yml
     copy:
@@ -64,6 +83,8 @@
       owner: root
       group: root
       mode: 0600
+    tags:
+      - copy-user-config
 
   - name: Copy swift.yml
     copy:
@@ -72,9 +93,15 @@
       owner: root
       group: root
       mode: 0600
+    tags:
+      - copy-swift-config
 
   - name: Build openstack-ansible inventory
     command: /opt/openstack-ansible/playbooks/inventory/dynamic_inventory.py > /dev/null
+    tags:
+      - generate-inventory
 
   - name: Add containers to VPX loadbalancer
     script: /root/rpcops-onmetal-labconfigurator/playbooks/scripts/vpx-login-setup.sh
+    tags:
+      - vpx-login-setup
