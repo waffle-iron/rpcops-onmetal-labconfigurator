@@ -11,7 +11,7 @@
       clone: yes
       accept_hostkey: yes
       recursive: yes
-      version: liberty
+      version: "{{ openstack_release }}"
 
   - name: Copy openstack_deply to etc
     command: cp -R etc/openstack_deploy /etc/ chdir=/opt/openstack-ansible
