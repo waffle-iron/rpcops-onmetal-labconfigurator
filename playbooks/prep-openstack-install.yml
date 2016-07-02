@@ -104,6 +104,6 @@
   - name: Add containers to VPX loadbalancer
     script: /root/rpcops-onmetal-labconfigurator/playbooks/scripts/vpx-login-setup.sh
     register: result
-    failed_when: "'Permission denied' ! in result.stderr"
+    failed_when: "'Permission denied' not in result.stderr"
     tags:
       - vpx-login-setup
