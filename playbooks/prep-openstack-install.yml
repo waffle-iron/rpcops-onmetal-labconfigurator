@@ -1,0 +1,65 @@
+- name: Prepare OpenStack
+  become: yes
+  remote_user: root
+  hosts: infra01
+
+  tasks:
+  - name: Clone openstack-ansible
+    git:
+      repo: http://github.com/openstack/openstack-ansible
+      dest: /opt/openstack-ansible
+      clone: yes
+      version: liberty
+      accept_hostkey: yes
+      recursive: yes
+      version: liberty
+
+  - name: Copy openstack_deply to etc
+    command: cp -R etc/openstack_deploy /etc/ chdir=/opt/openstack-ansible
+
+  - name: Bootstrap Ansible
+    command: scripts/bootstrap-ansible.sh chdir=/opt/openstack-ansible
+
+  - name: Generate service credentials
+    command: python pw-token-gen.py --file /etc/openstack_deploy/user_secrets.yml chdir=/opt/openstack-ansible/scripts
+
+  - name: Configure image service
+    lineinfile:
+      dest: /etc/openstack_deploy/user_variables.yml
+      insertafter: "^#glance_default_store"
+      state: present
+      line: "glance_default_store: swift"
+
+  - name: Configure cinder AZ
+    lineinfile:
+      dest: /etc/openstack_deploy/user_variables.yml
+      insertafter: EOF
+      state: present
+      line: "cinder_default_availability_zone: cinderAZ_1"
+
+  - name: Deploy LBaaS v2
+    blockinfile:
+      dest: /etc/openstack_deploy/user_variables.yml
+      insertafter: EOF
+      state: present
+      block: |
+        neutron_plugin_base:
+          - neutron.services.l3_router.l3_router_plugin.L3RouterPlugin
+          - neutron.services.metering.metering_plugin.MeteringPlugin
+          - neutron_lbaas.services.loadbalancer.plugin.LoadBalancerPluginv2
+
+  - name: Copy openstack_user_config.yml
+    copy:
+      src: templates/openstack_user_config.yml
+      dest: /etc/openstack_deploy/openstack_user_config.yml
+      owner: root
+      group: root
+      mode: 0600
+  
+  - name: Copy swift.yml
+    copy:
+      src: templates/swift.yml
+      dest: /etc/openstack_deploy/conf.d/swift.yml
+      owner: root
+      group: root
+      mode: 0600
