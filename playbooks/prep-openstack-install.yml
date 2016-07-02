@@ -13,6 +13,9 @@
       recursive: yes
       version: "{{ openstack_release }}"
 
+  - name: Remove existing openstack_deploy
+    command: rm -rf /etc/openstack_deploy
+
   - name: Copy openstack_deploy to etc
     command: cp -R etc/openstack_deploy /etc/ chdir=/opt/openstack-ansible
 
