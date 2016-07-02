@@ -1,7 +1,7 @@
 ---
 
 - name:  Setup block storage disks
-  hosts: cinder
+  hosts: storage
   remote_user: root
   become: yes
 

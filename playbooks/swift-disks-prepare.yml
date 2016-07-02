@@ -1,7 +1,7 @@
 ---
 
 - name: Prepare node disks
-  hosts: swift
+  hosts: object
   remote_user: root
   become: yes
 
@@ -38,4 +38,3 @@
     - name: Mount disk
       shell: "mount /dev/{{ item }} /srv/node/{{ item }}"
       with_items: "{{ disks }}"
-
