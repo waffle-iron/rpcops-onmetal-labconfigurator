@@ -179,7 +179,7 @@ gem install serverspec
 
 # Install pip and a few helper packages
 python <(curl -sk https://bootstrap.pypa.io/get-pip.py)
-pip install pyopenssl ndg-httpsclient pyasn1 bpython httpie ansible==1.9.4
+pip install pyopenssl ndg-httpsclient pyasn1 bpython httpie netaddr ansible==2.1.0
 
 # Install Open vSwitch
 pushd ovs
