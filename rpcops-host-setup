@@ -368,6 +368,10 @@ ovs-vsctl set Port int-lbsrvsw tag=202
 ip link set dev int-lbsrvsw up
 ip link set dev ext-lbsrvsw up
 
+echo -e "Setting TZ to America/Chicago"
+unlink /etc/localtime
+ln -s /usr/share/zoneinfo/America/Chicago /etc/localtime
+
 # persist route Add
 sed -i.bak '/iface lo inet loopback/a \ \ post-up ip route add 172.29.236.0\/22 via 192.168.0.2 || true' /etc/network/interfaces
 
