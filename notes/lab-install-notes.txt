@@ -199,4 +199,10 @@ root@melv7301-rpcops-lab:~# history|grep int-lbsrvsw
  1969  history|grep int-lbsrvsw
 
 
- 
+
+Setting up networks after OpenStack installation
+
+neutron net-create --provider:physical_network=vlan --provider:network_type=vlan --provider:segmentation_id=205 --router:external ext-net
+neutron subnet-create ext-net 10.240.0.0/22 --name ext-subnet --gateway=10.240.0.1 --allocation-pool start=10.240.0.11,end=10.240.0.255 --enable_dhcp=false
+neutron router-create ext-rtr
+neutron router-gateway-set --enable-snat {{ router_id }} {{ external_network_id }}
