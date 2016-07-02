@@ -60,58 +60,31 @@ bash rpcops-host-setup
 # ex. bash rpcops-lab-setup defaultcinder
 bash rpcops-lab-setup
 
-# Once the above have completed
+# Run playbooks to prepare OpenStack install
 
-# SSH into infra01
-ssh root@10.5.0.101
-# Clone rpc-openstack to /opt
-cd /opt
-# Using Kilo here, be sure to check out branch you want
-git clone -b r11.1.5 --recursive https://github.com/rcbops/rpc-openstack
-cd /opt/rpc-openstack
+# Check /root/rpcops-onmetal-labconfigurator/inventory
+# to be sure the hosts are there as expected
+# format
+# [type]
+# host
+# host
+# ...
+cd /root/rpcops-onmetal-labconfigurator
 
-# Bootstrap ansible
-cd openstack-ansible
-scripts/bootstrap-ansible.sh
+# Setup NTP
+ansible-playbook -i inventory playbooks/ntp.yml
 
-# Copy openstack_deploy to etc
-cp -r /opt/rpc-openstack/openstack-ansible/etc/openstack_deploy /etc/
+# Prepare swift Nodes
+ansible-playbook -i inventory playbooks/swift-disks-prepare.yml
 
-# Merge /etc/openstack_deploy/user_variables.yml with rpcd/etc/openstack_deploy/user_variables.yml
-cd /opt/rpc-openstack
-scripts/update-yaml.py /etc/openstack_deploy/user_variables.yml rpcd/etc/openstack_deploy/user_variables.yml
+# Prepare cinder Nodes
+ansible-playbook -i inventory playbooks/cinder-disks-prepare.yml
 
-# Copy the RPC configuration files
-cp rpcd/etc/openstack_deploy/user_extras_*.yml /etc/openstack_deploy
-cp rpcd/etc/openstack_deploy/env.d/* /etc/openstack_deploy/env.d
+# Prepare infra01 as deployment node
+ansible-playbook -i inventory playbooks/prep-openstack-install.yml -e "openstack_release=liberty"
 
-# Remove container configurations for ELK (unless you need them)
-rm -f /etc/openstack_deploy/env.d/{elasticsearch,logstash,kibana}.yml
 
-# Update your openstack_user_config.yml file
-# An example file is located in the repo directory
-# /root/rpcops-onmetal-labconfigurator/notes/openstack_user_config.yml.example
-# Currently only addresses the default labconfig (3 infra, 5 compute)
-wget https://raw.githubusercontent.com/mrhillsman/rpcops-onmetal-labconfigurator/master/notes/openstack_user_config.yml.example -O /etc/openstack_deploy/openstack_user_config.yml
 
-# Generate OpenStack Inventory
-/opt/rpc-openstack/openstack-ansible/playbooks/inventory/dynamic_inventory.py > /dev/null
-
-# Update LoadBalancer with servers and bindings from inventory
-# password is nsroot
-ssh nsroot@10.5.0.4 <<EOF
-`bash /root/vpx-configurator`
-save config
-EOF
-
-# Set deploy.sh environment variables (set yes for those you need, default here is no)
-export DEPLOY_HAPROXY='no'
-export DEPLOY_MAAS='no'
-export DEPLOY_ELK='no'
-
-# Run deploy.sh
-cd /opt/rpc-openstack
-scripts/deploy.sh
 ```
 
 ## Post Installation Considerations ##
