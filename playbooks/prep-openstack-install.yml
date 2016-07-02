@@ -72,3 +72,6 @@
 
   - name: Build openstack-ansible inventory
     command: /opt/openstack-ansible/playbooks/inventory/dynamic_inventory.py > /dev/null
+
+  - name: Add containers to VPX loadbalancer
+    script: /root/rpcops-onmetal-labconfigurator/playbooks/scripts/vpx-login-setup.sh
