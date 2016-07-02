@@ -104,3 +104,9 @@ find . -regextype posix-extended -iregex '.*(infra|compute|storage|cinder|ceph|s
 # Remove instances from OnMetal /etc/hosts
 echo -e "Cleaning up /etc/hosts"
 sed -i '/.*\(infra\|compute\|storage\|cinder\|ceph\|swift\|object\|logger\).*/d' /etc/hosts
+echo -e "Cleaning up inventory\n"
+: > /root/rpcops-onmetal-labconfigurator/inventory
+
+for i in `seq 1 7`; do
+  echo -e "LAB DEMOLISHED!!! HULK SMASH!!!"
+done
