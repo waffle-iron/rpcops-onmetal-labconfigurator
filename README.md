@@ -81,7 +81,8 @@ ansible-playbook -i inventory playbooks/swift-disks-prepare.yml
 ansible-playbook -i inventory playbooks/cinder-disks-prepare.yml
 
 # Prepare infra01 as deployment node
-ansible-playbook -i inventory playbooks/prep-openstack-install.yml -e "openstack_release=liberty"
+# Default release is liberty if you do not include variable
+ansible-playbook -i inventory playbooks/prep-openstack-install.yml -e "openstack_release='stable/mitaka'"
 
 
 
