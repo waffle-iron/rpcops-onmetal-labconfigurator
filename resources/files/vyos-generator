@@ -160,7 +160,19 @@ for index, host_fip in enumerate(host_fips):
     print 'empty -w -t 30 -i output.fifo -o input.fifo \"vyos\\@firewall\" \"set nat destination rule %s translation address %s\\n\"' % (rule, node_fip[index])
     host_fip_count += 1
 
-print '# Configure source NAT translation private floating to public floating IPv4 address'
+rule = host_fip_count
+print 'empty -w -t 30 -i output.fifo -o input.fifo \"vyos\\@firewall\" \"set nat destination rule %s\\n\"' % rule
+print 'empty -w -t 30 -i output.fifo -o input.fifo \"vyos\\@firewall\" \"set nat destination rule %s destination address 192.168.0.249\\n\"' % rule
+print 'empty -w -t 30 -i output.fifo -o input.fifo \"vyos\\@firewall\" \"set nat destination rule %s inbound-interface eth0\\n\"' % rule
+print 'empty -w -t 30 -i output.fifo -o input.fifo \"vyos\\@firewall\" \"set nat destination rule %s translation address 172.29.236.100\\n\"' % rule
+
+print """
+
+# Commit changes to firewall runtime configuration
+empty -w -t 30 -i output.fifo -o input.fifo "vyos\@firewall" "commit\\n"
+
+# Configure source NAT translation private floating to public floating IPv4 address
+"""
 
 node_fip_count = node_nip_count
 for index, host_fip in enumerate(host_fips):
@@ -170,6 +182,12 @@ for index, host_fip in enumerate(host_fips):
     print 'empty -w -t 30 -i output.fifo -o input.fifo \"vyos\@firewall\" \"set nat source rule %s source address %s\\n\"' % (rule, node_fip[index])
     print 'empty -w -t 30 -i output.fifo -o input.fifo \"vyos\@firewall\" \"set nat source rule %s translation address %s\\n\"' % (rule, host_fip)
     node_fip_count += 1
+
+rule = node_fip_count
+print 'empty -w -t 30 -i output.fifo -o input.fifo \"vyos\@firewall\" \"set nat source rule %s\\n\"' % rule
+print 'empty -w -t 30 -i output.fifo -o input.fifo \"vyos\@firewall\" \"set nat source rule %s outbound-interface eth0\\n\"' % rule
+print 'empty -w -t 30 -i output.fifo -o input.fifo \"vyos\@firewall\" \"set nat source rule %s source address 172.24.96.249\\n\"' % rule
+print 'empty -w -t 30 -i output.fifo -o input.fifo \"vyos\@firewall\" \"set nat source rule %s translation address 192.168.0.249\\n\"' % rule
 
 print """
 
