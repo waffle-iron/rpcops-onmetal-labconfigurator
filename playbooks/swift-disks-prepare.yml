@@ -1,5 +1,4 @@
 ---
-
 - name: Prepare node disks
   hosts: object
   remote_user: root

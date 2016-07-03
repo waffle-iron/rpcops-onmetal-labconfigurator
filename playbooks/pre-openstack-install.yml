@@ -1,3 +1,4 @@
+---
 - name: Prepare OpenStack
   become: yes
   remote_user: root

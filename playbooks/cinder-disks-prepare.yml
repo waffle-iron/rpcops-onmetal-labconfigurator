@@ -1,5 +1,4 @@
 ---
-
 - name:  Setup block storage disks
   hosts: storage
   remote_user: root
