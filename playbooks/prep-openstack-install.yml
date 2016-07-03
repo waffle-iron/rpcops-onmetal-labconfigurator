@@ -11,7 +11,7 @@
       clone: yes
       accept_hostkey: yes
       recursive: yes
-      version: "{{ openstack_release | default(liberty) }}"
+      version: "{{ openstack_release | default('liberty') }}"
     tags:
       - clone-openstack-ansible
 
