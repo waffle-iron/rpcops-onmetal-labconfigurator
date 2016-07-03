@@ -98,7 +98,7 @@ for index, host_nip in enumerate(host_nips):
 print """
 
 # Commit changes to firewall runtime configuration
-empty -w -t 30 -i output.fifo -o input.fifo "vyos\@firewall" "commit\\n"'
+empty -w -t 30 -i output.fifo -o input.fifo "vyos\@firewall" "commit\\n"
 
 # Configure IPv4 addresses for floating IPs
 """
@@ -213,5 +213,5 @@ empty -w -i output.fifo -o input.fifo "vyos\@firewall" "save config\\n"
 # Exit configuration mode
 empty -w -i output.fifo -o input.fifo "vyos\@firewall" "exit\\n"
 # Logout of the firewall
-empty -w -i output.fifo -o input.fifo "vyos\@firewall" "exit\\n"
 """
+print 'empty -w -i output.fifo -o input.fifo \"vyos\\@firewall\" \"exit\\n\"'
