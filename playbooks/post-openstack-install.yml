@@ -1,0 +1,8 @@
+- name: Post OpenStack Installation Defaults
+  become: yes
+  remote_user: root
+  hosts: localhost
+
+  tasks:
+    - name:
+      command: hostname
