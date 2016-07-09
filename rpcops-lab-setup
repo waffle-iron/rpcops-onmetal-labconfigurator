@@ -164,14 +164,14 @@ done
 
 for node in $(get_host_type storage); do
   echo -e "Creating block storage block device for ${node%%":"*}"
-  qemu-img create -f raw /var/lib/libvirt/images/${node%%":"*}-cv-disk 102400M
+  qemu-img create -f qcow2 -o preallocation=metadata /var/lib/libvirt/images/${node%%":"*}-cv-disk 102400M
   #virsh attach-disk ${node%%":"*} --source /var/lib/libvirt/images/${node%%":"*}-cv-disk --target vdb --persistent
 done
 
 for node in $(get_host_type object); do
   echo -e "Creating object storage block devices for ${node%%":"*}"
   for disk in {b..f}; do
-    qemu-img create -f raw /var/lib/libvirt/images/${node%%":"*}-ob-${disk} 20480M
+    qemu-img create -f qcow2 -o preallocation=metadata /var/lib/libvirt/images/${node%%":"*}-ob-${disk} 20480M
     #virsh attach-disk ${node%%":"*} --source /var/lib/libvirt/images/${node%%":"*}-ob-${disk} --target vd${disk} --persistent
   done
 done
