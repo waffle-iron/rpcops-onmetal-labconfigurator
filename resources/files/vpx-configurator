@@ -30,3 +30,5 @@ cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[]
 cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep -i ceilometer.*container|while read i; do echo "bind serviceGroup RPC_POOL_CEILOMETER_API ${i} 8777"; done;
 cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep -i sahara.*container|while read i; do echo "bind serviceGroup RPC_POOL_SAHARA ${i} 8386"; done;
 cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep -i murano.*container|while read i; do echo "bind serviceGroup RPC_POOL_MURANO ${i} 8082"; done;
+
+echo -e "save config\n"
