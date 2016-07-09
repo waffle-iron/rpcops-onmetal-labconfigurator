@@ -42,7 +42,7 @@
       dest: /etc/openstack_deploy/user_secrets.yml
       regexp: "^keystone_auth_admin_password.*"
       state: present
-      line: "keystone_auth_admin_password: a83074ce8dc7d0ca1157c07856e3"
+      line: "keystone_auth_admin_password: openstack"
     tags:
       - persist-admin-password
 
