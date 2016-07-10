@@ -6,6 +6,9 @@
 # - delete virtual disk
 # - undefine node
 
+# Change to where instance disks are
+cd /var/lib/libvirt/images
+
 #TODO
 #set lab to destroy
 #better logic to remove containers from vpx
