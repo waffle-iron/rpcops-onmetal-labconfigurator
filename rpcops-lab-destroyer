@@ -109,6 +109,9 @@ echo -e "Cleaning up /etc/hosts"
 sed -i '/.*\(infra\|compute\|storage\|cinder\|ceph\|swift\|object\|logger\).*/d' /etc/hosts
 echo -e "Cleaning up inventory\n"
 : > /root/rpcops-onmetal-labconfigurator/inventory
+echo -e "Cleaning arp cache"
+ip -s -s neigh flush all
+cd /root/rpcops-onmetal-labconfigurator
 
 for i in `seq 1 7`; do
   echo -e "LAB DEMOLISHED!!! HULK SMASH!!!"
