@@ -226,6 +226,12 @@ mkfs.ext4 -O ^has_journal /dev/storage/images
 mount /dev/storage/images /var/lib/libvirt/images
 tail -n2 /etc/mtab >> /etc/fstab
 
+# Create storage pool via virsh
+virsh pool-define-as --name storage --type dir --target /var/lib/libvirt/images
+virsh pool-autostart --pool storage
+virsh pool-start --pool storage
+virsh pool-refresh --pool storage
+
 
 # Add necessary Open vSwitch virtual switches
 ovs-vsctl add-br fwlbsw
