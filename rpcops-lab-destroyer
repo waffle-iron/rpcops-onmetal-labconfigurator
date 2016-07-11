@@ -112,7 +112,7 @@ ssh nsroot@10.5.0.4 'save config'
 
 # Delete all disks
 echo -e "Removing all node block devices"
-find . -regextype posix-extended -iregex '.*(infra|compute|storage|cinder|ceph|swift|object|logger).*' -delete
+for a in `virsh vol-list --pool storage|awk '/infra|compute|storage|cinder|ceph|swift|object|logger/ { print $1 }'`; do virsh vol-delete $a storage; done;
 
 # Remove instances from OnMetal /etc/hosts
 echo -e "Cleaning up /etc/hosts"
