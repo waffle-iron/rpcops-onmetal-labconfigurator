@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Check for existing lab
+if [ -e "/root/.labconfig" ]; then
+  echo -e "Lab exists already"
+  cat /root/.labconfig
+  exit 1
+fi
+
 # Configure cobbler (unattended setup handler)
 
 # $1 will be the lab configuration requested
@@ -268,3 +275,6 @@ echo -e "Create \"Mint Condition\" snapshots"
 for node in $(get_all_hosts); do
   virsh snapshot-create-as --domain ${node%%":"*} --name ${node%%":"*}-mint --atomic --description 'Mint Condition'
 done
+
+echo -e "Storing lab configuration used"
+echo ${LAB_CONFIG} > /root/.labconfig
