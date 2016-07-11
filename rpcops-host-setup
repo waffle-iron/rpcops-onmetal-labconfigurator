@@ -373,6 +373,15 @@ ln -s /usr/share/zoneinfo/America/Chicago /etc/localtime
 # persist route Add
 sed -i.bak '/iface lo inet loopback/a \ \ post-up ip route add 172.29.236.0\/22 via 192.168.0.2 || true' /etc/network/interfaces
 
+echo -e "Creating and adding SSH key to base image"
+SSHKEY=$(cat /root/.ssh/id_rsa.pub|cut -d' ' -f1,2)
+guestfish -a /var/lib/libvirt/images/nodebase.qcow2 -i <<EOG
+sh "ssh-keygen -f /root/.ssh/id_rsa -t rsa -N ''"
+sh "cat /root/.ssh/id_rsa.pub|cut -d' ' -f1,2 > /root/.ssh/authorized_keys"
+sh "echo ${SSHKEY} >> /root/.ssh/authorized_keys"
+write-append /etc/ssh/ssh_config '    StrictHostKeyChecking no'
+EOG
+
 # Notify end of setup
 echo -e "Your host machine has been bootstrapped for the lab successfully.\n"
 echo -e "Loadbalancer (NetScaler VPX 1000) GUI available via http://${__HOST_IP__}:1413\n"
