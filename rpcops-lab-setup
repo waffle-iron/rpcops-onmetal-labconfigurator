@@ -201,7 +201,7 @@ done
 # Check if infra01 exists, if not, skip infra01 specific tasks
 virsh list --all --name|grep infra01
 rc=$?
-if ! [ $rc -eq 0 ]; then
+if [ $rc -eq 0 ]; then
   echo -e "Setting StrictHostKeyChecking to no in /etc/ssh/ssh_config"
   guestfish -d infra01 -i <<EOG
   write-append /etc/ssh/ssh_config '    StrictHostKeyChecking no'
