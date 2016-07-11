@@ -198,20 +198,20 @@ for node in $(get_host_type object); do
   done
 done
 
-echo -e "Setting StrictHostKeyChecking to no in /etc/ssh/ssh_config"
-guestfish -d infra01 -i <<EOG
-write-append /etc/ssh/ssh_config '    StrictHostKeyChecking no'
-EOG
-
-echo -e "Creating SSH key on infra01"
-guestfish -d infra01 -i <<EOG
-sh "ssh-keygen -f /root/.ssh/id_rsa -t rsa -N ''"
-EOG
-
 # Check if infra01 exists, if not, skip infra01 specific tasks
 virsh list --all --name|grep infra01
 rc=$?
 if ! [ $rc -eq 0 ]; then
+  echo -e "Setting StrictHostKeyChecking to no in /etc/ssh/ssh_config"
+  guestfish -d infra01 -i <<EOG
+  write-append /etc/ssh/ssh_config '    StrictHostKeyChecking no'
+EOG
+
+  echo -e "Creating SSH key on infra01"
+  guestfish -d infra01 -i <<EOG
+  sh "ssh-keygen -f /root/.ssh/id_rsa -t rsa -N ''"
+EOG
+
   echo -e "Injecting infra01 SSH key into all nodes"
   INFRA01_SSHKEY=`virt-cat -d infra01 /root/.ssh/id_rsa.pub|cut -d' ' -f1,2`
   for node in $(get_all_hosts); do
