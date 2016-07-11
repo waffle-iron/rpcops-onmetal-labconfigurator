@@ -196,6 +196,9 @@ EOG
 
   echo -e "Adding VPX configuration script to infra01"
   virt-copy-in -d infra01 /root/rpcops-onmetal-labconfigurator/resources/files/vpx-configurator /root
+
+  echo -e "Adding VPX cleaner script to infra01"
+  virt-copy-in -d infra01 /root/rpcops-onmetal-labconfigurator/resources/files/vpx-cleaner /root
 fi
 
 for node in $(get_all_hosts); do
