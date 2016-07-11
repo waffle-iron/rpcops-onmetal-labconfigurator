@@ -13,6 +13,7 @@ if [ -e "/root/.labconfig" ]; then
   done
 else
   echo -e "No labs currently running, please run rpcops-lab-setup"
+  exit 1
 fi
 
 # Woah there, not called destroyer for nothing...
