@@ -201,6 +201,7 @@ guestfish -d infra01 -i <<EOG
 sh "ssh-keygen -f /root/.ssh/id_rsa -t rsa -N ''"
 EOG
 
+# Check if infra01 exists, if not, skip infra01 specific tasks
 virsh list --all --name|grep infra01
 rc=$?
 if ! [ $rc -eq 0 ]; then
@@ -211,13 +212,13 @@ if ! [ $rc -eq 0 ]; then
 sh "echo ${INFRA01_SSHKEY} >> /root/.ssh/authorized_keys"
 EOG
   done
+
+  echo -e "Adding jq helper library to infra01"
+  virt-copy-in -d infra01 /root/rpcops-onmetal-labconfigurator/resources/files/jq /usr/local/bin
+
+  echo -e "Adding VPX configuration script to infra01"
+  virt-copy-in -d infra01 /root/rpcops-onmetal-labconfigurator/resources/files/vpx-configurator /root
 fi
-
-echo -e "Adding jq helper library to infra01"
-virt-copy-in -d infra01 /root/rpcops-onmetal-labconfigurator/resources/files/jq /usr/local/bin
-
-echo -e "Adding VPX configuration script to infra01"
-virt-copy-in -d infra01 /root/rpcops-onmetal-labconfigurator/resources/files/vpx-configurator /root
 
 for node in $(get_all_hosts); do
 # create node
