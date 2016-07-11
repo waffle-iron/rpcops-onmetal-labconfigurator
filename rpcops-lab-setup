@@ -118,19 +118,8 @@ for node in $(get_all_hosts); do
   # define node
   virsh define /etc/libvirt/qemu/${node%%":"*}.xml || true
 
-  # inject onmetal host SSH key
+  # Change to storage pool directory
   pushd /var/lib/libvirt/images
-  echo -e "Injecting host SSH key into node: ${node%%":"*}\n"
-  guestfish -d ${node%%":"*} -i <<EOG
-mkdir-p /root/.ssh
-touch /root/.ssh/authorized_keys
-chmod 0600 /root/.ssh/authorized_keys
-EOG
-  sleep 5
-  guestfish -d ${node%%":"*} -i <<EOG
-sh "echo ${SSHKEY} > /root/.ssh/authorized_keys"
-EOG
-  sleep 5
 
   # update /etc/hosts
   echo -e "Updating /etc/hosts on node: ${node%%":"*}\n"
@@ -159,16 +148,9 @@ EOG
 
   echo -e "Updating hostname of node: ${node%%":"*}\n"
   guestfish -d ${node%%":"*} -i <<EOG
-  sh 'echo ${node%%":"*} > /etc/hostname'
+sh 'echo ${node%%":"*} > /etc/hostname'
 EOG
   popd
-done
-
-echo -e "Adding nodes to infra01 hosts file"
-for node in $(get_all_hosts); do
-  guestfish -d infra01 -i <<EOG
-sh "echo '10.5.0.${node:(-3)}\t${node%%":"*}' >> /etc/hosts"
-EOG
 done
 
 for node in $(get_host_type compute); do
@@ -202,21 +184,10 @@ done
 virsh list --all --name|grep infra01
 rc=$?
 if [ $rc -eq 0 ]; then
-  echo -e "Setting StrictHostKeyChecking to no in /etc/ssh/ssh_config"
-  guestfish -d infra01 -i <<EOG
-  write-append /etc/ssh/ssh_config '    StrictHostKeyChecking no'
-EOG
-
-  echo -e "Creating SSH key on infra01"
-  guestfish -d infra01 -i <<EOG
-  sh "ssh-keygen -f /root/.ssh/id_rsa -t rsa -N ''"
-EOG
-
-  echo -e "Injecting infra01 SSH key into all nodes"
-  INFRA01_SSHKEY=`virt-cat -d infra01 /root/.ssh/id_rsa.pub|cut -d' ' -f1,2`
+  echo -e "Adding nodes to infra01 hosts file"
   for node in $(get_all_hosts); do
-    guestfish -d ${node%%":"*} -i <<EOG
-sh "echo ${INFRA01_SSHKEY} >> /root/.ssh/authorized_keys"
+    guestfish -d infra01 -i <<EOG
+sh "echo '10.5.0.${node:(-3)}\t${node%%":"*}' >> /etc/hosts"
 EOG
   done
 
