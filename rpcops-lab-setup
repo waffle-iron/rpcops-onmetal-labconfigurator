@@ -79,11 +79,24 @@ for i in x.values():
 EOF
 }
 
+function check_for_pool () {
+  virsh pool-list|grep -q storage
+  rc=$?
+  if ! [ $rc -eq 0 ]; then
+    virsh pool-define-as --name storage --type dir --target /var/lib/libvirt/images
+    virsh pool-autostart --pool storage
+    virsh pool-start --pool storage
+    virsh pool-refresh --pool storage
+  fi
+}
+
 # Create the VM root disk then define and start the VMs.
 #  !!!THIS TASK WILL DESTROY ALL OF THE ROOT DISKS IF THEY ALREADY EXIST!!!
 for node in $(get_all_hosts); do
   # create node storage using backing image
-  qemu-img create -f qcow2 -b ${BACKING_FILE} /var/lib/libvirt/images/${node%%":"*}.qcow2
+  check_for_pool
+  virsh vol-create-as storage ${node%%":"*}.qcow2 256000M --backing-vol ${BACKING_FILE} --backing-vol-format qcow2 --format qcow2
+  #qemu-img create -f qcow2 -b ${BACKING_FILE} /var/lib/libvirt/images/${node%%":"*}.qcow2
   # create node xml file
   cp resources/nodes/node.xml /etc/libvirt/qemu/${node%%":"*}.xml
   sed -i "s/__NODE__/${node%%":"*}/g" /etc/libvirt/qemu/${node%%":"*}.xml
@@ -164,14 +177,16 @@ done
 
 for node in $(get_host_type storage); do
   echo -e "Creating block storage block device for ${node%%":"*}"
-  qemu-img create -f raw /var/lib/libvirt/images/${node%%":"*}-cv-disk 102400M
+  virsh vol-create-as storage ${node%%":"*}-cv-disk 102400M --format qcow2 --prealloc-metadata
+  #qemu-img create -f raw /var/lib/libvirt/images/${node%%":"*}-cv-disk 102400M
   #virsh attach-disk ${node%%":"*} --source /var/lib/libvirt/images/${node%%":"*}-cv-disk --target vdb --persistent
 done
 
 for node in $(get_host_type object); do
   echo -e "Creating object storage block devices for ${node%%":"*}"
   for disk in {b..f}; do
-    qemu-img create -f raw /var/lib/libvirt/images/${node%%":"*}-ob-${disk} 20480M
+    virsh vol-create-as storage ${node%%":"*}-ob-${disk} 20480M --format qcow2 --prealloc-metadata
+    #qemu-img create -f raw /var/lib/libvirt/images/${node%%":"*}-ob-${disk} 20480M
     #virsh attach-disk ${node%%":"*} --source /var/lib/libvirt/images/${node%%":"*}-ob-${disk} --target vd${disk} --persistent
   done
 done
