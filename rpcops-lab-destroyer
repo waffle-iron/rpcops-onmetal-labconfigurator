@@ -1,7 +1,9 @@
 #!/bin/bash
 
 if [ -e "/root/.labconfig" ]; then
+  clear
   echo -e "Lab found!"
+  sleep 3
   for i in {10..1}
   do
     echo -e "Destroying your lab!"
@@ -28,12 +30,13 @@ cd /var/lib/libvirt/images
 #ask to destroy or revert, add revert logic
 
 # Set LAB_CONFIG [default for now]
-echo -e "No lab configuration name passed; using default"
-if ! [ -z "$1" ]; then
-  LAB_CONFIG=$1
-else
-  LAB_CONFIG='default'
-fi
+# if ! [ -z "$1" ]; then
+#   LAB_CONFIG=$1
+# else
+#   LAB_CONFIG='default'
+# fi
+
+LAB_CONFIG=`cat /root/.labconfig`
 
 function get_host_type () {
 python <<EOF
