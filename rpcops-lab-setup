@@ -237,7 +237,7 @@ done
 
 echo -e "Creating inventory file\n"
 for type in "${TYPES[@]}"; do
-  echo -e "[${type}]\r" >> /root/rpcops-onmetal-labconfigurator/inventory
+  echo -e "[${type}]" >> /root/rpcops-onmetal-labconfigurator/inventory
   for node in $(get_host_type ${type}); do
     echo -e "${node%%":"*}" >> /root/rpcops-onmetal-labconfigurator/inventory
   done
@@ -247,19 +247,19 @@ done
 echo -e "Clean known_hosts"
 : > /root/.ssh/known_hosts
 
-echo -e "Create \"Mint Condition\" snapshots"
-for node in $(get_all_hosts); do
-  virsh snapshot-create-as --domain ${node%%":"*} --name ${node%%":"*}-mint --atomic --description 'Mint Condition'
-done
-
 for node in $(get_host_type storage); do
   echo -e "Attaching block storage block device for ${node%%":"*}"
-  virsh attach-disk ${node%%":"*} --source /var/lib/libvirt/images/${node%%":"*}-cv-disk --target vdb --persistent
+  virsh attach-disk --domain ${node%%":"*} --source /var/lib/libvirt/images/${node%%":"*}-cv-disk --target vdb --persistent --driver qemu --sourcetype file --subdriver qcow2
 done
 
 for node in $(get_host_type object); do
   echo -e "Attaching object storage block devices for ${node%%":"*}"
   for disk in {b..f}; do
-    virsh attach-disk ${node%%":"*} --source /var/lib/libvirt/images/${node%%":"*}-ob-${disk} --target vd${disk} --persistent
+    virsh attach-disk --domain ${node%%":"*} --source /var/lib/libvirt/images/${node%%":"*}-ob-${disk} --target vd${disk} --persistent --driver qemu --sourcetype file --subdriver qcow2
   done
+done
+
+echo -e "Create \"Mint Condition\" snapshots"
+for node in $(get_all_hosts); do
+  virsh snapshot-create-as --domain ${node%%":"*} --name ${node%%":"*}-mint --atomic --description 'Mint Condition'
 done
