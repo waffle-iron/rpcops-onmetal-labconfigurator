@@ -175,7 +175,7 @@ if [ $rc -eq 0 ]; then
     echo -e "172.29.236.${node:(-3)}\t${node%%":"*}" >> /root/rpcops-onmetal-labconfigurator/hosts
   done
   echo -e "Adding hosts file to infra01"
-  virt-copy-in -d infra01 /root/rpcops-onmetal-labconfigurator/hosts /etc/hosts
+  virt-copy-in -d infra01 /root/rpcops-onmetal-labconfigurator/hosts /etc
   rm -f /root/rpcops-onmetal-labconfigurator/hosts
 
   echo -e "Adding jq helper library to infra01"
