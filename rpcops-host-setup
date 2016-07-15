@@ -111,6 +111,8 @@ libxml2-dev libxslt1-dev libcurl4-openssl-dev python-software-properties libffi-
 python curl vim telnet zip unzip python-libvirt tmux iptables-persistent \
 ebtables pm-utils dsh expect empty-expect screen chrony libpq-dev
 
+service chrony stop
+
 pushd /usr/local/bin
 wget https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64
 mv jq-linux64 jq
@@ -368,13 +370,13 @@ ip addr add 172.29.236.90/22 dev ext-lbsrvsw
 
 echo -e "Setting TZ to America/Chicago"
 unlink /etc/localtime
-ln -s /usr/share/zoneinfo/US/Central /etc/localtime
-echo 'US/Central' > /etc/timezone
+ln -s /usr/share/zoneinfo/UTC /etc/localtime
+timedatectl set-timezone UTC
 
 echo -e "Updating chrony to serve only local guests"
 mv /etc/chrony/chrony.conf /etc/chrony/chrony.conf.package
 cp /root/rpcops-onmetal-labconfigurator/resources/files/host-chrony.conf /etc/chrony/chrony.conf
-service chrony restart
+service chrony start
 
 echo -e "Creating and adding SSH key to base image"
 SSHKEY=$(cat /root/.ssh/id_rsa.pub|cut -d' ' -f1,2)
