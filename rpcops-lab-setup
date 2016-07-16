@@ -188,15 +188,6 @@ if [ $rc -eq 0 ]; then
   virt-copy-in -d infra01 /root/rpcops-onmetal-labconfigurator/resources/files/vpx-cleaner /root
 fi
 
-for node in $(get_all_hosts); do
-# create node
-  echo -e "Creating and starting node: ${node%%":"*}\n"
-  virsh create /etc/libvirt/qemu/${node%%":"*}.xml
-done
-
-# Wait here for all nodes to be booted and ready with SSH
-wait_ssh
-
 echo -e "Configuration succeeded for lab: ${LAB_CONFIG}\n"
 echo -e "Login for all nodes user: root | password: stack\n"
 for node in $(get_all_hosts); do
@@ -236,6 +227,16 @@ echo -e "Create \"Mint Condition\" snapshots"
 for node in $(get_all_hosts); do
   virsh snapshot-create-as --domain ${node%%":"*} --name ${node%%":"*}-mint --atomic --description 'Mint Condition'
 done
+
+echo -e "Starting lab nodes"
+for node in $(get_all_hosts); do
+# create node
+  echo -e "Creating and starting node: ${node%%":"*}\n"
+  virsh create /etc/libvirt/qemu/${node%%":"*}.xml
+done
+
+# Wait here for all nodes to be booted and ready with SSH
+wait_ssh
 
 echo -e "Storing lab configuration used"
 echo ${LAB_CONFIG} > /root/.labconfig
