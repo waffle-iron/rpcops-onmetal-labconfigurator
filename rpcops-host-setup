@@ -244,13 +244,6 @@ ovs-vsctl add-br hasw
 virsh net-destroy default
 virsh net-undefine default
 
-# Copy over ubuntu server and vyos isos
-pushd /labshare/isos
-mkdir -p /var/cache/isos
-cp ubuntu-14.04.4-server-amd64.iso /var/cache/isos/
-cp vyos-1.1.7-amd64.iso /var/cache/isos/
-popd
-
 # Create libvirt networks
 echo -e "Building virtual network infrastructure\n"
 # drac00 will not start without /tftpboot
