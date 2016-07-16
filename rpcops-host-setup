@@ -246,8 +246,6 @@ virsh net-undefine default
 
 # Create libvirt networks
 echo -e "Building virtual network infrastructure\n"
-# drac00 will not start without /tftpboot
-mkdir /tftpboot
 pushd resources/networks
 
 # Dynamically generate networks that depend on host bond interfaces
@@ -263,7 +261,6 @@ cat << EON > rpcops-drac00-net.xml
   <bridge name='virbr0' stp='off' delay='0'/>
   <domain name='drac00'/>
   <ip address='10.5.0.1' netmask='255.255.255.0'>
-    <tftp root='/tftpboot'/>
   </ip>
 </network>
 EON
