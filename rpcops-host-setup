@@ -358,7 +358,7 @@ ip link set dev int-lbsrvsw up
 ip link set dev ext-lbsrvsw up
 ip addr add 172.29.236.90/22 dev ext-lbsrvsw
 
-echo -e "Setting TZ to America/Chicago"
+echo -e "Setting TZ to UTC"
 unlink /etc/localtime
 ln -s /usr/share/zoneinfo/UTC /etc/localtime
 timedatectl set-timezone UTC
