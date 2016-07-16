@@ -71,9 +71,6 @@ bash rpcops-lab-setup
 # ...
 cd /root/rpcops-onmetal-labconfigurator
 
-# Setup NTP
-ansible-playbook -i inventory playbooks/ntp.yml
-
 # Prepare swift Nodes
 ansible-playbook -i inventory playbooks/swift-disks-prepare.yml
 
