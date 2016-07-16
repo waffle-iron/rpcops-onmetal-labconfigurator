@@ -214,7 +214,7 @@ for type in "${TYPES[@]}"; do
   for node in $(get_host_type ${type}); do
     echo -e "${node%%":"*}" >> /root/rpcops-onmetal-labconfigurator/inventory
   done
-  echo -ne "\n"
+  echo -e "\n"
 done
 
 echo -e "Clean known_hosts"
