@@ -4,7 +4,7 @@ import os.path
 import sys
 import argparse
 import libvirt
-# import subprocess
+import subprocess
 # import json
 
 if not os.path.exists('/root/.labconfig'):
@@ -47,6 +47,7 @@ parser.add_argument('-a', '--address', action='store', dest='address', default='
 
 conn = libvirt.open('qemu:///system')
 pool = conn.storagePoolLookupByName('storage')
+backing = '/var/lib/libvirt/images/nodebase.qcow2'
 
 vol_types = ['storage', 'object', 'ceph']
 extraVolSize = ''
@@ -84,4 +85,12 @@ if type in vol_types:
         extraVolCount = 5
         extraVolSize = 20480
 
+
+print 'Creating primary data disk for node: {}'.format(name)
+
+createNodeVol = "virsh vol-create-as storage {0}.qcow2 256000M \
+--backing-vol {1} --backing-vol-format qcow2 --format qcow2".format(name, backing)
+
+p = subprocess.Popen(createNodeVol, shell=True, stderr=subprocess.PIPE)
+output, err = p.communicate()
 
