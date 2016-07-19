@@ -3,94 +3,141 @@
 import os.path
 import sys
 import argparse
-import libvirt
 import subprocess
-# import json
+import libvirt
+import guestfs
 
 if not os.path.exists('/root/.labconfig'):
     sys.exit('Existing lab required to run this script.')
 
-# TODO: rewrite in python
-# expects json formatted file with the following
-# Arguments: =[required]
-# = type [infra,logging,compute,storage,object,ceph]
-# = name [string]
-# = address [int]
-# example: bash rpcops-node-setup ceph.json
-# {
-#     "ceph": {
-#         "ceph01": "241",
-#         "ceph02": "242",
-#         "ceph03": "243",
-#         "ceph04": "244",
-#         "ceph05": "245"
-#     }
-# }
 
 parser = argparse.ArgumentParser(description='Setup individual lab nodes', version='1.0')
-# parser.add_argument('-f', '--file', action='store', dest='nodes', default='', type=argparse.FileType('rt'),
-#                     help='/path/to/file.json JSON formatted file with node types, names, and addresses')
-parser.add_argument('-t', '--type', action='store', dest='type', default='',
+parser.add_argument('-t', '--type', action='store', dest='node_type',
                     choices=('infra', 'logging', 'compute', 'storage', 'object', 'ceph'),
                     help='Type of node [infra|logging|compute|storage|object|ceph]')
-parser.add_argument('-n', '--name', action='store', dest='name', default='',
+parser.add_argument('-n', '--name', action='store', dest='node_name',
                     help='Name of the node, ex. ceph01')
-parser.add_argument('-a', '--address', action='store', dest='address', default='', type=int,
+parser.add_argument('-a', '--address', action='store', dest='node_address', type=int,
                     help='IP address to use; last octet, ex. 170')
 
-# if [ nodes ]:
-#     with open(nodes) as f:
-#         x = json.loads(f.read())
-#     for i in x.values():
-#         for k, v in i.items():
-#             print('%s:%s' % (k, v))
+args = parser.parse_args()
+node_name = args.node_name
+node_type = args.node_type
+node_address = args.node_address
+node_xml = ''
+repo_directory = '/root/rpcops-onmetal-labconfigurator/'
+connection = libvirt.open('qemu:///system')
+storage_pool = connection.storagePoolLookupByName('storage')
+backing_image = '/var/lib/libvirt/images/nodebase.qcow2'
+volume_types = ['storage', 'object', 'ceph']
+extra_volume_count = 0
+extra_volume_size = 0
 
-conn = libvirt.open('qemu:///system')
-pool = conn.storagePoolLookupByName('storage')
-backing = '/var/lib/libvirt/images/nodebase.qcow2'
-
-vol_types = ['storage', 'object', 'ceph']
-extraVolSize = ''
-extraVolCount = ''
-
-baseVolXML = "<volume type='file'>\n \
-<name>{0}</name>\n \
-<capacity unit='M'>{1}</capacity>\n \
-<target>\n \
-  <format type='qcow2'/>\n \
-  <permissions>\n \
-    <owner>106</owner>\n \
-    <group>109</group>\n \
-  </permissions>\n \
-</target>\n \
-</volume>\n"
-
-extraVolXML = "<volume type='file'>\n \
-<name>{0}</name>\n \
-<capacity unit='M'>{1}</capacity>\n \
-<target>\n \
-  <format type='qcow2'/>\n \
-  <permissions>\n \
-    <owner>106</owner>\n \
-    <group>109</group>\n \
-  </permissions>\n \
-</target>\n \
-</volume>\n"
-
-if type in vol_types:
-    if type == 'storage':
-        extraVolCount = 1
-        extraVolSize = 102400
+if node_type in volume_types:
+    if node_type == 'storage':
+        extra_volume_count = 1
+        extra_volume_size = 102400
     else:
-        extraVolCount = 5
-        extraVolSize = 20480
+        extra_volume_count = 5
+        extra_volume_size = 20480
+
+base_volume_xml = "<volume type='file'>\n \
+  <name>{0}</name>\n \
+  <capacity unit='M'>{1}</capacity>\n \
+  <target>\n \
+    <format type='qcow2'/>\n \
+    <permissions>\n \
+      <owner>106</owner>\n \
+      <group>109</group>\n \
+    </permissions>\n \
+  </target>\n \
+  <backingStore>\n \
+    <path>{2}</path>\n \
+    <format type='qcow2'/>\n \
+  </backingStore>\n \
+</volume>\n"
+
+extra_volume_xml = "<volume type='file'>\n \
+  <name>{0}</name>\n \
+  <capacity unit='M'>{1}</capacity>\n \
+  <target>\n \
+    <format type='qcow2'/>\n \
+    <permissions>\n \
+      <owner>106</owner>\n \
+      <group>109</group>\n \
+    </permissions>\n \
+  </target>\n \
+</volume>\n"
 
 
-print 'Creating primary data disk for node: {}'.format(name)
+def create_base_volume():
+    storage_pool.createXML(base_volume_xml.format(node_name, 256000, backing_image))
 
-createNodeVol = "virsh vol-create-as storage {0}.qcow2 256000M \
---backing-vol {1} --backing-vol-format qcow2 --format qcow2".format(name, backing)
 
-p = subprocess.Popen(createNodeVol, shell=True, stderr=subprocess.PIPE)
-output, err = p.communicate()
+def copy_base_node_xml_template():
+    base_node_xml_file = repo_directory + 'resources/nodes/node.xml'
+    new_node_xml_file = '/etc/libvirt/qemu/{0}.xml'.format(node_name)
+    command = 'cp {0} {1}'.format(base_node_xml_file, new_node_xml_file)
+    # TODO turn this into a try block
+    subprocess.Popen(command, shell=True, stderr=subprocess.PIPE)
 
+
+def update_node_xml_template():
+    if node_type == 'compute':
+        node_ram = '16777216'
+        node_cpu = '16'
+        with open('/etc/libvirt/qemu/{0}.xml'.format(node_name), 'r') as f:
+            node_xml = f.read()
+            node_xml = node_xml.replace('__NODE__', node_name)
+            node_xml = node_xml.replace('__RAM__', node_ram)
+            node_xml = node_xml.replace('__CPU__', node_cpu)
+    else:
+        node_ram = '8388608'
+        node_cpu = '8'
+        with open('/etc/libvirt/qemu/{0}.xml'.format(node_name), 'r') as f:
+            node_xml = f.read()
+            node_xml = node_xml.replace('__NODE__', node_name)
+            node_xml = node_xml.replace('__RAM__', node_ram)
+            node_xml = node_xml.replace('__CPU__', node_cpu)
+
+
+def define_node():
+    connection.defineXML(node_xml)
+
+
+def update_node_image():
+    node_image = guestfs.GuestFS(python_return_dict=True)
+    node_image.add_drive()
+
+
+def create_node_volume(base_or_extra, count):
+    if node_type == 'storage':
+        name_suffix = '-cv-disk'
+    elif node_type == 'object':
+        name_suffix = '-ob-disk' + str(count)
+    elif node_type == 'ceph':
+        name_suffix = '-ceph-disk' + str(count)
+    else:
+        name_suffix = None
+
+    while count:
+        volume_name = node_name + name_suffix
+        storage_pool.createXML(base_or_extra.format(volume_name), 1)
+
+
+def start_node():
+    node_to_start = connection.lookupByName(node_name)
+    node_to_start.create()
+
+
+def create_node():
+    connection.createXML(node_xml)
+
+
+print 'Creating primary data disk for node: {}'.format(node_name)
+
+print 'Creating XML definition for node: {}'.format(node_name)
+
+
+connection.close()
+# check if infra01 is defined, if defined check that it is running, if running, check for ssh login
