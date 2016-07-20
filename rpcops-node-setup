@@ -190,6 +190,8 @@ def start_node(node):
 
 
 def create_node(node, set_type, address):
+    import pdb
+    pdb.set_trace()
     create_node_base_volume(node, base_volume_xml, base_volume_size)
     copy_base_node_xml_template()
     update_node_xml_template(node, set_type, default_ram, default_cpu)
