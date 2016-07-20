@@ -44,9 +44,6 @@ fi
 # Set BACKING_FILE
 BACKING_FILE='/var/lib/libvirt/images/nodebase.qcow2'
 
-# This gets the root users SSH-public-key
-SSHKEY=$(cat /root/.ssh/id_rsa.pub|cut -d' ' -f1,2)
-
 # Node types
 TYPES=( infra logging compute object storage ceph )
 
