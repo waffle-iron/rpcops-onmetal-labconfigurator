@@ -41,6 +41,7 @@ parser.add_argument('-z', '--extrasize', action='store', dest='extra_volume_size
 # this could very well evolve into simply an extra resource creation script
 # changed description to reflect this thought with v1.0 focusing on add'l node creation
 # need to check if ip address is already used
+# create classes that this calls vs all here
 
 if len(sys.argv) <= 1:
     parser.print_help()
@@ -109,7 +110,8 @@ def copy_base_node_xml_template():
     new_node_xml_file = default_xml
     command = 'cp {0} {1}'.format(base_node_xml_file, new_node_xml_file)
     # TODO turn this into a try block
-    subprocess.Popen(command, shell=True, stderr=subprocess.PIPE)
+    proc = subprocess.Popen(command, shell=True, stderr=subprocess.PIPE)
+    proc.wait()
 
 
 def update_node_xml_template(node, set_type, ram, cpu):
@@ -190,8 +192,6 @@ def start_node(node):
 
 
 def create_node(node, set_type, address):
-    import pdb
-    pdb.set_trace()
     create_node_base_volume(node, base_volume_xml, base_volume_size)
     copy_base_node_xml_template()
     update_node_xml_template(node, set_type, default_ram, default_cpu)
