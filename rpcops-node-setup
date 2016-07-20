@@ -104,9 +104,9 @@ extra_volume_xml = "<volume type='file'>\n \
 </volume>\n"
 
 
-def copy_base_node_xml_template(node):
+def copy_base_node_xml_template():
     base_node_xml_file = repo_directory + 'resources/nodes/node.xml'
-    new_node_xml_file = '/etc/libvirt/qemu/{}.xml'.format(node)
+    new_node_xml_file = default_xml
     command = 'cp {0} {1}'.format(base_node_xml_file, new_node_xml_file)
     # TODO turn this into a try block
     subprocess.Popen(command, shell=True, stderr=subprocess.PIPE)
@@ -116,18 +116,14 @@ def update_node_xml_template(node, set_type, ram, cpu):
     if set_type == 'compute' and ram == default_ram and cpu == default_cpu:
         ram = compute_ram
         cpu = compute_cpu
+    with open(default_xml, 'r') as f:
+        xml = f.read()
+        xml = xml.replace('__NODE__', node)
+        xml = xml.replace('__RAM__', ram)
+        xml = xml.replace('__CPU__', cpu)
 
-    try:
-        with open(default_xml, 'r') as f:
-            xml = f.read()
-            xml = xml.replace('__NODE__', node)
-            xml = xml.replace('__RAM__', ram)
-            xml = xml.replace('__CPU__', cpu)
-
-        with open(default_xml, 'w') as f:
-            f.write(xml)
-    except IOError:
-        pass
+    with open(default_xml, 'w') as f:
+        f.write(xml)
 
 
 def update_node_image(node, address):
