@@ -29,7 +29,7 @@
     <emulator>/usr/bin/qemu-system-x86_64</emulator>
     <disk type='file' device='disk'>
       <driver name='qemu' type='qcow2'/>
-      <source file='/var/lib/libvirt/images/__NODE__.qcow2'/>
+      <source file='/var/lib/libvirt/images/__NODE__'/>
       <target dev='vda' bus='virtio'/>
       <boot order='1'/>
       <alias name='virtio-disk0'/>
