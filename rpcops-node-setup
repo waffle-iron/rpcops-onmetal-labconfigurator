@@ -117,14 +117,17 @@ def update_node_xml_template(node, set_type, ram, cpu):
         ram = compute_ram
         cpu = compute_cpu
 
-    with open('/etc/libvirt/qemu/{}.xml'.format(node), 'r') as f:
-        xml = f.read()
-        xml = xml.replace('__NODE__', node)
-        xml = xml.replace('__RAM__', ram)
-        xml = xml.replace('__CPU__', cpu)
+    try:
+        with open(default_xml, 'r') as f:
+            xml = f.read()
+            xml = xml.replace('__NODE__', node)
+            xml = xml.replace('__RAM__', ram)
+            xml = xml.replace('__CPU__', cpu)
 
-    with open('/etc/libvirt/qemu/{}.xml'.format(node), 'w') as f:
-        f.write(xml)
+        with open(default_xml, 'w') as f:
+            f.write(xml)
+    except IOError:
+        pass
 
 
 def update_node_image(node, address):
