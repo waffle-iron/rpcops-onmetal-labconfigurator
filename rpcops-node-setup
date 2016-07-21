@@ -4,7 +4,6 @@ import os.path
 import sys
 import argparse
 import subprocess
-import collections
 import libvirt
 import guestfs
 
@@ -104,20 +103,25 @@ extra_volume_xml = "<volume type='file'>\n \
   </target>\n \
 </volume>\n"
 
+extra_volume_attach_xml = "<disk type='file' device='disk'>\n \
+  <driver name='qemu' type='qcow2'/>\n \
+    <source file='/var/lib/libvirt/images/{0}'/>\n \
+    <target dev='vd{1}' bus='virtio'/>\n \
+</disk>\n"
+
 
 def copy_base_node_xml_template():
     base_node_xml_file = repo_directory + 'resources/nodes/node.xml'
     new_node_xml_file = default_xml
     command = 'cp {0} {1}'.format(base_node_xml_file, new_node_xml_file)
-    # TODO turn this into a try block
-    proc = subprocess.Popen(command, shell=True, stderr=subprocess.PIPE)
-    proc.wait()
+    subprocess.Popen(command).wait()
 
 
 def update_node_xml_template(node, set_type, ram, cpu):
     if set_type == 'compute' and ram == default_ram and cpu == default_cpu:
         ram = compute_ram
         cpu = compute_cpu
+
     with open(default_xml, 'r') as f:
         xml = f.read()
         xml = xml.replace('__NODE__', node)
@@ -161,24 +165,17 @@ def create_node_base_volume(node, volume_xml, volume_size):
     storage_pool.createXML(volume_xml.format(node, volume_size, backing_image))
 
 
-def set_extra_volume_count_size_letter(volume_count=extra_volume_count, volume_size=extra_volume_size,
-                                       volume_letter=extra_volume_letter):
-    extravolume = collections.namedtuple('extravolume', ['count', 'size', 'letter'])
-    extra_volume = extravolume(volume_count, volume_size, volume_letter)
-    return extra_volume
-
-
-def create_node_extra_volume(node, set_type, volume_xml,
-                             (volume_count, volume_size, volume_letter)=set_extra_volume_count_size_letter()):
-    # volume_count, volume_size = volume_count_and_size
+def create_node_extra_volume(node, set_type, volume_xml, volume_count, volume_size, volume_letter, volume_attach_xml):
     if volume_count == 1:
         extra_volume_name = node + '-' + set_type[:2] + '-' + volume_letter
         storage_pool.createXML(volume_xml.format(extra_volume_name, volume_size), 1)
+        connection.lookupByName(node).attachDevice(volume_attach_xml.format(extra_volume_name, volume_letter))
     else:
         while volume_count != 0:
             extra_volume_name = node + '-' + set_type[:2] + '-' + volume_letter + chr(volume_count + 96)
             storage_pool.createXML(volume_xml.format(extra_volume_name, volume_size), 1)
             volume_count -= 1
+            connection.lookupByName(node).attachDevice(volume_attach_xml.format(extra_volume_name, volume_letter))
 
 
 def define_node(xml_file):
@@ -202,7 +199,8 @@ def create_node(node, set_type, address):
         update_compute_image(node)
 
     if set_type in storage_types:
-        create_node_extra_volume()
+        create_node_extra_volume(node, set_type, extra_volume_xml, extra_volume_count,
+                                 extra_volume_size, extra_volume_letter, extra_volume_attach_xml)
 
     start_node(node)
 
