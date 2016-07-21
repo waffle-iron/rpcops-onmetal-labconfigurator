@@ -170,7 +170,7 @@ def create_node_extra_volume(node, set_type, volume_xml, volume_count, volume_si
     if volume_count == 1:
         extra_volume_name = node + '-' + set_type[:2] + '-' + volume_letter
         storage_pool.createXML(volume_xml.format(extra_volume_name, volume_size), 1)
-        connection.lookupByName(node).attachDevice(volume_attach_xml.format(extra_volume_name, volume_letter),
+        connection.lookupByName(node).attachDeviceFlags(volume_attach_xml.format(extra_volume_name, volume_letter),
                                                    VIR_DOMAIN_AFFECT_CONFIG)
     else:
         while volume_count != 0:
@@ -178,7 +178,7 @@ def create_node_extra_volume(node, set_type, volume_xml, volume_count, volume_si
             volume_letter = chr(volume_count + 96)
             storage_pool.createXML(volume_xml.format(extra_volume_name, volume_size), 1)
             volume_count -= 1
-            connection.lookupByName(node).attachDevice(volume_attach_xml.format(extra_volume_name, volume_letter),
+            connection.lookupByName(node).attachDeviceFlags(volume_attach_xml.format(extra_volume_name, volume_letter),
                                                        VIR_DOMAIN_AFFECT_CONFIG)
 
 
