@@ -174,7 +174,8 @@ def create_node_extra_volume(node, set_type, volume_xml, volume_count, volume_si
                                                    VIR_DOMAIN_AFFECT_CONFIG)
     else:
         while volume_count != 0:
-            extra_volume_name = node + '-' + set_type[:2] + '-' + volume_letter + chr(volume_count + 96)
+            extra_volume_name = node + '-' + set_type[:2] + '-' + chr(volume_count + 96)
+            volume_letter = chr(volume_count + 96)
             storage_pool.createXML(volume_xml.format(extra_volume_name, volume_size), 1)
             volume_count -= 1
             connection.lookupByName(node).attachDevice(volume_attach_xml.format(extra_volume_name, volume_letter),
@@ -211,5 +212,6 @@ def create_node(node, set_type, address):
 # print 'Creating primary data disk for node: {}'.format(node_name)
 # print 'Creating XML definition for node: {}'.format(node_name)
 # check if infra01 is defined, if defined check that it is running, if running, check for ssh login
+# allow letter to start extra volume(s) at, default is b
 create_node(node_name, node_type, node_address)
 connection.close()
