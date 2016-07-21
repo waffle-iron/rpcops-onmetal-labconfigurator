@@ -114,9 +114,8 @@ def copy_base_node_xml_template():
     base_node_xml_file = repo_directory + 'resources/nodes/node.xml'
     new_node_xml_file = default_xml
     command = 'cp {0} {1}'.format(base_node_xml_file, new_node_xml_file)
-    proc = subprocess.Popen(command)
-    proc.communicate()
-
+    proc = subprocess.Popen(command, shell=True)
+    proc.wait()
 
 
 def update_node_xml_template(node, set_type, ram, cpu):
