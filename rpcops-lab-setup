@@ -99,7 +99,8 @@ function check_for_pool () {
 for node in $(get_all_hosts); do
   # create node storage using backing image
   check_for_pool
-  virsh vol-create-as storage ${node%%":"*}.qcow2 256000M --backing-vol ${BACKING_FILE} --backing-vol-format qcow2 --format qcow2
+  virsh pool-refresh --pool storage
+  virsh vol-create-as storage ${node%%":"*} 256000M --backing-vol ${BACKING_FILE} --backing-vol-format qcow2 --format qcow2
   #qemu-img create -f qcow2 -b ${BACKING_FILE} /var/lib/libvirt/images/${node%%":"*}.qcow2
   # create node xml file
   cp resources/nodes/node.xml /etc/libvirt/qemu/${node%%":"*}.xml

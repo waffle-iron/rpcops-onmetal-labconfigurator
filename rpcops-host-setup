@@ -377,6 +377,8 @@ sh "echo ${SSHKEY} >> /root/.ssh/authorized_keys"
 write-append /etc/ssh/ssh_config '    StrictHostKeyChecking no'
 EOG
 
+virsh pool-refresh --pool storage
+
 # Notify end of setup
 echo -e "Your host machine has been bootstrapped for the lab successfully.\n"
 echo -e "Loadbalancer (NetScaler VPX 1000) GUI available via http://${__HOST_IP__}:1413\n"
