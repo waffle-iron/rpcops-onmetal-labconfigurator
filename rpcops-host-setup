@@ -368,13 +368,10 @@ mv /etc/chrony/chrony.conf /etc/chrony/chrony.conf.package
 cp /root/rpcops-onmetal-labconfigurator/resources/files/host-chrony.conf /etc/chrony/chrony.conf
 service chrony start
 
-echo -e "Creating and adding SSH key to base image"
+echo -e "Adding host SSH key to base image"
 SSHKEY=$(cat /root/.ssh/id_rsa.pub|cut -d' ' -f1,2)
 guestfish -a /var/lib/libvirt/images/nodebase.qcow2 -i <<EOG
-sh "ssh-keygen -f /root/.ssh/id_rsa -t rsa -N ''"
-sh "cat /root/.ssh/id_rsa.pub|cut -d' ' -f1,2 > /root/.ssh/authorized_keys"
 sh "echo ${SSHKEY} >> /root/.ssh/authorized_keys"
-write-append /etc/ssh/ssh_config '    StrictHostKeyChecking no'
 EOG
 
 virsh pool-refresh --pool storage
