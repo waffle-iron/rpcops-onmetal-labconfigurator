@@ -209,9 +209,16 @@ def create_node(node, set_type, address):
     start_node(node)
 
 
+def add_node_to_host_etc_hosts(node, address):
+    command = 'echo -en "{0}\t10.5.0.{1}"'.format(node, address)
+    proc = subprocess.Popen(command, shell=True)
+    proc.wait()
+
+
 # print 'Creating primary data disk for node: {}'.format(node_name)
 # print 'Creating XML definition for node: {}'.format(node_name)
 # check if infra01 is defined, if defined check that it is running, if running, check for ssh login
 # allow letter to start extra volume(s) at, default is b
 create_node(node_name, node_type, node_address)
+add_node_to_host_etc_hosts(node_name, node_address)
 connection.close()
