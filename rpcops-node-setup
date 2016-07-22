@@ -171,15 +171,15 @@ def create_node_extra_volume(node, set_type, volume_xml, volume_count, volume_si
         extra_volume_name = node + '-' + set_type[:2] + '-' + volume_letter
         storage_pool.createXML(volume_xml.format(extra_volume_name, volume_size), 1)
         connection.lookupByName(node).attachDeviceFlags(volume_attach_xml.format(extra_volume_name, volume_letter),
-                                                   VIR_DOMAIN_AFFECT_CONFIG)
+                                                        2)
     else:
         while volume_count != 0:
-            extra_volume_name = node + '-' + set_type[:2] + '-' + chr(volume_count + 96)
-            volume_letter = chr(volume_count + 96)
+            extra_volume_name = node + '-' + set_type[:2] + '-' + chr(volume_count + 97)
+            volume_letter = chr(volume_count + 97)
             storage_pool.createXML(volume_xml.format(extra_volume_name, volume_size), 1)
-            volume_count -= 1
             connection.lookupByName(node).attachDeviceFlags(volume_attach_xml.format(extra_volume_name, volume_letter),
-                                                       VIR_DOMAIN_AFFECT_CONFIG)
+                                                            2)
+            volume_count -= 1
 
 
 def define_node(xml_file):
