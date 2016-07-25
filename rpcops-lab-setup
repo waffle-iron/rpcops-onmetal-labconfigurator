@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Add additional deployment options: openstack-ansible, kolla, fuel, puppet, chef
+
 # Check for existing lab
 if [ -e "/root/.labconfig" ]; then
   echo -e "Lab exists already"
