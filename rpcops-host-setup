@@ -343,10 +343,14 @@ sleep 10
 
 # Copy backing image from NFS share
 pushd /var/lib/libvirt/images
-echo -e "Copying node backing file image\n"
+echo -e "Copying default backing image\n"
 cp /labshare/templates/nodes/nodebase.tar.gz /var/lib/libvirt/images
-echo -e "Extracting node backing image\n "
+echo -e "Extracting default backing image\n "
 tar xzf nodebase.tar.gz
+echo -e "Copying kolla backing image\n"
+cp /labshare/templates/nodes/kabase.tar.gz /var/lib/libvirt/images
+echo -e "Extracting kolla backing image\n "
+tar xzf kabase.tar.gz
 popd
 
 # Add routing for OpenStack
@@ -368,9 +372,12 @@ mv /etc/chrony/chrony.conf /etc/chrony/chrony.conf.package
 cp /root/rpcops-onmetal-labconfigurator/resources/files/host-chrony.conf /etc/chrony/chrony.conf
 service chrony start
 
-echo -e "Adding host SSH key to base image"
+echo -e "Adding host SSH key to base images"
 SSHKEY=$(cat /root/.ssh/id_rsa.pub|cut -d' ' -f1,2)
 guestfish -a /var/lib/libvirt/images/nodebase.qcow2 -i <<EOG
+sh "echo ${SSHKEY} >> /root/.ssh/authorized_keys"
+EOG
+guestfish -a /var/lib/libvirt/images/kabase.qcow2 -i <<EOG
 sh "echo ${SSHKEY} >> /root/.ssh/authorized_keys"
 EOG
 
