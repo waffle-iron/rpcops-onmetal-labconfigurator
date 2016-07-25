@@ -13,7 +13,7 @@
   <cpu mode='host-model'>
     <model fallback='allow'/>
   </cpu>
-    <clock offset='utc'>
+  <clock offset='utc'>
     <timer name='rtc' tickpolicy='catchup'/>
     <timer name='pit' tickpolicy='delay'/>
     <timer name='hpet' present='no'/>
@@ -31,7 +31,6 @@
       <driver name='qemu' type='qcow2'/>
       <source file='/var/lib/libvirt/images/__NODE__'/>
       <target dev='vda' bus='virtio'/>
-      <boot order='1'/>
       <alias name='virtio-disk0'/>
     </disk>
     <controller type='virtio-serial' index='0'>
@@ -43,32 +42,26 @@
     <interface type='network'>
       <source network='lbsrvsw' portgroup='bond0'/>
       <model type='e1000'/>
-      <boot order='3'/>
     </interface>
     <interface type='network'>
       <source network='lbsrvsw' portgroup='bond1'/>
       <model type='e1000'/>
-      <boot order='4'/>
     </interface>
     <interface type='network'>
       <source network='lbsrvsw' portgroup='bond0'/>
       <model type='e1000'/>
-      <boot order='5'/>
     </interface>
     <interface type='network'>
       <source network='lbsrvsw' portgroup='bond1'/>
       <model type='e1000'/>
-      <boot order='6'/>
     </interface>
     <interface type='network'>
       <source network='snet00'/>
       <model type='e1000'/>
-      <boot order='7'/>
     </interface>
     <interface type='network'>
       <source network='drac00'/>
       <model type='e1000'/>
-      <boot order='2'/>
     </interface>
     <serial type='pty'>
       <target port='0'/>
