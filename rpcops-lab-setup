@@ -123,7 +123,11 @@ for node in $(get_all_hosts); do
 
   #qemu-img create -f qcow2 -b ${BACKING_FILE} /var/lib/libvirt/images/${node%%":"*}.qcow2
   # create node xml file
-  cp resources/nodes/node.xml /etc/libvirt/qemu/${node%%":"*}.xml
+  if [ ${LAB_CONFIG} != 'kolla' ]; then
+    cp resources/nodes/node.xml /etc/libvirt/qemu/${node%%":"*}.xml
+  else
+    cp resources/nodes/kolla.xml /etc/libvirt/qemu/${node%%":"*}.xml
+  fi
   sed -i "s/__NODE__/${node%%":"*}/g" /etc/libvirt/qemu/${node%%":"*}.xml
   # adjust ram and cpu if compute node
   if [[ ${node%%":"*} =~ "compute" ]]; then
