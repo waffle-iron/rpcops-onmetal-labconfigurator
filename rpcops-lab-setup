@@ -64,11 +64,11 @@ for node in $(get_all_hosts); do
       ssh -q -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=10 172.29.236.${node#*":"} exit > /dev/null
     done
   else
-    echo "Waiting for node: ${node%%":"*} on 10.5.0.${node#*":"}"
-    ssh -q -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=10 10.5.0.${node#*":"} exit > /dev/null
+    echo "Waiting for node: ${node%%":"*} on 10.5.0.${node:8:2}"
+    ssh -q -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=10 10.5.0.${node:8:2} exit > /dev/null
     while test $? -gt 0; do
       sleep 7
-      ssh -q -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=10 10.5.0.${node#*":"} exit > /dev/null
+      ssh -q -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=10 10.5.0.${node:8:2} exit > /dev/null
     done
   fi
 done
