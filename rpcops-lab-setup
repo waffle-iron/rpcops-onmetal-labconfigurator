@@ -47,7 +47,7 @@ fi
 if [ ${LAB_CONFIG} != 'kolla' ]; then
   BACKING_FILE='/var/lib/libvirt/images/nodebase.qcow2'
 else
-  BACKING_FILE='/var/lib/libvirt/images/kollabase.qcow2'
+  BACKING_FILE='/var/lib/libvirt/images/kabase.qcow2'
 fi
 
 # Node types
