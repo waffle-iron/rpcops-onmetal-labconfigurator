@@ -101,7 +101,7 @@ EOF
 function check_for_pool () {
   virsh pool-list|grep -q storage
   rc=$?
-  if ! [ $rc -eq 0 ]; then
+  if ! [ ${rc} -eq 0 ]; then
     virsh pool-define-as --name storage --type dir --target /var/lib/libvirt/images
     virsh pool-autostart --pool storage
     virsh pool-start --pool storage
@@ -195,7 +195,7 @@ done
 
 for node in $(get_host_type object); do
   echo -e "Creating object storage block devices for ${node%%":"*}"
-  for disk in {b..f}; do
+  for disk in b c d e f; do
     virsh vol-create-as storage ${node%%":"*}-ob-${disk} 20480M --format qcow2 --prealloc-metadata
     #qemu-img create -f raw /var/lib/libvirt/images/${node%%":"*}-ob-${disk} 20480M
     #virsh attach-disk ${node%%":"*} --source /var/lib/libvirt/images/${node%%":"*}-ob-${disk} --target vd${disk} --persistent
@@ -206,7 +206,7 @@ done
 if [ ${LAB_CONFIG} != 'kolla' ]; then
   virsh list --all --name|grep infra01
   rc=$?
-  if [ $rc -eq 0 ]; then
+  if [ ${rc} -eq 0 ]; then
     echo -e "Generating infra01 hosts file"
     for node in $(get_all_hosts); do
       echo -e "172.29.236.${node:(-3)}\t${node%%":"*}" >> /root/rpcops-onmetal-labconfigurator/hosts
@@ -281,7 +281,7 @@ done
 
 for node in $(get_host_type object); do
   echo -e "Attaching object storage block devices for ${node%%":"*}"
-  for disk in {b..f}; do
+  for disk in b c d e f; do
     virsh attach-disk --domain ${node%%":"*} --source /var/lib/libvirt/images/${node%%":"*}-ob-${disk} --target vd${disk} --persistent --driver qemu --sourcetype file --subdriver qcow2
   done
 done
