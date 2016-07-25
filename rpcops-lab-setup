@@ -42,10 +42,14 @@ else
 fi
 
 # Set BACKING_FILE
-BACKING_FILE='/var/lib/libvirt/images/nodebase.qcow2'
+if [ ${LAB_CONFIG} != 'kolla' ]; then
+  BACKING_FILE='/var/lib/libvirt/images/nodebase.qcow2'
+else
+  BACKING_FILE='/var/lib/libvirt/images/kollabase.qcow2'
+fi
 
 # Node types
-TYPES=( infra logging compute object storage ceph )
+TYPES=( infra logging compute object storage ceph kolla )
 
 function wait_ssh() {
 echo "Waiting for all nodes to become available."
@@ -100,7 +104,12 @@ for node in $(get_all_hosts); do
   # create node storage using backing image
   check_for_pool
   virsh pool-refresh --pool storage
-  virsh vol-create-as storage ${node%%":"*} 256000M --backing-vol ${BACKING_FILE} --backing-vol-format qcow2 --format qcow2
+  if [ ${LAB_CONFIG} != 'kolla' ]; then
+    virsh vol-create-as storage ${node%%":"*} 256000M --backing-vol ${BACKING_FILE} --backing-vol-format qcow2 --format qcow2
+  else
+    virsh vol-create-as storage ${node%%":"*} 40960M --backing-vol ${BACKING_FILE} --backing-vol-format qcow2 --format qcow2
+  fi
+
   #qemu-img create -f qcow2 -b ${BACKING_FILE} /var/lib/libvirt/images/${node%%":"*}.qcow2
   # create node xml file
   cp resources/nodes/node.xml /etc/libvirt/qemu/${node%%":"*}.xml
@@ -165,36 +174,63 @@ for node in $(get_host_type object); do
 done
 
 # Check if infra01 exists, if not, skip infra01 specific tasks
-virsh list --all --name|grep infra01
-rc=$?
-if [ $rc -eq 0 ]; then
-  echo -e "Generating infra01 hosts file"
+if [ ${LAB_CONFIG} != 'kolla' ]; then
+  virsh list --all --name|grep infra01
+  rc=$?
+  if [ $rc -eq 0 ]; then
+    echo -e "Generating infra01 hosts file"
+    for node in $(get_all_hosts); do
+      echo -e "172.29.236.${node:(-3)}\t${node%%":"*}" >> /root/rpcops-onmetal-labconfigurator/hosts
+    done
+    echo -e "Adding hosts file to infra01"
+    virt-copy-in -d infra01 /root/rpcops-onmetal-labconfigurator/hosts /etc
+    rm -f /root/rpcops-onmetal-labconfigurator/hosts
+
+    echo -e "Adding jq helper library to infra01"
+    virt-copy-in -d infra01 /root/rpcops-onmetal-labconfigurator/resources/files/jq /usr/local/bin
+
+    echo -e "Adding VPX configuration script to infra01"
+    virt-copy-in -d infra01 /root/rpcops-onmetal-labconfigurator/resources/files/vpx-configurator /root
+
+    echo -e "Adding VPX cleaner script to infra01"
+    virt-copy-in -d infra01 /root/rpcops-onmetal-labconfigurator/resources/files/vpx-cleaner /root
+  fi
+else
+  echo -e "Generating kolla01 hosts file"
   for node in $(get_all_hosts); do
-    echo -e "172.29.236.${node:(-3)}\t${node%%":"*}" >> /root/rpcops-onmetal-labconfigurator/hosts
+    echo -e "10.5.0.${node:(-3)}\t${node%%":"*}" >> /root/rpcops-onmetal-labconfigurator/hosts
   done
-  echo -e "Adding hosts file to infra01"
-  virt-copy-in -d infra01 /root/rpcops-onmetal-labconfigurator/hosts /etc
+  echo -e "Adding hosts file to kolla01"
+  virt-copy-in -d kolla01 /root/rpcops-onmetal-labconfigurator/hosts /etc
   rm -f /root/rpcops-onmetal-labconfigurator/hosts
 
-  echo -e "Adding jq helper library to infra01"
-  virt-copy-in -d infra01 /root/rpcops-onmetal-labconfigurator/resources/files/jq /usr/local/bin
+  echo -e "Adding jq helper library to kolla01"
+  virt-copy-in -d kolla01 /root/rpcops-onmetal-labconfigurator/resources/files/jq /usr/local/bin
 
-  echo -e "Adding VPX configuration script to infra01"
-  virt-copy-in -d infra01 /root/rpcops-onmetal-labconfigurator/resources/files/vpx-configurator /root
+  echo -e "Adding VPX configuration script to kolla01"
+  virt-copy-in -d kolla01 /root/rpcops-onmetal-labconfigurator/resources/files/vpx-configurator /root
 
-  echo -e "Adding VPX cleaner script to infra01"
-  virt-copy-in -d infra01 /root/rpcops-onmetal-labconfigurator/resources/files/vpx-cleaner /root
+  echo -e "Adding VPX cleaner script to kolla01"
+  virt-copy-in -d kolla01 /root/rpcops-onmetal-labconfigurator/resources/files/vpx-cleaner /root
 fi
 
 echo -e "Configuration succeeded for lab: ${LAB_CONFIG}\n"
 echo -e "Login for all nodes user: root | password: stack\n"
 for node in $(get_all_hosts); do
-  echo -e "Node Name: ${node%%":"*}\t\tDRAC IP: 172.29.236.${node:(-3)}\n"
+  if [ ${LAB_CONFIG} != 'kolla' ]; then
+    echo -e "Node Name: ${node%%":"*}\t\tDRAC IP: 172.29.236.${node:(-3)}\n"
+  else
+    echo -e "Node Name: ${node%%":"*}\t\tDRAC IP: 10.5.0.${node:(-3)}\n"
+  fi
 done
 
 echo -e "Updating /etc/hosts with lab nodes\n"
 for node in $(get_all_hosts); do
-  echo -e "172.29.236.${node:(-3)}\t${node%%":"*}" >> /etc/hosts
+  if [ ${LAB_CONFIG} != 'kolla' ]; then
+    echo -e "172.29.236.${node:(-3)}\t${node%%":"*}" >> /etc/hosts
+  else
+    echo -e "10.5.0.${node:(-3)}\t${node%%":"*}" >> /etc/hosts
+  fi
 done
 
 echo -e "Creating inventory file\n"

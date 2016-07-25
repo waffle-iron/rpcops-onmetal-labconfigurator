@@ -106,7 +106,7 @@ done
 
 # Remove any existing snapshots
 echo -e "Removing all snapshots"
-for i in `virsh list --all --name|awk '/infra|compute|storage|cinder|ceph|swift|object|logger/ { print }'`
+for i in `virsh list --all --name|awk '/infra|compute|storage|cinder|ceph|swift|object|logger|kolla/ { print }'`
 do
   for j in `virsh snapshot-list --name $i`
   do
@@ -116,8 +116,8 @@ done
 
 # Force shutdown and remove all instances
 echo -e "Shutting down and undefining all instances"
-for i in `virsh list --all --name|awk '/infra|compute|storage|cinder|ceph|swift|object|logger/ { print }'`; do virsh destroy $i; done;
-for i in `virsh list --all --name|awk '/infra|compute|storage|cinder|ceph|swift|object|logger/ { print }'`; do virsh undefine $i; done;
+for i in `virsh list --all --name|awk '/infra|compute|storage|cinder|ceph|swift|object|logger|kolla/ { print }'`; do virsh destroy $i; done;
+for i in `virsh list --all --name|awk '/infra|compute|storage|cinder|ceph|swift|object|logger|kolla/ { print }'`; do virsh undefine $i; done;
 
 # Remove all containers from the VPX
 echo -e "Removing containers from VPX"
@@ -132,11 +132,11 @@ ssh nsroot@10.5.0.4 'rm arp -all'
 
 # Delete all disks
 echo -e "Removing all node block devices"
-for a in `virsh vol-list --pool storage|awk '/infra|compute|storage|cinder|ceph|swift|object|logger/ { print $1 }'`; do virsh vol-delete $a storage; done;
+for a in `virsh vol-list --pool storage|awk '/infra|compute|storage|cinder|ceph|swift|object|logger|kolla/ { print $1 }'`; do virsh vol-delete $a storage; done;
 
 # Remove instances from OnMetal /etc/hosts
 echo -e "Cleaning up /etc/hosts"
-sed -i '/.*\(infra\|compute\|storage\|cinder\|ceph\|swift\|object\|logger\).*/d' /etc/hosts
+sed -i '/.*\(infra\|compute\|storage\|cinder\|ceph\|swift\|object\|logger\|kolla\).*/d' /etc/hosts
 echo -e "Cleaning up inventory\n"
 : > /root/rpcops-onmetal-labconfigurator/inventory
 echo -e "Cleaning arp cache"
