@@ -4,6 +4,11 @@
         "infra02": "102",
         "infra03": "103"
     },
+    "logging": {
+        "logger01": "110",
+        "logger02": "111",
+        "logger03": "112"
+    },
     "compute": {
         "compute01": "120",
         "compute02": "121",
