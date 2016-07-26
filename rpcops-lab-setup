@@ -202,6 +202,13 @@ for node in $(get_host_type object); do
   done
 done
 
+for node in $(get_host_type ceph); do
+  echo -e "Creating block storage block device for ${node%%":"*}"
+  for disk in b c d e f; do
+    virsh vol-create-as storage ${node%%":"*}-ceph-${disk} 40960M --format qcow2 --prealloc-metadata
+  done
+done
+
 # Check if infra01 exists, if not, skip infra01 specific tasks
 if [ ${LAB_CONFIG} != 'kolla' ]; then
   virsh list --all --name|grep infra01
@@ -283,6 +290,13 @@ for node in $(get_host_type object); do
   echo -e "Attaching object storage block devices for ${node%%":"*}"
   for disk in b c d e f; do
     virsh attach-disk --domain ${node%%":"*} --source /var/lib/libvirt/images/${node%%":"*}-ob-${disk} --target vd${disk} --persistent --driver qemu --sourcetype file --subdriver qcow2
+  done
+done
+
+for node in $(get_host_type ceph); do
+  echo -e "Attaching ceph storage block devices for ${node%%":"*}"
+  for disk in b c d e f; do
+    virsh attach-disk --domain ${node%%":"*} --source /var/lib/libvirt/images/${node%%":"*}-ceph-${disk} --target vd${disk} --persistent --driver qemu --sourcetype file --subdriver qcow2
   done
 done
 
