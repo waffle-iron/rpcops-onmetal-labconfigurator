@@ -79,7 +79,15 @@ echo 'libguestfs-tools libguestfs/update-appliance boolean true' | debconf-set-s
 # however will also introduce some delay and bandwidth usage
 # being that files are not in dc available via servicenet
 mkdir /labshare
-mount 10.209.128.54:/mnt/builder /labshare
+
+# Check if DFW or IAD share is accessible
+ping -c 1 -W 2 10.208.163.227
+RC=$?
+if [ $RC -eq 1 ]; then
+  mount 10.209.128.54:/mnt/builder /labshare
+else
+  mount 10.208.163.227:/mnt/builder /labshare
+fi
 
 # Setup latest version of supermin (5.1.15)
 apt-get build-dep -y supermin
