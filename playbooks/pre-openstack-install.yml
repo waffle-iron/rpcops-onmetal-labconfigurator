@@ -98,7 +98,7 @@
       - copy-swift-config
 
   - name: Build openstack-ansible inventory
-    command: /opt/openstack-ansible/playbooks/inventory/dynamic_inventory.py
+    command: python /opt/openstack-ansible/playbooks/inventory/dynamic_inventory.py
     tags:
       - generate-inventory
 
