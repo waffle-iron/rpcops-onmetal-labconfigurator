@@ -2,7 +2,7 @@
 
 # Just in case the README.md warning was not adhered to check here
 if ! [ `awk '/processor/ { count++ } END { print count }' /proc/cpuinfo` -eq 40 ]; then
-  if [ -f /acpi-fixed ]; then
+  if [ -f /root/.cpufixed ]; then
     echo -e "You have another problem other than acpi.\n"
     echo -e "Investigate or you can continue at your own risk.\n"
     read -p "Continue [y/n]: " __UNDER40__
@@ -16,7 +16,7 @@ if ! [ `awk '/processor/ { count++ } END { print count }' /proc/cpuinfo` -eq 40 
     sed -i.bak 's/acpi=off/acpi=noirq/' /etc/default/grub
     grub-mkconfig -o /boot/grub/grub.cfg
     update-grub
-    touch /acpi-fixed
+    touch /root/.cpufixed
     shutdown -r now "REBOOTING YOUR SYSTEM. RE-RUN SCRIPT WHEN LOGGED BACK IN."
   fi
 else
@@ -392,6 +392,7 @@ EOG
 virsh pool-refresh --pool storage
 
 # Notify end of setup
+touch /root/.hostsetup
 echo -e "Your host machine has been bootstrapped for the lab successfully.\n"
 echo -e "Loadbalancer (NetScaler VPX 1000) GUI available via http://${__HOST_IP__}:1413\n"
 echo -e "Proceed to run rpcops-lab-setup"
