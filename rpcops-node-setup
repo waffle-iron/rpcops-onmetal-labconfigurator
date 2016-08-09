@@ -52,7 +52,7 @@ else:
 node_name = args.node_name
 node_type = args.node_type
 node_address = args.node_address
-set_ram = args.ram
+set_ram = (args.ram * 1024 * 1024)
 set_cpu = args.cpu
 repo_directory = '/root/rpcops-onmetal-labconfigurator/'
 connection = libvirt.open('qemu:///system')
