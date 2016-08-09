@@ -23,17 +23,26 @@ This requirement will more than likely be removed going forward as issue has bee
 ```shell
 # Manually check for acpi bug and fix if you did not already heed the IMPORTANT section above
 if ! [ `awk '/processor/ { count++ } END { print count }' /proc/cpuinfo` -eq 40 ]; then
-  echo -e "No bueno! acpi=off or another issue.\n"
-  echo -e "Fixing acpi=off. If this does not work, investigate further."
-  sed -i.bak 's/acpi=off/acpi=noirq/' /etc/default/grub
-  grub-mkconfig -o /boot/grub/grub.cfg
-  update-grub
-  touch /acpi-fixed
-
-  # Reboot for server to realize changes
-  shutdown -r now
+  if [ -f /root/.cpufixed ]; then
+    echo -e "You have another problem other than acpi.\n"
+    echo -e "Investigate or you can continue at your own risk.\n"
+    read -p "Continue [y/n]: " __UNDER40__
+    if [ $__UNDER40__ == "n" ]; then
+      exit 200
+    fi
+  fi
+  if ! [ -f /acpi-fixed ]; then
+    echo -e "No bueno! acpi=off or another issue.\n"
+    echo -e "Fixing acpi=off. If this does not work, investigate further.\n"
+    sed -i.bak 's/acpi=off/acpi=noirq/' /etc/default/grub
+    grub-mkconfig -o /boot/grub/grub.cfg
+    update-grub
+    touch /root/.cpufixed
+    shutdown -r now "REBOOTING YOUR SYSTEM. RE-RUN SCRIPT WHEN LOGGED BACK IN."
+  fi
 else
-  echo "Good to go! acpi=noirq or bug irrelevant"
+  echo -e "Good to go! acpi=noirq or bug irrelevant.\n"
+  sleep 3
 fi
 ```
 __Ping requests will fail, keep checking for SSH connectivity__
