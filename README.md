@@ -1,17 +1,48 @@
 ## rpcops-onmetal-labconfigurator
 Configuration script that builds out a X node lab environment for onboarding and testing purposes for Rackspace Private Cloud.  
 
-## REQUIREMENTS ##
-#### Has only been tested with I/O v1 and I/O v2
-#### NOW WORKS IN DFW AND IAD!
+# Requirements
+# Full Automation Requirements  
+**i.e. localhost (can be your local machine or cloud server) NOT OnMetal host**
+##### Rackspace Public Cloud Credentials  
+_.raxpub_ file **in the repo directory** formatted like this:  
+```shell
+[rackspace_cloud]
+username = your-cloud.username
+api_key = e1b835d65f0311e6a36cbc764e00c842
+```
 
-# IMPORTANT
-Before you run this, ensure that your host machine has acpi=noirq in the kernel parameters for boot  
-This is necessary as there is a bug whereby the total number of CPUs will not be available if not done  
-This requirement will more than likely be removed going forward as issue has been raised with images team  
+##### Packages
++ apt-get
+  + python-dev
+  + build-essential
+  + libssl-dev
+  + curl
+  + git
+  + pkg-config
+  + libvirt-dev
+  + jenkins
++ pip [ python <(curl -sk https://bootstrap.pypa.io/get-pip.py) ]
+  + ansible >= 2.0
+  + lxml
+  + pyrax
+  + libvirt-python
++ rack binary
+  + [installation and configuration](https://developer.rackspace.com/docs/rack-cli/configuration/#installation-and-configuration)
+
+##### SSH Key Pair  
+```shell
+mkdir /root/.ssh
+ssh-keygen -q -t rsa -N "" -f /root/.ssh/id_rsa
+```
+
+# Manual Setup Requirements  
+##### OnMetal Cloud Server (has only been tested with I/O v1 and I/O v2)  
+##### NOW WORKS IN DFW AND IAD!
 
 ## Pre Installation Considerations
-##### Make sure your OnMetal host is using all available CPU power
+##### Make sure your OnMetal host is using all available CPU power  
+will not be necessary in the future (probably 16.04 - images team is aware)
 ##### rpcops-host-setup will perform this if you forget
 
 ```shell
@@ -25,7 +56,7 @@ if ! [ `awk '/processor/ { count++ } END { print count }' /proc/cpuinfo` -eq 40 
       exit 200
     fi
   fi
-  if ! [ -f /acpi-fixed ]; then
+  if ! [ -f /root/.cpufixed ]; then
     echo -e "No bueno! acpi=off or another issue.\n"
     echo -e "Fixing acpi=off. If this does not work, investigate further.\n"
     sed -i.bak 's/acpi=off/acpi=noirq/' /etc/default/grub
@@ -41,7 +72,8 @@ fi
 ```
 __Server will reboot and take about 4 minutes to become accessible again__
 
-## Installation Steps ##
+# Installation
+## Manual Installation Steps - non rpc-openstack##
 ```shell
 # Install required packages
 apt-get update
@@ -76,50 +108,42 @@ ansible-playbook -i inventory playbooks/cinder-disks-prepare.yml
 ansible-playbook -i inventory playbooks/pre-openstack-install.yml -e "openstack_release='stable/mitaka'"
 ```
 
-## Post Installation Considerations - INFORMATIONAL ONLY - NOT HARD REQUIREMENT##
-#### Configure public key authentication to load balancer (password: nsroot)
+## Manual Installation Steps - rpc-openstack##
+_follow non rpc-openstack **first**_
+
 ```shell
-__SSHKEY__=$(cat /root/.ssh/id_rsa.pub|cut -d' ' -f1,2)
+ssh infra01
+
+cp /etc/openstack_deploy/openstack_user_config.yml /root/openstack_user_config.yml
+cp /etc/openstack_deploy/conf.d/swift.yml /root/swift.yml
+cd /opt
+
+rm -rf openstack-ansible
+rm -rf /etc/openstack_deploy
+rm -rf /etc/ansible/*
+
+git clone --recursive -b <your_branch> http://github.com/rcbops/rpc-openstack
+cd rpc-openstack
+
+cp -R openstack-ansible/etc/openstack_deploy /etc/openstack_deploy
+python openstack-ansible/scripts/pw-token-gen.py --file /etc/openstack_deploy/user_secrets.yml
+scripts/update-yaml.py /etc/openstack_deploy/user_variables.yml rpcd/etc/openstack_deploy/user_variables.yml
+cp rpcd/etc/openstack_deploy/user_extras_*.yml /etc/openstack_deploy
+cp rpcd/etc/openstack_deploy/env.d/* /etc/openstack_deploy/env.d
+cp /root/openstack_user_config.yml /etc/openstack_deploy/openstack_user_config.yml
+cp /root/swift.yml /etc/openstack_deploy/conf.d/swift.yml
+python /opt/rpc-openstack/openstack-ansible/playbooks/inventory/dynamic_inventory.py > /dev/null
+
+bash /root/vpx-cleaner
+
 ssh nsroot@10.5.0.4 <<EOF
-shell touch /nsconfig/ssh/authorized_keys && \
-chmod 600 /nsconfig/ssh/authorized_keys && \
-echo $__SSHKEY__ >> /nsconfig/ssh/authorized_keys
+`bash /root/vpx-configurator`
 EOF
+
+cd /opt/rpc-openstack && ./scripts/deploy.sh
 ```
 
-**Note:**  
-This uses a trial license from Citrix - NetScaler VPX 1000 - which is good for 90 days. Once your lab is online, check the loadbalancer via SSH with the command 'show license'. You will want to be sure you see the following:
-( ssh nsroot@10.5.0.4 'show license' )
-
-	License status:
-	                ...
-	                Load Balancing: YES
-	                ...
-
-If not, run the following commands to get the latest license file, remove the current license, and install the new license **be sure you have set public key authentication up as noted above**:
-```shell
-# Remove current license
-ssh nsroot@10.5.0.4 <<EOF
-shell rm -f /nsconfig/license/*.lic
-EOF
-
-# Add new license to load balancer
-ssh nsroot@10.5.0.4 <<EOF
-shell cd /nsconfig/license && \
-curl -sk https://raw.githubusercontent.com/mrhillsman/rpcops-onmetal-labconfigurator/master/resources/files/lb.lic -o lb.lic
-EOF
-
-# Get session token
-__NSTOKEN__=`curl -s -X POST -H 'Content-Type: application/json' \
-http://10.5.0.4/nitro/v1/config/login \
--d '{"login": {"username":"nsroot","password":"nsroot","timeout":3600}}'|jq -r .sessionid`
-
-# Warm reboot the load balancer
-curl -s -X POST -H 'Content-Type: application/json' \
--H "Cookie: NITRO_AUTH_TOKEN=$__NSTOKEN__" \
-http://10.5.0.4/nitro/v1/config/reboot -d '{"reboot":{"warm":true}}'
-
-```
+## Post Installation Considerations - INFORMATIONAL ONLY ##
 
 ## Login Considerations ##
 __OnMetal Host__  
@@ -185,7 +209,49 @@ fwlbsw
 lbsrvsw  
 hasw  
 
+#### Configure public key authentication to load balancer (password: nsroot)
+```shell
+__SSHKEY__=$(cat /root/.ssh/id_rsa.pub|cut -d' ' -f1,2)
+ssh nsroot@10.5.0.4 <<EOF
+shell touch /nsconfig/ssh/authorized_keys && \
+chmod 600 /nsconfig/ssh/authorized_keys && \
+echo $__SSHKEY__ >> /nsconfig/ssh/authorized_keys
+EOF
+```
+
+**Note:**  
+This uses a trial license from Citrix - NetScaler VPX 1000 - which is good for 90 days. Once your lab is online, check the loadbalancer via SSH with the command 'show license'. You will want to be sure you see the following:
+( ssh nsroot@10.5.0.4 'show license' )
+
+	License status:
+	                ...
+	                Load Balancing: YES
+	                ...
+
+If not, run the following commands to get the latest license file, remove the current license, and install the new license **be sure you have set public key authentication up as noted above**:
+```shell
+# Remove current license
+ssh nsroot@10.5.0.4 <<EOF
+shell rm -f /nsconfig/license/*.lic
+EOF
+
+# Add new license to load balancer
+ssh nsroot@10.5.0.4 <<EOF
+shell cd /nsconfig/license && \
+curl -sk https://raw.githubusercontent.com/mrhillsman/rpcops-onmetal-labconfigurator/master/resources/files/lb.lic -o lb.lic
+EOF
+
+# Get session token
+__NSTOKEN__=`curl -s -X POST -H 'Content-Type: application/json' \
+http://10.5.0.4/nitro/v1/config/login \
+-d '{"login": {"username":"nsroot","password":"nsroot","timeout":3600}}'|jq -r .sessionid`
+
+# Warm reboot the load balancer
+curl -s -X POST -H 'Content-Type: application/json' \
+-H "Cookie: NITRO_AUTH_TOKEN=$__NSTOKEN__" \
+http://10.5.0.4/nitro/v1/config/reboot -d '{"reboot":{"warm":true}}'
+
+```
+
 #### Contributors
-Melvin Hillsman _mrhillsman_  
-Kevin Carter _cloudnull_  
-James Thorne _jameswthorne_
+Melvin Hillsman _mrhillsman_
