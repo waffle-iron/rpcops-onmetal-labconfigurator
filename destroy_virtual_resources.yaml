@@ -58,6 +58,4 @@
         name: "{{ item }}"
         command: undefine
         uri: "{{ libvirt_host }}"
-      with_items: "{{ nets.list_nets }}"
-
-    - include: destroy_onmetal.yaml      
+      with_items: "{{ nets.list_nets }}"    
