@@ -25,7 +25,6 @@ else
 fi
 
 echo -e "This script is about to bootstrap your system for RPCOPS Lab Configuration\n"
-sleep 5
 echo -e "If you want to abort this process...you have 15s\n"
 sleep 5
 clear
