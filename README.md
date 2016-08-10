@@ -2,15 +2,8 @@
 Configuration script that builds out a X node lab environment for onboarding and testing purposes for Rackspace Private Cloud.  
 
 ## REQUIREMENTS ##
-#### IAD Region Public Cloud Server  
-
-OnMetal I/O v1: Ubuntu 14.04 LTS (Trusty Tahr)  
-CPU: Dual 2.8 Ghz, 10 core Intel® Xeon® E5-2680 v2  
-RAM: 128 GB  
-System Disk: 32 GB  
-Data Disk: Dual 1.6 TB PCIe flash cards  
-Network: Redundant 10 Gb / s connections in a high availability bond  
-Disk I/O: Good
+#### Has only been tested with I/O v1 and I/O v2
+#### NOW WORKS IN DFW AND IAD!
 
 # IMPORTANT
 Before you run this, ensure that your host machine has acpi=noirq in the kernel parameters for boot  
@@ -18,7 +11,8 @@ This is necessary as there is a bug whereby the total number of CPUs will not be
 This requirement will more than likely be removed going forward as issue has been raised with images team  
 
 ## Pre Installation Considerations
-##### Make sure your OnMetal host is using all available CPU power  
+##### Make sure your OnMetal host is using all available CPU power
+##### rpcops-host-setup will perform this if you forget
 
 ```shell
 # Manually check for acpi bug and fix if you did not already heed the IMPORTANT section above
@@ -45,7 +39,7 @@ else
   sleep 3
 fi
 ```
-__Ping requests will fail, keep checking for SSH connectivity__
+__Server will reboot and take about 4 minutes to become accessible again__
 
 ## Installation Steps ##
 ```shell
@@ -62,22 +56,13 @@ cd rpcops-onmetal-labconfigurator
 tmux new-session -s rpcops
 # Run the host setup script; will take some time (10-15m)
 bash rpcops-host-setup
-# Run the lab configuration setup; will take some time (5m)
 # You can pass lab configuration/type, if nothing, default
-# Lab Configs: default (3 infra, 5 compute)
+# Lab Configs: default (3 infra, 3 logging, 3 compute, 3 cinder, 3 swift)
 # default, defaultceph, defaultswift, defaultcinder, cephonly, swiftonly
 # ex. bash rpcops-lab-setup defaultcinder
 bash rpcops-lab-setup
 
 # Run playbooks to prepare OpenStack install
-
-# Check /root/rpcops-onmetal-labconfigurator/inventory
-# to be sure the hosts are there as expected
-# format
-# [type]
-# host
-# host
-# ...
 cd /root/rpcops-onmetal-labconfigurator
 
 # Prepare swift Nodes
@@ -87,14 +72,11 @@ ansible-playbook -i inventory playbooks/swift-disks-prepare.yml
 ansible-playbook -i inventory playbooks/cinder-disks-prepare.yml
 
 # Prepare infra01 as deployment node
-# Default release is liberty if you do not include variable
+# Vanilla OpenStack-Ansible (Master if release not specified)
 ansible-playbook -i inventory playbooks/pre-openstack-install.yml -e "openstack_release='stable/mitaka'"
-
-
-
 ```
 
-## Post Installation Considerations ##
+## Post Installation Considerations - INFORMATIONAL ONLY - NOT HARD REQUIREMENT##
 #### Configure public key authentication to load balancer (password: nsroot)
 ```shell
 __SSHKEY__=$(cat /root/.ssh/id_rsa.pub|cut -d' ' -f1,2)
