@@ -1,1 +1,124 @@
 ---
+
+- name: "Deploy OpenStack-Ansible"
+  hosts: all
+  remote_user: root
+
+  tasks:
+    - name: Remove existing openstack-ansible
+      command: rm -rf openstack-ansible
+      args:
+        chdir: /opt
+
+    - name: Remove existing openstack_deploy
+      command: rm -rf openstack_deploy
+      args:
+        chdir: /etc
+      tags:
+        - remove-openstack-deploy
+        - copy-openstack-deploy
+
+    - name: Clone openstack-ansible
+      git:
+        repo: http://github.com/openstack/openstack-ansible
+        dest: /opt/openstack-ansible
+        clone: yes
+        accept_hostkey: yes
+        recursive: yes
+        version: "{{ openstack_release | default('master') }}"
+      tags:
+        - clone-openstack-ansible
+
+    - name: Copy openstack_deploy to etc
+      command: cp -R etc/openstack_deploy /etc/
+      args:
+        chdir: /opt/openstack-ansible
+      tags:
+        - copy-openstack-deploy
+
+    - name: Bootstrap Ansible
+      command: scripts/bootstrap-ansible.sh
+      args:
+        chdir: /opt/openstack-ansible
+      tags:
+        - bootstrap-ansible
+
+    - name: Generate service credentials
+      command: python pw-token-gen.py --file /etc/openstack_deploy/user_secrets.yml
+      args:
+        chdir: /opt/openstack-ansible/scripts
+      tags:
+        - generate-credentials
+
+    - name: Persist admin password
+      lineinfile:
+        dest: /etc/openstack_deploy/user_secrets.yml
+        regexp: "^keystone_auth_admin_password.*"
+        state: present
+        line: "keystone_auth_admin_password: openstack"
+      tags:
+        - persist-admin-password
+
+    - name: Configure image service
+      lineinfile:
+        dest: /etc/openstack_deploy/user_variables.yml
+        insertafter: "^#glance_default_store"
+        state: present
+        line: "glance_default_store: swift"
+      tags:
+        - set-glance-default-store
+
+    - name: Configure cinder AZ
+      lineinfile:
+        dest: /etc/openstack_deploy/user_variables.yml
+        insertafter: EOF
+        state: present
+        line: "cinder_default_availability_zone: cinderAZ_1"
+      tags:
+        - set-cinder-default-az
+
+    - name: Copy openstack_user_config.yml
+      copy:
+        src: templates/openstack_user_config.yml
+        dest: /etc/openstack_deploy/openstack_user_config.yml
+        owner: root
+        group: root
+        mode: 0600
+      tags:
+        - copy-user-config
+
+    - name: Copy swift.yml
+      copy:
+        src: templates/swift.yml
+        dest: /etc/openstack_deploy/conf.d/swift.yml
+        owner: root
+        group: root
+        mode: 0600
+      tags:
+        - copy-swift-config
+
+    - name: Build openstack-ansible inventory
+      command: python /opt/openstack-ansible/playbooks/inventory/dynamic_inventory.py
+      tags:
+        - generate-inventory
+
+    - name: Wait for inventory to build
+      pause: seconds=10
+
+    - name: Enable VPX login
+      script: scripts/vpx-login-setup.sh
+      register: result
+      failed_when: "result.stderr != ''"
+      tags:
+        - vpx-login-setup
+
+    - name: Add containers to VPX
+      shell: |
+        ssh nsroot@10.5.0.4 <<EOF
+        `bash /root/rpcops-onmetal-labconfigurator/resources/files/vpx-configurator`
+        EOF
+
+    - name: Run openstack-ansible deployment
+      command: openstack-ansible setup-everything.yml
+      args:
+        chdir: /opt/openstack-ansible/playbooks
