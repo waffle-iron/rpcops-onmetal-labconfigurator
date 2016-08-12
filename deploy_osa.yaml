@@ -1,124 +1,73 @@
 ---
 
-- name: "Deploy OpenStack-Ansible"
-  hosts: all
+- name: "Run openstack-ansible Deployment"
+  become: yes
   remote_user: root
+  hosts: all
 
   tasks:
-    - name: Remove existing openstack-ansible
-      command: rm -rf openstack-ansible
-      args:
-        chdir: /opt
+    - name: "OpenStack Hosts Setup"
+      script: scripts/01-openstack-hosts-setup
 
-    - name: Remove existing openstack_deploy
-      command: rm -rf openstack_deploy
-      args:
-        chdir: /etc
-      tags:
-        - remove-openstack-deploy
-        - copy-openstack-deploy
+    - name: "Security Hardening"
+      script: scripts/02-security-hardening
 
-    - name: Clone openstack-ansible
-      git:
-        repo: http://github.com/openstack/openstack-ansible
-        dest: /opt/openstack-ansible
-        clone: yes
-        accept_hostkey: yes
-        recursive: yes
-        version: "{{ openstack_release | default('master') }}"
-      tags:
-        - clone-openstack-ansible
+    - name: "LXC Hosts Setup"
+      script: scripts/03-lxc-hosts-setup
 
-    - name: Copy openstack_deploy to etc
-      command: cp -R etc/openstack_deploy /etc/
-      args:
-        chdir: /opt/openstack-ansible
-      tags:
-        - copy-openstack-deploy
+    - name: "LXC Containers Create"
+      script: scripts/04-lxc-containers-create
 
-    - name: Bootstrap Ansible
-      command: scripts/bootstrap-ansible.sh
-      args:
-        chdir: /opt/openstack-ansible
-      tags:
-        - bootstrap-ansible
+    - name: "HAProxy Install"
+      script: scripts/05-haproxy-install
 
-    - name: Generate service credentials
-      command: python pw-token-gen.py --file /etc/openstack_deploy/user_secrets.yml
-      args:
-        chdir: /opt/openstack-ansible/scripts
-      tags:
-        - generate-credentials
+    - name: "Memcached Install"
+      script: scripts/06-memcached-install
 
-    - name: Persist admin password
-      lineinfile:
-        dest: /etc/openstack_deploy/user_secrets.yml
-        regexp: "^keystone_auth_admin_password.*"
-        state: present
-        line: "keystone_auth_admin_password: openstack"
-      tags:
-        - persist-admin-password
+    - name: "Repo Install"
+      script: scripts/07-repo-install
 
-    - name: Configure image service
-      lineinfile:
-        dest: /etc/openstack_deploy/user_variables.yml
-        insertafter: "^#glance_default_store"
-        state: present
-        line: "glance_default_store: swift"
-      tags:
-        - set-glance-default-store
+    - name: "Galera Install"
+      script: scripts/08-galera-install
 
-    - name: Configure cinder AZ
-      lineinfile:
-        dest: /etc/openstack_deploy/user_variables.yml
-        insertafter: EOF
-        state: present
-        line: "cinder_default_availability_zone: cinderAZ_1"
-      tags:
-        - set-cinder-default-az
+    - name: "RabbitMQ Install"
+      script: scripts/09-rabbitmq-install
 
-    - name: Copy openstack_user_config.yml
-      copy:
-        src: templates/openstack_user_config.yml
-        dest: /etc/openstack_deploy/openstack_user_config.yml
-        owner: root
-        group: root
-        mode: 0600
-      tags:
-        - copy-user-config
+    - name: "Utility Install"
+      script: scripts/10-utility-install
 
-    - name: Copy swift.yml
-      copy:
-        src: templates/swift.yml
-        dest: /etc/openstack_deploy/conf.d/swift.yml
-        owner: root
-        group: root
-        mode: 0600
-      tags:
-        - copy-swift-config
+    - name: "rsyslog Install"
+      script: scripts/11-rsyslog-install
 
-    - name: Build openstack-ansible inventory
-      command: python /opt/openstack-ansible/playbooks/inventory/dynamic_inventory.py
-      tags:
-        - generate-inventory
+    - name: "OS Keystone Install"
+      script: scripts/12-os-keystone-install
 
-    - name: Wait for inventory to build
-      pause: seconds=10
+    - name: "OS Glance Install"
+      script: scripts/13-os-glance-install
 
-    - name: Enable VPX login
-      script: scripts/vpx-login-setup.sh
-      register: result
-      failed_when: "result.stderr != ''"
-      tags:
-        - vpx-login-setup
+    - name: "OS Cinder Install"
+      script: scripts/14-os-cinder-install
 
-    - name: Add containers to VPX
-      shell: |
-        ssh nsroot@10.5.0.4 <<EOF
-        `bash /root/rpcops-onmetal-labconfigurator/resources/files/vpx-configurator`
-        EOF
+    - name: "OS Nova Install"
+      script: scripts/15-os-nova-install
 
-    - name: Run openstack-ansible deployment
-      command: openstack-ansible setup-everything.yml
-      args:
-        chdir: /opt/openstack-ansible/playbooks
+    - name: "OS Neutron Install"
+      script: scripts/16-os-neutron-install
+
+    - name: "OS Heat Install"
+      script: scripts/17-os-heat-install
+
+    - name: "OS Horizon Install"
+      script: scripts/18-os-horizon-install
+
+    - name: "OS Ceilometer Install"
+      script: scripts/19-os-ceilometer-install
+
+    - name: "OS Aodh Install"
+      script: scripts/20-os-aodh-install
+
+    - name: "OS Swift Install"
+      script: scripts/21-os-swift-install
+
+    - name: "OS Ironic Install"
+      script: scripts/22-os-ironic-install
