@@ -23,3 +23,5 @@ server/*
 .idea/dictionaries/codebauss.xml
 
 .idea/dictionaries/melv7301.xml
+
+*.pyc
