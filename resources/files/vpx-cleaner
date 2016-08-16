@@ -46,10 +46,14 @@ ssh -o BatchMode=yes nsroot@$__LBHOSTNAME__ 'exit'
 #EOF
 #fi
 if [ $? -eq 0 ]; then
+  # Number of servers
+  ns=`ssh nsroot@10.5.0.4 'show server'|awk 'BEGIN { count=0 } /Name/ { count++ } END { print count }'`
+  if [ $ns -ne 0 ]; then
   # Remove all containers from the VPX
-  for server in `ssh nsroot@10.5.0.4 'show server'|awk '/Name/ { print $3 }'`
-  do
-    ssh nsroot@10.5.0.4 "rm server $server"
-  done
-  ssh nsroot@10.5.0.4 'save config'
+    for server in `ssh nsroot@10.5.0.4 'show server'|awk '/Name/ { print $3 }'`
+    do
+      ssh nsroot@10.5.0.4 "rm server $server"
+    done
+    ssh nsroot@10.5.0.4 'save config'
+  fi
 fi
