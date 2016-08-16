@@ -74,6 +74,33 @@ __Server will reboot and take about 4 minutes to become accessible again__
 
 # Installation
 ## Full Automation Installation Steps##
+_be sure you have met the requirements listed above_  
+
+__Build and Prepare OnMetal Server__
+```shell
+# Tag needs to be passed (dfw or iad)
+ansible-playbook build_onmetal.yaml --tags 'iad'
+ansible-playbook -i hosts get_onmetal_facts.yaml --tags 'iad'
+ansible-playbook -i hosts prepare_onmetal.yaml
+ansible-playbook -i hosts set_onmetal_cpu.yaml
+ansible-playbook -i hosts configure_onmetal.yaml
+ansible-playbook -i hosts create_lab.yaml
+```  
+
+__Deploy OpenStack-Ansible__
+```shell
+ansible-playbook -i hosts prepare_for_osa.yaml
+ansible-playbook -i hosts deploy_osa.yaml
+```  
+
+__Clean and Delete OnMetal Host__
+```shell
+ansible-playbook -i hosts destroy_virtual_machines.yaml
+ansible-playbook -i hosts destroy_virtual_networks.yaml
+ansible-playbook -i hosts destroy_lab_state_file.yaml
+# Tag needs to be the same as used when building
+ansible-playbook -i hosts destroy_onmetal.yaml --tags 'iad'
+```  
 
 ## Manual Installation Steps - non rpc-openstack##
 ```shell
