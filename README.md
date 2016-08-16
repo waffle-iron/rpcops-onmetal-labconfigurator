@@ -2,7 +2,7 @@
 Configuration script that builds out a X node lab environment for onboarding and testing purposes for Rackspace Private Cloud.  
 
 # Requirements
-# Full Automation Requirements  (WIP)
+# Full Automation Requirements
 **i.e. localhost (can be your local machine or cloud server) NOT OnMetal host**
 ##### Rackspace Public Cloud Credentials  
 _.raxpub_ file **in the repo directory** formatted like this:  
