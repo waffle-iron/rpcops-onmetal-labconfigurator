@@ -3,6 +3,7 @@
 *.iso
 *.tar.gz
 *.tgz
+hosts
 pxe
 pxe/*
 server
