@@ -3,6 +3,7 @@
 - name: "Deploy RPC OpenStack"
   become: yes
   remote_user: root
+  host: "{{ deploy_host | default('infra01') }}"
 
   tasks:
     - name: Get Repo
