@@ -76,7 +76,8 @@ __Server will reboot and take about 4 minutes to become accessible again__
 ## Full Automation Installation Steps##
 _be sure you have met the requirements listed above_  
 
-__Build and Prepare OnMetal Server__
+__Build and Prepare OnMetal Server__  
+_there's a script for this - launch_phase.sh_
 ```shell
 # Tag needs to be passed (dfw or iad)
 ansible-playbook build_onmetal.yaml --tags 'iad'
@@ -87,13 +88,15 @@ ansible-playbook -i hosts configure_onmetal.yaml
 ansible-playbook -i hosts create_lab.yaml
 ```  
 
-__Deploy OpenStack-Ansible__
+__Deploy OpenStack-Ansible__  
+_there's a script for this - deploy_phase.sh_
 ```shell
 ansible-playbook -i hosts prepare_for_osa.yaml
 ansible-playbook -i hosts deploy_osa.yaml
 ```  
 
-__Clean and Delete OnMetal Host__
+__Clean and Delete OnMetal Host__  
+_there's a script for this - destroy_phase.sh_
 ```shell
 ansible-playbook -i hosts destroy_virtual_machines.yaml
 ansible-playbook -i hosts destroy_virtual_networks.yaml
