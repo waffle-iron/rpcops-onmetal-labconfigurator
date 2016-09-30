@@ -1,7 +1,31 @@
 #!/bin/bash
 
 # Configure servers/services
-cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name") \($server."ansible_ssh_host")"'|grep -i container|while read i; do echo "add server ${i}"; done;
+cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name") \($server."ansible_ssh_host")"'|grep container|while read i; do echo "add server ${i}"; done;
+
+# Configure ServiceGroups / Pools
+echo 'add serviceGroup RPC_POOL_HORIZON HTTP -maxClient 0 -maxReq 0 -cip DISABLED -usip NO -useproxyport YES -cltTimeout 180 -svrTimeout 360 -CKA NO -TCPB NO -CMP NO'
+echo 'add serviceGroup RPC_POOL_HORIZON_SSL HTTP -maxClient 0 -maxReq 0 -cip DISABLED -usip NO -useproxyport YES -cltTimeout 180 -svrTimeout 360 -CKA NO -TCPB NO -CMP NO'
+echo 'add serviceGroup RPC_POOL_KEYSTONE_SERVICE TCP -maxClient 0 -maxReq 0 -cip DISABLED -usip NO -useproxyport YES -cltTimeout 9000 -svrTimeout 9000 -CKA NO -TCPB NO -CMP NO'
+echo 'add serviceGroup RPC_POOL_GALERA TCP -maxClient 0 -maxReq 0 -cip DISABLED -usip NO -useproxyport YES -cltTimeout 9000 -svrTimeout 9000 -CKA NO -TCPB NO -CMP NO'
+echo 'add serviceGroup RPC_POOL_ELASTICSEARCH TCP -maxClient 0 -maxReq 0 -cip DISABLED -usip NO -useproxyport YES -cltTimeout 9000 -svrTimeout 9000 -CKA NO -TCPB NO -CMP NO'
+echo 'add serviceGroup RPC_POOL_NEUTRON_SERVER TCP -maxClient 0 -maxReq 0 -cip DISABLED -usip NO -useproxyport YES -cltTimeout 9000 -svrTimeout 9000 -CKA NO -TCPB NO -CMP NO'
+echo 'add serviceGroup RPC_POOL_NOVA_API_EC2 TCP -maxClient 0 -maxReq 0 -cip DISABLED -usip NO -useproxyport YES -cltTimeout 9000 -svrTimeout 9000 -CKA NO -TCPB NO -CMP NO'
+echo 'add serviceGroup RPC_POOL_HEAT_API TCP -maxClient 0 -maxReq 0 -cip DISABLED -usip NO -useproxyport YES -cltTimeout 9000 -svrTimeout 9000 -CKA NO -TCPB NO -CMP NO'
+echo 'add serviceGroup RPC_POOL_CINDER_API TCP -maxClient 0 -maxReq 0 -cip DISABLED -usip NO -useproxyport YES -cltTimeout 9000 -svrTimeout 9000 -CKA NO -TCPB NO -CMP NO'
+echo 'add serviceGroup RPC_POOL_KIBANA TCP -maxClient 0 -maxReq 0 -cip DISABLED -usip NO -useproxyport YES -cltTimeout 9000 -svrTimeout 9000 -CKA NO -TCPB NO -CMP NO'
+echo 'add serviceGroup RPC_POOL_NOVA_API_METADATA HTTP -maxClient 0 -maxReq 0 -cip DISABLED -usip NO -useproxyport YES -cltTimeout 180 -svrTimeout 360 -CKA NO -TCPB NO -CMP NO'
+echo 'add serviceGroup RPC_POOL_NOVA_API_OS_COMPUTE TCP -maxClient 0 -maxReq 0 -cip DISABLED -usip NO -useproxyport YES -cltTimeout 9000 -svrTimeout 9000 -CKA NO -TCPB NO -CMP NO'
+echo 'add serviceGroup RPC_POOL_GLANCE_API TCP -maxClient 0 -maxReq 0 -cip DISABLED -usip NO -useproxyport YES -cltTimeout 9000 -svrTimeout 9000 -CKA NO -TCPB NO -CMP NO'
+echo 'add serviceGroup RPC_POOL_NOVA_SPICE_CONSOLE HTTP -maxClient 0 -maxReq 0 -cip DISABLED -usip NO -useproxyport YES -cltTimeout 180 -svrTimeout 360 -CKA NO -TCPB NO -CMP NO'
+echo 'add serviceGroup RPC_POOL_HEAT_API_CLOUDWATCH TCP -maxClient 0 -maxReq 0 -cip DISABLED -usip NO -useproxyport YES -cltTimeout 9000 -svrTimeout 9000 -CKA NO -TCPB NO -CMP NO'
+echo 'add serviceGroup RPC_POOL_HEAT_API_CFN TCP -maxClient 0 -maxReq 0 -cip DISABLED -usip NO -useproxyport YES -cltTimeout 9000 -svrTimeout 9000 -CKA NO -TCPB NO -CMP NO'
+echo 'add serviceGroup RPC_POOL_GLANCE_REGISTRY TCP -maxClient 0 -maxReq 0 -cip DISABLED -usip NO -useproxyport YES -cltTimeout 9000 -svrTimeout 9000 -CKA NO -TCPB NO -CMP NO'
+echo 'add serviceGroup RPC_POOL_SWIFT HTTP -maxClient 0 -maxReq 0 -cip DISABLED -usip NO -useproxyport YES -cltTimeout 180 -svrTimeout 360 -CKA NO -TCPB NO -CMP NO'
+echo 'add serviceGroup RPC_POOL_KEYSTONE_ADMIN TCP -maxClient 0 -maxReq 0 -cip DISABLED -usip NO -useproxyport YES -cltTimeout 9000 -svrTimeout 9000 -CKA NO -TCPB NO -CMP NO'
+echo 'add serviceGroup RPC_POOL_KIBANA_SSL TCP -maxClient 0 -maxReq 0 -cip DISABLED -usip NO -useproxyport YES -cltTimeout 9000 -svrTimeout 9000 -CKA NO -TCPB NO -CMP NO'
+echo 'add serviceGroup RPC_POOL_REPO HTTP -maxClient 0 -maxReq 0 -cip DISABLED -usip NO -useproxyport YES -cltTimeout 180 -svrTimeout 360 -CKA NO -TCPB NO -CMP NO'
+echo 'add serviceGroup RPC_POOL_REPO_CACHE HTTP -maxClient 0 -maxReq 0 -cip DISABLED -usip NO -useproxyport YES -cltTimeout 180 -svrTimeout 360 -CKA NO -TCPB NO -CMP NO'
 
 # Bind servers/services to ServiceGroups / Pools
 cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep -i infra01.*horizon.*container|while read i; do echo "bind serviceGroup RPC_POOL_HORIZON ${i} 80"; done;
@@ -26,9 +50,58 @@ cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[]
 cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep -i infra01.*keystone.*container|while read i; do echo "bind serviceGroup RPC_POOL_KEYSTONE_ADMIN ${i} 35357"; done;
 cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep -i kibana.*container|while read i; do echo "bind serviceGroup RPC_POOL_KIBANA_SSL ${i} 8443"; done;
 cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep -i infra01.*repo.*container|while read i; do echo "bind serviceGroup RPC_POOL_REPO ${i} 8181"; done;
+cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep -i repo.*container|while read i; do echo "bind serviceGroup RPC_POOL_REPO_CACHE ${i} 3142"; done;
 cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep -i aodh.*container|while read i; do echo "bind serviceGroup RPC_POOL_AODH ${i} 8042"; done;
 cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep -i ceilometer.*container|while read i; do echo "bind serviceGroup RPC_POOL_CEILOMETER_API ${i} 8777"; done;
 cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep -i sahara.*container|while read i; do echo "bind serviceGroup RPC_POOL_SAHARA ${i} 8386"; done;
 cat /etc/openstack_deploy/openstack_inventory.json | jq -r '._meta | .hostvars[] as $server | "\($server."container_name")"'|grep -i murano.*container|while read i; do echo "bind serviceGroup RPC_POOL_MURANO ${i} 8082"; done;
+
+# Create VS
+echo 'add lb vserver RPC_VS_GALERA TCP 172.29.236.100 3306 -persistenceType NONE -Listenpolicy None -cltTimeout 9000'
+echo 'add lb vserver RPC_VS_KEYSTONE_SERVICE TCP 172.29.236.100 5000 -persistenceType NONE -Listenpolicy None -cltTimeout 9000'
+echo 'add lb vserver RPC_VS_ELASTICSEARCH TCP 172.29.236.100 9200 -persistenceType NONE -Listenpolicy None -cltTimeout 9000'
+echo 'add lb vserver RPC_VS_NEUTRON_SERVER TCP 172.29.236.100 9696 -persistenceType NONE -Listenpolicy None -cltTimeout 9000'
+echo 'add lb vserver RPC_VS_NOVA_API_EC2 TCP 172.29.236.100 8773 -persistenceType NONE -Listenpolicy None -cltTimeout 9000'
+echo 'add lb vserver RPC_VS_HORIZON_SSL HTTP 172.29.236.100 443 -persistenceType NONE -Listenpolicy None -cltTimeout 180'
+echo 'add lb vserver RPC_VS_HEAT_API TCP 172.29.236.100 8004 -persistenceType NONE -Listenpolicy None -cltTimeout 9000'
+echo 'add lb vserver RPC_VS_CINDER_API TCP 172.29.236.100 8776 -persistenceType NONE -Listenpolicy None -cltTimeout 9000'
+echo 'add lb vserver RPC_VS_KIBANA TCP 172.29.236.100 8888 -persistenceType NONE -Listenpolicy None -cltTimeout 9000'
+echo 'add lb vserver RPC_VS_NOVA_API_METADATA HTTP 172.29.236.100 8775 -persistenceType NONE -Listenpolicy None -cltTimeout 180'
+echo 'add lb vserver RPC_VS_NOVA_API_OS_COMPUTE TCP 172.29.236.100 8774 -persistenceType NONE -Listenpolicy None -cltTimeout 9000'
+echo 'add lb vserver RPC_VS_GLANCE_API TCP 172.29.236.100 9292 -persistenceType NONE -Listenpolicy None -cltTimeout 9000'
+echo 'add lb vserver RPC_VS_NOVA_SPICE_CONSOLE HTTP 172.29.236.100 6082 -persistenceType NONE -Listenpolicy None -cltTimeout 180'
+echo 'add lb vserver RPC_VS_HEAT_API_CLOUDWATCH TCP 172.29.236.100 8003 -persistenceType NONE -Listenpolicy None -cltTimeout 9000'
+echo 'add lb vserver RPC_VS_HORIZON HTTP 172.29.236.100 80 -persistenceType NONE -Listenpolicy None -cltTimeout 180'
+echo 'add lb vserver RPC_VS_HEAT_API_CFN TCP 172.29.236.100 8000 -persistenceType NONE -Listenpolicy None -cltTimeout 9000'
+echo 'add lb vserver RPC_VS_GLANCE_REGISTRY TCP 172.29.236.100 9191 -persistenceType NONE -Listenpolicy None -cltTimeout 9000'
+echo 'add lb vserver RPC_VS_SWIFT HTTP 172.29.236.100 8080 -persistenceType NONE -Listenpolicy None -cltTimeout 180'
+echo 'add lb vserver RPC_VS_KEYSTONE_ADMIN TCP 172.29.236.100 35357 -persistenceType NONE -Listenpolicy None -cltTimeout 9000'
+echo 'add lb vserver RPC_VS_KIBANA_SSL TCP 172.29.236.100 8443 -persistenceType NONE -Listenpolicy None -cltTimeout 9000'
+echo 'add lb vserver RPC_VS_REPO HTTP 172.29.236.100 8181 -persistenceType NONE -Listenpolicy None -cltTimeout 180'
+echo 'add lb vserver RPC_VS_REPO_CACHE HTTP 172.29.236.100 3142 -persistenceType NONE -Listenpolicy None -cltTimeout 180'
+
+# Bind VS to ServiceGroup
+echo 'bind lb vserver RPC_VS_HORIZON RPC_POOL_HORIZON'
+echo 'bind lb vserver RPC_VS_HORIZON_SSL RPC_POOL_HORIZON_SSL'
+echo 'bind lb vserver RPC_VS_KEYSTONE_SERVICE RPC_POOL_KEYSTONE_SERVICE'
+echo 'bind lb vserver RPC_VS_GALERA RPC_POOL_GALERA'
+echo 'bind lb vserver RPC_VS_ELASTICSEARCH RPC_POOL_ELASTICSEARCH'
+echo 'bind lb vserver RPC_VS_NEUTRON_SERVER RPC_POOL_NEUTRON_SERVER'
+echo 'bind lb vserver RPC_VS_NOVA_API_EC2 RPC_POOL_NOVA_API_EC2'
+echo 'bind lb vserver RPC_VS_HEAT_API RPC_POOL_HEAT_API'
+echo 'bind lb vserver RPC_VS_CINDER_API RPC_POOL_CINDER_API'
+echo 'bind lb vserver RPC_VS_KIBANA RPC_POOL_KIBANA'
+echo 'bind lb vserver RPC_VS_NOVA_API_METADATA RPC_POOL_NOVA_API_METADATA'
+echo 'bind lb vserver RPC_VS_NOVA_API_OS_COMPUTE RPC_POOL_NOVA_API_OS_COMPUTE'
+echo 'bind lb vserver RPC_VS_GLANCE_API RPC_POOL_GLANCE_API'
+echo 'bind lb vserver RPC_VS_NOVA_SPICE_CONSOLE RPC_POOL_NOVA_SPICE_CONSOLE'
+echo 'bind lb vserver RPC_VS_HEAT_API_CLOUDWATCH RPC_POOL_HEAT_API_CLOUDWATCH'
+echo 'bind lb vserver RPC_VS_HEAT_API_CFN RPC_POOL_HEAT_API_CFN'
+echo 'bind lb vserver RPC_VS_GLANCE_REGISTRY RPC_POOL_GLANCE_REGISTRY'
+echo 'bind lb vserver RPC_VS_SWIFT RPC_POOL_SWIFT'
+echo 'bind lb vserver RPC_VS_KEYSTONE_ADMIN RPC_POOL_KEYSTONE_ADMIN'
+echo 'bind lb vserver RPC_VS_KIBANA_SSL RPC_POOL_KIBANA_SSL'
+echo 'bind lb vserver RPC_VS_REPO RPC_POOL_REPO'
+echo 'bind lb vserver RPC_VS_REPO_CACHE RPC_POOL_REPO_CACHE'
 
 echo -e "save config\n"
