@@ -285,9 +285,29 @@ cat << EON > rpcops-public00-net.xml
   <domain name='public00'/>
   <ip address='192.168.0.1' netmask='255.255.255.0'>
   </ip>
-  <ip address='192.168.239.1' netmask='255.255.252.0'>
+  <ip address='192.168.239.1' netmask='255.255.255.0'>
   </ip>
-  <ip address='192.168.240.1' netmask='255.255.252.0'>
+  <ip address='192.168.240.1' netmask='255.255.255.0'>
+  </ip>
+  <ip address='192.168.241.1' netmask='255.255.255.0'>
+  </ip>
+  <ip address='192.168.242.1' netmask='255.255.255.0'>
+  </ip>
+  <ip address='192.168.243.1' netmask='255.255.255.0'>
+  </ip>
+  <ip address='192.168.244.1' netmask='255.255.255.0'>
+  </ip>
+  <ip address='192.168.245.1' netmask='255.255.255.0'>
+  </ip>
+  <ip address='192.168.246.1' netmask='255.255.255.0'>
+  </ip>
+  <ip address='192.168.247.1' netmask='255.255.255.0'>
+  </ip>
+  <ip address='192.168.248.1' netmask='255.255.255.0'>
+  </ip>
+  <ip address='192.168.249.1' netmask='255.255.255.0'>
+  </ip>
+  <ip address='192.168.250.1' netmask='255.255.255.0'>
   </ip>
 </network>
 EON
