@@ -74,23 +74,48 @@ empty -w -t 30 -i output.fifo -o input.fifo "vyos\@firewall" "commit\\n"
 
 host_nat_net = '192.168.239.0/24'
 node_nat_net = '10.239.0.0/24'
-host_flt_net = '192.168.240.0/22'
-node_flt_net = '10.240.0.0/22'
 
 host_nat_ips = IPNetwork(host_nat_net).iter_hosts()
 node_nat_ips = IPNetwork(node_nat_net).iter_hosts()
-host_flt_ips = IPNetwork(host_flt_net).iter_hosts()
-node_flt_ips = IPNetwork(node_flt_net).iter_hosts()
 
 next(host_nat_ips)
 next(node_nat_ips)
-next(host_flt_ips)
-next(node_flt_ips)
 
 host_nips = [str(host_nat_ip) for host_nat_ip in host_nat_ips]
 node_nip = [str(node_nat_ip) for node_nat_ip in node_nat_ips]
-host_fips = [str(host_flt_ip) for host_flt_ip in host_flt_ips]
-node_fip = [str(node_flt_ip) for node_flt_ip in node_flt_ips]
+
+
+floating_networks = 11
+flt_network_base = 240
+flt_vlan_base = 205
+host_flt_network = '192.168.' + str(flt_network_base) + '.0/24'
+node_flt_network = '10.' + str(flt_network_base) + '.0.0/24'
+host_fips = []
+node_fip = []
+
+while floating_networks > 0:
+    floating_networks -= 1
+    host_flt_network = '192.168.' + str(flt_network_base) + '.0/24'
+    node_flt_network = '10.' + str(flt_network_base) + '.0.0/24'
+    host_flt_ips = IPNetwork(host_flt_network).iter_hosts()
+    node_flt_ips = IPNetwork(node_flt_network).iter_hosts()
+    next(host_flt_ips)
+    next(node_flt_ips)
+    host_fips.extend([str(host_flt_ip) for host_flt_ip in host_flt_ips])
+    node_fip.extend([str(node_flt_ip) for node_flt_ip in node_flt_ips])
+    flt_network_base += 1
+
+# host_flt_networks = []
+# node_flt_networks = []
+#
+# host_flt_ips = IPNetwork(host_flt_net).iter_hosts()
+# node_flt_ips = IPNetwork(node_flt_net).iter_hosts()
+#
+# next(host_flt_ips)
+# next(node_flt_ips)
+#
+# host_fips = [str(host_flt_ip) for host_flt_ip in host_flt_ips]
+# node_fip = [str(node_flt_ip) for node_flt_ip in node_flt_ips]
 
 for index, host_nip in enumerate(host_nips):
     print 'empty -w -t 30 -i output.fifo -o input.fifo \"vyos\\@firewall\" \"set interfaces ethernet eth0 address %s/24\\n\"' % host_nip
@@ -104,7 +129,7 @@ empty -w -t 30 -i output.fifo -o input.fifo "vyos\@firewall" "commit\\n"
 """
 
 for index, host_fip in enumerate(host_fips):
-    print 'empty -w -t 30 -i output.fifo -o input.fifo \"vyos\\@firewall\" \"set interfaces ethernet eth0 address %s/22\\n\"' % host_fip
+    print 'empty -w -t 30 -i output.fifo -o input.fifo \"vyos\\@firewall\" \"set interfaces ethernet eth0 address %s/24\\n\"' % host_fip
 
 print """
 
@@ -198,6 +223,16 @@ empty -w -t 30 -i output.fifo -o input.fifo "vyos\@firewall" "commit\\n"
 empty -w -t 30 -i output.fifo -o input.fifo "vyos\@firewall" "set protocols static route 0.0.0.0/0 next-hop 192.168.0.1\\n"
 empty -w -t 30 -i output.fifo -o input.fifo "vyos\@firewall" "set protocols static route 10.239.0.0/22 next-hop 172.24.96.249\\n"
 empty -w -t 30 -i output.fifo -o input.fifo "vyos\@firewall" "set protocols static route 10.240.0.0/22 next-hop 172.24.96.249\\n"
+empty -w -t 30 -i output.fifo -o input.fifo "vyos\@firewall" "set protocols static route 10.241.0.0/22 next-hop 172.24.96.249\\n"
+empty -w -t 30 -i output.fifo -o input.fifo "vyos\@firewall" "set protocols static route 10.242.0.0/22 next-hop 172.24.96.249\\n"
+empty -w -t 30 -i output.fifo -o input.fifo "vyos\@firewall" "set protocols static route 10.243.0.0/22 next-hop 172.24.96.249\\n"
+empty -w -t 30 -i output.fifo -o input.fifo "vyos\@firewall" "set protocols static route 10.244.0.0/22 next-hop 172.24.96.249\\n"
+empty -w -t 30 -i output.fifo -o input.fifo "vyos\@firewall" "set protocols static route 10.245.0.0/22 next-hop 172.24.96.249\\n"
+empty -w -t 30 -i output.fifo -o input.fifo "vyos\@firewall" "set protocols static route 10.246.0.0/22 next-hop 172.24.96.249\\n"
+empty -w -t 30 -i output.fifo -o input.fifo "vyos\@firewall" "set protocols static route 10.247.0.0/22 next-hop 172.24.96.249\\n"
+empty -w -t 30 -i output.fifo -o input.fifo "vyos\@firewall" "set protocols static route 10.248.0.0/22 next-hop 172.24.96.249\\n"
+empty -w -t 30 -i output.fifo -o input.fifo "vyos\@firewall" "set protocols static route 10.249.0.0/22 next-hop 172.24.96.249\\n"
+empty -w -t 30 -i output.fifo -o input.fifo "vyos\@firewall" "set protocols static route 10.250.0.0/22 next-hop 172.24.96.249\\n"
 empty -w -t 30 -i output.fifo -o input.fifo "vyos\@firewall" "set protocols static route 172.29.236.0/22 next-hop 172.24.96.249\\n"
 empty -w -t 30 -i output.fifo -o input.fifo "vyos\@firewall" "set protocols static route 172.29.240.0/22 next-hop 172.24.96.249\\n"
 empty -w -t 30 -i output.fifo -o input.fifo "vyos\@firewall" "set protocols static route 172.29.244.0/22 next-hop 172.24.96.249\\n"
