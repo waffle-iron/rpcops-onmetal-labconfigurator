@@ -15,6 +15,7 @@
 # create_lab
 # destroy_lab
 # reset_lab
+# host_to_os_ports
 
 function wait_ssh() {
 echo "Waiting for all nodes to become available."
