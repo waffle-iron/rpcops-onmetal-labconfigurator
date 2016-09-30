@@ -1,6 +1,8 @@
 ## rpcops-onmetal-labconfigurator
 Configuration script that builds out a X node lab environment for onboarding and testing purposes for Rackspace Private Cloud.  
 
+![High Level Overview](overview.png)  
+
 # Requirements
 # Full Automation Requirements
 **i.e. localhost (can be your local machine or cloud server) NOT OnMetal host**
