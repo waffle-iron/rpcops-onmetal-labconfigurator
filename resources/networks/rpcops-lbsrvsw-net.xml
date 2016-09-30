@@ -19,6 +19,11 @@
       <tag id='208'/>
       <tag id='209'/>
       <tag id='210'/>
+      <tag id='211'/>
+      <tag id='212'/>
+      <tag id='213'/>
+      <tag id='214'/>
+      <tag id='215'/>
     </vlan>
   </portgroup>
   <portgroup name='lbsrv0'>
@@ -37,7 +42,11 @@
       <tag id='208'/>
       <tag id='209'/>
       <tag id='210'/>
+      <tag id='211'/>
+      <tag id='212'/>
+      <tag id='213'/>
+      <tag id='214'/>
+      <tag id='215'/>
     </vlan>
   </portgroup>
 </network>
-
