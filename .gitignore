@@ -3,7 +3,10 @@
 *.iso
 *.tar.gz
 *.tgz
+*.retry
 hosts
+host
+inventory
 pxe
 pxe/*
 server
