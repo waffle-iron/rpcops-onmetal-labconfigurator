@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/mrhillsman/rpcops-onmetal-labconfigurator.png?label=ready&title=Ready)](https://waffle.io/mrhillsman/rpcops-onmetal-labconfigurator)
 ## rpcops-onmetal-labconfigurator
 Configuration script that builds out a X node lab environment for onboarding and testing purposes for Rackspace Private Cloud.  
 
